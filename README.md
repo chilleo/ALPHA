@@ -151,6 +151,7 @@ All images can be exported to a desired save location, renamed and saved as one 
         ```
     - If the command returns "Python 2.7.13" skip to step 3, Otherwise proceed.
     - Download and Install [Python 2.7.13](https://www.python.org/downloads/)
+    
 
 3) Install [Homebrew](https://brew.sh/)
     - In terminal run:
@@ -164,6 +165,7 @@ All images can be exported to a desired save location, renamed and saved as one 
     - In terminal run:
     
         ```
+        brew install sip
         brew install cartr/qt4/pyqt
         ```
 
@@ -190,6 +192,26 @@ All images can be exported to a desired save location, renamed and saved as one 
         ```
         python main.py
         ```
+
+## Common Installation Errors
+
+### Installing Xcode 
+If prompted, install the latest verson of [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12).
+
+### Python 2.7.13 Installation
+If the command in Step 2 does not return "Python 2.7.13" after you have installed it, run:
+    
+        
+        export PATH="/path/to/your/python2.7.13/bin:${PATH}"
+        
+        
+The command in Step 2 should now return "Python 2.7.13".
+
+### No module named SIP
+If you receive this error after running the command in Step 7, run this command:
+    
+        mkdir -p /Users/owner/Library/Python/2.7/lib/python/site-packages echo 'import site; site.addsitedir("/usr/local/lib/python2.7/site-packages")'
+        
 
 ## References
 
