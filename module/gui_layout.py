@@ -1575,7 +1575,7 @@ class Ui_PhylogeneticVisualization(object):
         self.msSecondFileBtn.setText(_translate("PhylogeneticVisualization", "...", None))
         self.msUploadAnother.setText(_translate("PhylogeneticVisualization", "+", None))
         self.label_24.setText(_translate("PhylogeneticVisualization", "Graphs", None))
-        self.checkboxRobinsonFouldsBarPlot.setText(_translate("PhylogeneticVisualization", "Robinson Foulds Distance from MS Truth - Bar Plot", None))
+        self.checkboxRobinsonFouldsBarPlot.setText(_translate("PhylogeneticVisualization", "Robinson Foulds Distance from MS Truth - Line Graph", None))
         self.checkboxPercentMatchingSitesGraph.setText(_translate("PhylogeneticVisualization", "Percent Matching Sites Bar Plot", None))
         self.checkboxTMRCAGraph.setText(_translate("PhylogeneticVisualization", "TMRCA Line Graph", None))
         self.msCompareBtn.setText(_translate("PhylogeneticVisualization", "Compare", None))

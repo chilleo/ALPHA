@@ -296,11 +296,11 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
     def plotMSCompare(self, unweightedData, percentMatchingSitesUnweighted, sitesToNewickMsMaps, msFiles, msTruthLabel):
         if self.msComparison.robinsonFouldsBarPlot:
-            self.msRobinsonFouldsWindow = msRobinsonFouldsWindow.MSRobinsonFouldsWindow('Unweighted', unweightedData)
+            self.msRobinsonFouldsWindow = msRobinsonFouldsWindow.MSRobinsonFouldsWindow('Robinson Foulds Distance From MS Truth', unweightedData, groupLabels1=msFiles)
 
         if self.msComparison.percentMatchingSitesBarPlot:
             msFilesWithValues = list(map(lambda (i, msFileName): msFileName + ":" + str('%.3f'%(percentMatchingSitesUnweighted[i])), enumerate(msFiles)))
-            self.msPercentMatchingWindow = msPercentMatchingWindow.MSPercentMatchingWindow('Unweighted', percentMatchingSitesUnweighted, groupLabels1=msFilesWithValues)
+            self.msPercentMatchingWindow = msPercentMatchingWindow.MSPercentMatchingWindow('Percent of Matching Topologies', percentMatchingSitesUnweighted, groupLabels1=msFilesWithValues)
 
         if self.msComparison.tmrcaLineGraph:
             self.msTMRCAWindow = msTMRCAWindow.MSTMRCAWindow(sitesToNewickMsMaps, [msTruthLabel] + msFiles)

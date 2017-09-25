@@ -277,7 +277,7 @@ class Plotter(QtCore.QThread):
         ax.set_xlabel(xLabel)
         ax.set_ylabel(yLabel)
 
-    def nlineGraph(self, dataSet, title, xLabel='', yLabel='', subplotPosition=111):
+    def nlineGraph(self, dataSet, title, xLabel='', yLabel='', subplotPosition=111, groupLabels1=()):
         """
             Create a line graph based on the inputted dictionary
 
@@ -300,6 +300,8 @@ class Plotter(QtCore.QThread):
             y = data.values()
 
             ax.plot(x, y, "-")
+
+        ax.legend(groupLabels1)
 
         return ax
 
