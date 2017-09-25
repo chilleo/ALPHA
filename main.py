@@ -533,6 +533,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
     def raxmlComplete(self):
         topologies_to_counts, unique_topologies_to_newicks = self.topologyPlotter.topology_counter(rooted=self.rooted, outgroup=self.outgroupComboBox.currentText())
         self.numberOfUniqueTopologiesLabel.setText(str(len(topologies_to_counts)))
+        self.generateFiguresWrapper.setEnabled(True)
         self.progressBar.setValue(100)
         self.runComplete = True
 
