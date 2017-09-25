@@ -2476,14 +2476,14 @@ Run RAxML -&gt; Advanced</string>
                     <number>5</number>
                    </property>
                    <item>
-                    <widget class="QLabel" name="msWindowOffsetLabel">
+                    <widget class="QLabel" name="msWindowSizeLabel">
                      <property name="text">
-                      <string>Window Offset:</string>
+                      <string>Window Size:</string>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="msWindowOffsetEntry">
+                    <widget class="QLineEdit" name="msWindowSizeEntry">
                      <property name="minimumSize">
                       <size>
                        <width>60</width>
@@ -2532,14 +2532,14 @@ Run RAxML -&gt; Advanced</string>
                     <number>5</number>
                    </property>
                    <item>
-                    <widget class="QLabel" name="msWindowSizeLabel">
+                    <widget class="QLabel" name="msWindowOffsetLabel">
                      <property name="text">
-                      <string>Window Size:</string>
+                      <string>Window Offset:</string>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="msWindowSizeEntry">
+                    <widget class="QLineEdit" name="msWindowOffsetEntry">
                      <property name="minimumSize">
                       <size>
                        <width>60</width>
