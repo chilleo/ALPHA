@@ -12,10 +12,10 @@ Peter Dulworth
 
 
 class AllTreesWindow(Window):
-    def __init__(self, title, colorScheme, rooted=False, outGroup=False):
+    def __init__(self, title, colorScheme, topologies_to_counts, rooted=False, outGroup=False):
         Window.__init__(self, windowTitle='All Trees Window', legend=False)
 
-        self.plotter.topologyColorizer(title, colorScheme, rooted=rooted, outgroup=outGroup)
+        self.plotter.topologyColorizer(title, colorScheme, topologies_to_counts, rooted=rooted, outgroup=outGroup)
         self.show()
 
 

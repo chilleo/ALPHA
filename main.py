@@ -1,5 +1,5 @@
 # utilities
-import sip, sys, os, re, webbrowser
+import sip, sys, os, re, webbrowser, random
 sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore
 from functools import partial
@@ -450,7 +450,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
                     # generate all trees graph
                     if (btnClicked == None and self.checkboxAllTrees.isChecked()) or btnClicked == self.checkboxAllTrees:
-                        self.allTreesWindow = allTreesWindow.AllTreesWindow('', topologies_to_colors, rooted=self.checkboxRooted.isChecked(), outGroup=self.outgroupComboBox.currentText())
+                        self.allTreesWindow = allTreesWindow.AllTreesWindow('', topologies_to_colors, topologies_to_counts, rooted=self.checkboxRooted.isChecked(), outGroup=self.outgroupComboBox.currentText())
 
     def raxmlInputErrorHandling(self):
         """

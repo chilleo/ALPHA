@@ -203,7 +203,7 @@ class Plotter(QtCore.QThread):
 
         return ax
 
-    def topologyColorizer(self, title, newicksToColors, rooted=False, outgroup=False):
+    def topologyColorizer(self, title, newicksToColors, topologies_to_counts, rooted=False, outgroup=False):
         """
             Create colored tree topology images based on a color scheme where the color of a tree is determined by the frequency that it occurs.
 
@@ -226,6 +226,7 @@ class Plotter(QtCore.QThread):
         count = 1
         # Iterate over each newick string in color_scheme
         for newick in newicksToColors:
+            newick_count = topologies_to_counts[newick]
             if newick != "Other":
 
                 if numTopTopologies < 4:
@@ -235,6 +236,8 @@ class Plotter(QtCore.QThread):
                     ax = plt.subplot(3, 3, order[count])
                 else:
                     ax = plt.subplot(int(round(numTopTopologies / 2.0)), 2, count)
+
+                ax.text(0, 0, str(newick_count) + ' Occurences' , style='italic')
 
                 # disable axis
                 ax.axis('off')

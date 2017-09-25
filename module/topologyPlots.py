@@ -10,7 +10,7 @@ from natsort import natsorted
 from Bio import Phylo
 from PIL import Image
 import numpy as np
-import math, os, re
+import math, os, re, random
 from dendropy.calculate import treecompare
 from dendropy import Tree
 import dendropy
