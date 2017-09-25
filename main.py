@@ -75,7 +75,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # mapping from: windows --> page index
         self.windows = {'welcomePage': 0, 'inputPageRax': 1, 'inputPageFileConverter': 2, 'inputPageMS': 3, 'inputPageDStatistic': 4}
         # mapping from: windows --> dictionary of page dimensions
-        self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 600, 'y': 600}, 'inputPageFileConverter': {'x': 459, 'y': 403}, 'inputPageMS': {'x': 600, 'y': 680}, 'inputPageDStatistic': {'x': 600, 'y': 600}}
+        self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 600, 'y': 600}, 'inputPageFileConverter': {'x': 459, 'y': 403}, 'inputPageMS': {'x': 600, 'y': 714}, 'inputPageDStatistic': {'x': 600, 'y': 600}}
         # mapping from: windows --> dictionary of page dimensions
         self.windowLocations = {'welcomePage': {'x': 600, 'y': 300}, 'inputPageRax': {'x': 500, 'y': 175}, 'inputPageFileConverter': {'x': 600, 'y': 300}, 'inputPageMS': {'x': 520, 'y': 100}, 'inputPageDStatistic': {'x': 500, 'y': 175}}
         # mapping from: mode --> page
@@ -255,8 +255,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
     # **************************** MS PAGE ****************************#
 
-    # LEO - added a comment, look at me!
-
     additionalFileCounter = 0
     additionalFileEntryNames = []
 
@@ -301,7 +299,9 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             self.msRobinsonFouldsWindow = msRobinsonFouldsWindow.MSRobinsonFouldsWindow('Unweighted', unweightedData)
 
         if self.msComparison.percentMatchingSitesBarPlot:
-            self.msPercentMatchingWindow = msPercentMatchingWindow.MSPercentMatchingWindow('Unweighted', percentMatchingSitesUnweighted, groupLabels1=msFiles)
+            msFilesWithValues = list(map(lambda (i, msFileName): msFileName + ":" + str('%.3f'%(percentMatchingSitesUnweighted[i])), enumerate(msFiles)))
+            self.percentMatchingLabel.setText(str(percentMatchingSitesUnweighted[0]))
+            self.msPercentMatchingWindow = msPercentMatchingWindow.MSPercentMatchingWindow('Unweighted', percentMatchingSitesUnweighted, groupLabels1=msFilesWithValues)
 
         if self.msComparison.tmrcaLineGraph:
             self.msTMRCAWindow = msTMRCAWindow.MSTMRCAWindow(sitesToNewickMsMaps, [msTruthLabel] + msFiles)
@@ -709,8 +709,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         elif validator == 'Int':
             entry.setValidator(QtGui.QIntValidator(entry))
 
-    # def resizeEvent(self, event):
-    #     print self.size()
+    def resizeEvent(self, event):
+        print self.size()
 
     # def moveEvent(self, QMoveEvent):
     #     print self.pos()

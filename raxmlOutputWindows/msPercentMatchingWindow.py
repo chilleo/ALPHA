@@ -14,7 +14,7 @@ class MSPercentMatchingWindow(Window):
     def __init__(self, title1, data1, xLabel1='', yLabel1='', groupLabels1=()):
         Window.__init__(self, windowTitle='Percent Sites Matching')
 
-        self.plotter.barPlot(title1, data1, xLabel=xLabel1, yLabel=yLabel1, groupLabels=groupLabels1, subplotPosition=211)
+        self.plotter.barPlot(title1, data1, xLabel=xLabel1, yLabel=yLabel1, groupLabels=groupLabels1, subplotPosition=111)
 
         self.show()
 

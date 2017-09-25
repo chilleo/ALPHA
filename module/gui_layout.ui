@@ -29,7 +29,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Phylogenetic Visualization</string>
+   <string>Alpha: Automated Local Phylogenomic Analyses</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -59,7 +59,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="welcomePage">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -1273,10 +1273,6 @@
                   </layout>
                  </item>
                 </layout>
-                <zorder>raxmlOptionsTabWidget</zorder>
-                <zorder>raxmlOptionsTabWidget</zorder>
-                <zorder>raxmlOptionsTabWidget</zorder>
-                <zorder>raxmlOptionsTabWidget</zorder>
                 <zorder>raxmlOptionsTabWidget</zorder>
                 <zorder></zorder>
                </widget>
@@ -2912,25 +2908,79 @@ Run RAxML -&gt; Advanced</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_13">
                  <item>
-                  <widget class="QCheckBox" name="checkboxRobinsonFouldsBarPlot">
-                   <property name="text">
-                    <string>Robinson Foulds Distance from MS Truth - Bar Plot</string>
-                   </property>
-                  </widget>
+                  <layout class="QHBoxLayout" name="horizontalLayout_50">
+                   <item>
+                    <widget class="QCheckBox" name="checkboxRobinsonFouldsBarPlot">
+                     <property name="text">
+                      <string>Robinson Foulds Distance from MS Truth - Bar Plot</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </item>
                  <item>
-                  <widget class="QCheckBox" name="checkboxPercentMatchingSitesGraph">
-                   <property name="text">
-                    <string>Percent Matching Sites Bar Plot</string>
+                  <layout class="QHBoxLayout" name="horizontalLayout_53">
+                   <property name="spacing">
+                    <number>1</number>
                    </property>
-                  </widget>
+                   <item>
+                    <widget class="QCheckBox" name="checkboxPercentMatchingSitesGraph">
+                     <property name="text">
+                      <string>Percent Matching Sites Bar Plot</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_11">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_39">
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <italic>true</italic>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>% of Matching Site Topologies: </string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="percentMatchingLabel">
+                     <property name="font">
+                      <font>
+                       <family>Arial</family>
+                       <italic>false</italic>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>null</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </item>
                  <item>
-                  <widget class="QCheckBox" name="checkboxTMRCAGraph">
-                   <property name="text">
-                    <string>TMRCA Line Graph</string>
-                   </property>
-                  </widget>
+                  <layout class="QHBoxLayout" name="horizontalLayout_52">
+                   <item>
+                    <widget class="QCheckBox" name="checkboxTMRCAGraph">
+                     <property name="text">
+                      <string>TMRCA Line Graph</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </item>
                 </layout>
                </widget>
