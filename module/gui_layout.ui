@@ -59,7 +59,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>3</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="welcomePage">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -1282,7 +1282,7 @@
                    <item>
                     <widget class="QProgressBar" name="progressBar">
                      <property name="value">
-                      <number>24</number>
+                      <number>0</number>
                      </property>
                      <property name="invertedAppearance">
                       <bool>false</bool>
@@ -1562,7 +1562,7 @@
                         <item>
                          <widget class="QCheckBox" name="checkboxRobinsonFoulds">
                           <property name="text">
-                           <string>RobinsonFoulds</string>
+                           <string>Robinson Foulds</string>
                           </property>
                          </widget>
                         </item>
