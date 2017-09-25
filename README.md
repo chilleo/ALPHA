@@ -141,7 +141,26 @@ All images can be exported to a desired save location, renamed and saved as one 
     
         ```
         make -f Makefile.gcc
+        rm *.o
+        make -f Makefile.SSE3.gcc
+        rm *.o
+        make -f Makefile.PTHREADS.gcc
+        rm *.o
+        make -f Makefile.PTHREADS.gcc
         ```
+    - Check that RAxML runs with the following command:
+        
+        ```
+        ./raxmlHPC -v
+        ```
+        
+    - 'cd' out of standard-RaxML-master and run:
+        
+        ```
+        cp raxmlHPC* /usr/local/bin/
+        raxmlHPC -v
+        ```
+    - If the last command shows the version, proceed. Otherwise, check the Common Errors section below. 
     
 2) Install [Python 2.7.13](https://www.python.org/downloads/)
     - Open a terminal window and run:
