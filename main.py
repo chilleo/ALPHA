@@ -300,7 +300,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         if self.msComparison.percentMatchingSitesBarPlot:
             msFilesWithValues = list(map(lambda (i, msFileName): msFileName + ":" + str('%.3f'%(percentMatchingSitesUnweighted[i])), enumerate(msFiles)))
-            self.percentMatchingLabel.setText(str(percentMatchingSitesUnweighted[0]))
             self.msPercentMatchingWindow = msPercentMatchingWindow.MSPercentMatchingWindow('Unweighted', percentMatchingSitesUnweighted, groupLabels1=msFilesWithValues)
 
         if self.msComparison.tmrcaLineGraph:
