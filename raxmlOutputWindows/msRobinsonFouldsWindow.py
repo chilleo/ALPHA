@@ -14,7 +14,7 @@ class MSRobinsonFouldsWindow(Window):
     def __init__(self, title, data, xLabel1='', yLabel1='', groupLabels1=()):
         Window.__init__(self, windowTitle='Robinson Foulds Distance From MS Truth')
 
-        self.plotter.nlineGraph(data, title, xLabel=xLabel1, yLabel=yLabel1, subplotPosition=111)
+        self.plotter.nlineGraph(data, title, xLabel="Site Indices", yLabel=yLabel1, subplotPosition=111, groupLabels1=groupLabels1)
 
         self.show()
 
