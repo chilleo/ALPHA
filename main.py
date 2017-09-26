@@ -5,7 +5,7 @@ from PyQt4 import QtGui, QtCore
 from functools import partial
 
 # GUI
-from raxmlOutputWindows import allTreesWindow, donutPlotWindow, scatterPlotWindow, circleGraphWindow, pgtstWindow, robinsonFouldsWindow, heatMapWindow, bootstrapContractionWindow, dStatisticWindow, msRobinsonFouldsWindow, msPercentMatchingWindow, msTMRCAWindow, windowsToInfSitesWindow
+from raxmlOutputWindows import allTreesWindow, donutPlotWindow, scatterPlotWindow, pgtstWindow, robinsonFouldsWindow, heatMapWindow, bootstrapContractionWindow, dStatisticWindow, msRobinsonFouldsWindow, msPercentMatchingWindow, msTMRCAWindow, windowsToInfSitesWindow
 from module import gui_layout as gui
 
 # logic
@@ -109,18 +109,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.resize(self.windowSizes['welcomePage']['x'], self.windowSizes['welcomePage']['y'])
         self.outputFileConverterEntry.setText(os.getcwd())
 
-        # boolean values denoting if a figure has been generated yet
-        self.treeVizGenerated = False
-        self.windowsToTopTopologiesGenerated = False
-        self.topTopologyFrequencyDonutGenerated = False
-        self.genomeAtlasGenerated = False
-        self.windowsToInfSitesGenerated = False
-        self.infSitesHeatMapGenerated = False
-        self.robinsonFouldsGenerated = False
-        self.pgtstGenerated = False
-
         # open documentation
-        self.actionDocumentation.triggered.connect(lambda: self.openURL('https://peterdulworth.github.io/PhyloVis'))
+        self.actionDocumentation.triggered.connect(lambda: self.openURL('https://github.com/chilleo/ALPHA'))
 
         # only allow integers in the following fields
         self.setValidator(self.windowSizeEntry, 'Int')
@@ -167,8 +157,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.connect(self.raxmlOperations, QtCore.SIGNAL('SPECIES_TREE_PER'), self.generateSpeciesTreeProgressBar.setValue)
         self.connect(self.raxmlOperations, QtCore.SIGNAL('SPECIES_TREE_COMPLETE'), partial(self.message, type='Err'))
         self.connect(self.raxmlOperations, QtCore.SIGNAL('INVALID_ALIGNMENT_FILE'), lambda: self.message('Invalid File', 'Invalid alignment file. Please choose another.', 'Make sure your file has 4 sequences and is in the phylip-relaxed format.', type='Err'))
-
-        # self.connect(self.topologyPlotter, QtCore.SIGNAL('CIRCLE_GRAPH_COMPLETE'), lambda: self.openWindow(self.circleGraphWindow))
 
         # run RAX_ML and generate graphs
         self.runBtn.clicked.connect(self.runRAxML)
@@ -394,68 +382,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         self.raxmlOperations.raxml_species_tree(self.raxmlOperations.inputFilename, rooted=self.raxmlOperations.speciesTreeRooted, outgroup=self.raxmlOperations.speciesTreeOutGroup, customRax=self.raxmlOperations.speciesTreeUseCustomRax, customRaxCommand=self.raxmlOperations.speciesTreeCustomRaxmlCommand)
 
-    def updatedDisplayWindows(self, btnClicked=None):
-        if btnClicked == None or btnClicked.isChecked():
-            if self.runComplete == True:
-                if self.raxmlInputErrorHandling():
-                    # run commands that are shared by all functions
-                    if self.getNumberChecked() > 0:
-                        num = self.topTopologies
-                        topologies_to_counts, unique_topologies_to_newicks = self.topologyPlotter.topology_counter(rooted=self.rooted, outgroup=self.outgroupComboBox.currentText())
-                        self.numberOfUniqueTopologiesLabel.setText(str(len(topologies_to_counts)))
-                        if num > len(topologies_to_counts):
-                            num = len(topologies_to_counts)
-                        list_of_top_counts, labels, sizes = self.topologyPlotter.top_freqs(num, topologies_to_counts)
-                        top_topologies_to_counts = self.topologyPlotter.top_topologies(num, topologies_to_counts)
-                        windows_to_top_topologies, top_topologies_list = self.topologyPlotter.windows_to_newick(top_topologies_to_counts, unique_topologies_to_newicks, rooted=self.rooted, outgroup=self.outgroupComboBox.currentText())  # all trees, scatter, circle, donut
-                        topologies_to_colors, scatter_colors, ylist = self.topologyPlotter.topology_colors(windows_to_top_topologies, top_topologies_list)  # scatter, circle, (donut?)
-
-                    # generate robinson foulds and pgtst graphs
-                    if (btnClicked == None and self.checkboxRobinsonFoulds.isChecked()) or btnClicked == self.checkboxRobinsonFoulds:
-                        if self.checkboxWeighted.isChecked():
-                            windows_to_w_rf, windows_to_uw_rf = self.statisticsCalculations.calculate_windows_to_rf(self.speciesTree, self.checkboxWeighted.isChecked())
-                            self.robinsonFouldsWindow = robinsonFouldsWindow.RobinsonFouldsWindow('Weighted Robinson Foulds Distance', windows_to_w_rf, 'Unweighted Robinson Foulds Distance', windows_to_uw_rf)
-                        else:
-                            windows_to_uw_rf = self.statisticsCalculations.calculate_windows_to_rf(self.speciesTree, self.checkboxWeighted.isChecked())
-                            self.robinsonFouldsWindow = robinsonFouldsWindow.RobinsonFouldsWindow('Weighted Robinson Foulds Distance', windows_to_uw_rf)
-
-                    if (btnClicked == None and self.checkboxPGTST.isChecked()) or btnClicked == self.checkboxPGTST:
-                        windowsToPGTST = self.statisticsCalculations.calculate_windows_to_p_gtst(self.speciesTree)
-                        self.pgtstWindow = pgtstWindow.PGTSTWindow(windowsToPGTST, "p(gt|st)", xLabel="Windows", yLabel="Probability")
-
-                    # generate donut plot
-                    if (btnClicked == None and self.checkboxDonutPlot.isChecked()) or btnClicked == self.checkboxDonutPlot:
-                        donut_colors = self.topologyPlotter.donut_colors(top_topologies_to_counts, topologies_to_colors)  # donut
-                        self.donutPlotWindow = donutPlotWindow.DonutPlotWindow('Frequency of Top Topologies', labels, sizes, donut_colors)
-
-                    # generate scatter plot
-                    if (btnClicked == None and self.checkboxScatterPlot.isChecked()) or btnClicked == self.checkboxScatterPlot:
-                        self.scatterPlotWindow = scatterPlotWindow.ScatterPlotWindow('Windows to Top Topologies', windows_to_top_topologies, scatter_colors, ylist)
-
-                    # generate circle graph
-                    if (btnClicked == None and self.checkboxCircleGraph.isChecked()) or btnClicked == self.checkboxCircleGraph:
-                        sites_to_informative, windows_to_informative_count, windows_to_informative_pct, pct_informative = self.informativeSites.calculate_informativeness('windows', self.raxmlOperations.windowOffset)
-                        self.circleGraphWindow = circleGraphWindow.CircleGraphWindow(self.raxmlOperations.inputFilename, windows_to_top_topologies, topologies_to_colors, self.raxmlOperations.windowSize, self.raxmlOperations.windowOffset, sites_to_informative)
-
-                    # generate informative sites heatmap graph
-                    if (btnClicked == None and self.checkboxHeatMap.isChecked()) or btnClicked == self.checkboxHeatMap:
-                        sites_to_informative, windows_to_informative_count, windows_to_informative_pct, pct_informative = self.informativeSites.calculate_informativeness('windows', self.raxmlOperations.windowOffset)
-                        self.heatMapWindow = heatMapWindow.HeatMapWindow('Heat Map', sites_to_informative)
-
-                    # generate windows to informative sites line graph
-                    if (btnClicked == None and self.checkboxWindowsToInfSites.isChecked()) or btnClicked == self.checkboxWindowsToInfSites:
-                        sites_to_informative, windows_to_informative_count, windows_to_informative_pct, pct_informative = self.informativeSites.calculate_informativeness('windows', self.raxmlOperations.windowOffset)
-                        self.windowsToInfSitesWindow = windowsToInfSitesWindow.WindowsToInfSitesWindow('Windows to Informative Sites', windows_to_informative_pct)
-
-                    # generate bootstrap graph
-                    if (btnClicked == None and self.checkboxBootstrap.isChecked()) or btnClicked == self.checkboxBootstrap:
-                        internal_nodes_i, internal_nodes_f = self.bootstrapContraction.internal_nodes_after_contraction(self.confidenceLevel)
-                        self.bootstrapContractionWindow = bootstrapContractionWindow.BootstrapContractionWindow(internal_nodes_i, internal_nodes_f, self.confidenceLevel, xLabel="Window Indices", yLabel="Number of Internal Nodes")
-
-                    # generate all trees graph
-                    if (btnClicked == None and self.checkboxAllTrees.isChecked()) or btnClicked == self.checkboxAllTrees:
-                        self.allTreesWindow = allTreesWindow.AllTreesWindow('', topologies_to_colors, topologies_to_counts, rooted=self.checkboxRooted.isChecked(), outGroup=self.outgroupComboBox.currentText())
-
     def requestedFigures(self):
         requestedFigures = set()
 
@@ -465,8 +391,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             requestedFigures.add('Windows to Top Topologies Scatter Plot')
         if self.checkboxDonutPlot.isChecked():
             requestedFigures.add('Top Topology Frequency Donut Plot')
-        if self.checkboxCircleGraph.isChecked():
-            requestedFigures.add('Genome Atlas')
         if self.checkboxWindowsToInfSites.isChecked():
             requestedFigures.add('Windows to Informative Sites Line Graph')
         if self.checkboxHeatMap.isChecked():
@@ -543,12 +467,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             self.prevGeneratedFigures.add('Windows to Top Topologies Scatter Plot')
             self.scatterPlotWindow = scatterPlotWindow.ScatterPlotWindow('Windows to Top Topologies', windows_to_top_topologies, scatter_colors, ylist)
 
-        # generate circle graph
-        if self.checkboxCircleGraph.isChecked():
-            self.prevGeneratedFigures.add('Genome Atlas')
-            sites_to_informative, windows_to_informative_count, windows_to_informative_pct, pct_informative = self.informativeSites.calculate_informativeness('windows', self.raxmlOperations.windowOffset)
-            self.circleGraphWindow = circleGraphWindow.CircleGraphWindow(self.raxmlOperations.inputFilename, windows_to_top_topologies, topologies_to_colors, self.raxmlOperations.windowSize, self.raxmlOperations.windowOffset, sites_to_informative)
-
         # generate informative sites heatmap graph
         if self.checkboxHeatMap.isChecked():
             self.prevGeneratedFigures.add('Informative Sites Heat Map')
@@ -588,7 +506,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             self.rooted = self.checkboxRooted.isChecked()
 
             # if user is generating Top Topologies or scatter plot or donut plor or circle graph run error handling on top topologies entry
-            if self.checkboxAllTrees.isChecked() or self.checkboxScatterPlot.isChecked() or self.checkboxDonutPlot.isChecked() or self.checkboxCircleGraph.isChecked():
+            if self.checkboxAllTrees.isChecked() or self.checkboxScatterPlot.isChecked() or self.checkboxDonutPlot.isChecked():
                 self.checkEntryPopulated(self.numberOfTopTopologiesEntry, errorTitle='Number of Top Topologies Field is Blank', errorMessage='Please enter a number of top topologies.')
                 self.topTopologies = self.checkEntryInRange(self.numberOfTopTopologiesEntry, min=0, max=16, inclusive=False, errorTitle='Invalid Number of Top Topologies', errorMessage='Please enter an integer between 0 and 15.')
 
@@ -769,7 +687,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         """
             returns the number of checkboxes that are checked
         """
-        return (self.checkboxScatterPlot.checkState() + self.checkboxCircleGraph.checkState() + self.checkboxDonutPlot.checkState() + self.checkboxAllTrees.checkState()) / 2
+        return (self.checkboxScatterPlot.checkState() + self.checkboxDonutPlot.checkState() + self.checkboxAllTrees.checkState()) / 2
 
     def toggleEnabled(self, guiElement):
         """
@@ -830,8 +748,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         elif validator == 'Int':
             entry.setValidator(QtGui.QIntValidator(entry))
 
-    def resizeEvent(self, event):
-        print self.size()
+    # def resizeEvent(self, event):
+    #     print self.size()
 
     # def moveEvent(self, QMoveEvent):
     #     print self.pos()

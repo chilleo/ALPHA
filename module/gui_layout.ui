@@ -354,8 +354,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>589</width>
-               <height>418</height>
+               <width>701</width>
+               <height>723</height>
               </rect>
              </property>
              <attribute name="label">
@@ -870,7 +870,7 @@
                        <item>
                         <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="0,0">
                          <property name="spacing">
-                          <number>7</number>
+                          <number>-1</number>
                          </property>
                          <property name="leftMargin">
                           <number>0</number>
@@ -1317,8 +1317,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>949</width>
-               <height>498</height>
+               <width>701</width>
+               <height>723</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -1369,7 +1369,7 @@
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_12">
                  <property name="spacing">
-                  <number>7</number>
+                  <number>-1</number>
                  </property>
                  <item>
                   <widget class="QGroupBox" name="graphOptionsGroupBox">
@@ -1490,33 +1490,6 @@
                           </property>
                           <property name="text">
                            <string>Top Topology Frequency Donut Plot</string>
-                          </property>
-                          <property name="checked">
-                           <bool>false</bool>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item>
-                       <layout class="QHBoxLayout" name="circleGraphHL">
-                        <item>
-                         <widget class="QCheckBox" name="checkboxCircleGraph">
-                          <property name="minimumSize">
-                           <size>
-                            <width>0</width>
-                            <height>21</height>
-                           </size>
-                          </property>
-                          <property name="font">
-                           <font>
-                            <pointsize>13</pointsize>
-                            <weight>50</weight>
-                            <bold>false</bold>
-                           </font>
-                          </property>
-                          <property name="text">
-                           <string>Genome Atlas</string>
                           </property>
                           <property name="checked">
                            <bool>false</bool>
@@ -2476,14 +2449,14 @@ Run RAxML -&gt; Advanced</string>
                     <number>5</number>
                    </property>
                    <item>
-                    <widget class="QLabel" name="msWindowSizeLabel">
+                    <widget class="QLabel" name="msWindowOffsetLabel">
                      <property name="text">
-                      <string>Window Size:</string>
+                      <string>Window Offset:</string>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="msWindowSizeEntry">
+                    <widget class="QLineEdit" name="msWindowOffsetEntry">
                      <property name="minimumSize">
                       <size>
                        <width>60</width>
@@ -2532,14 +2505,14 @@ Run RAxML -&gt; Advanced</string>
                     <number>5</number>
                    </property>
                    <item>
-                    <widget class="QLabel" name="msWindowOffsetLabel">
+                    <widget class="QLabel" name="msWindowSizeLabel">
                      <property name="text">
-                      <string>Window Offset:</string>
+                      <string>Window Size:</string>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="msWindowOffsetEntry">
+                    <widget class="QLineEdit" name="msWindowSizeEntry">
                      <property name="minimumSize">
                       <size>
                        <width>60</width>
@@ -2772,7 +2745,7 @@ Run RAxML -&gt; Advanced</string>
                    <item>
                     <widget class="QCheckBox" name="checkboxRobinsonFouldsBarPlot">
                      <property name="text">
-                      <string>Robinson Foulds Distance from MS Truth - Line Graph</string>
+                      <string>Robinson Foulds Distance from MS Truth - Bar Plot</string>
                      </property>
                     </widget>
                    </item>
@@ -3264,7 +3237,7 @@ Run RAxML -&gt; Advanced</string>
      <x>0</x>
      <y>0</y>
      <width>751</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="styleSheet">
