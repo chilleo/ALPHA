@@ -19,7 +19,7 @@ PhyloVis is a python-based application that provides an intuitive user interface
 
 <img src="https://user-images.githubusercontent.com/6343193/28720952-4041d668-7374-11e7-829e-0fd22521cfc8.png" alt="Welcome" width="400">
 
-RAxML mode gives users a front-end to interact with RAxML (STAMATAKIS 2014a) for Maximum Likelihood based inference of large phylogenetic trees. PhyloVis’s RAxML mode allows one to use RAxML to automatically perform sliding window analysis over an inputted alignment. Users are able to select from a plethora of options in performing their analysis, including: window size, window offset, and number of bootstraps. In this mode, users are able to produce a variety of graphs to help understand their genomic alignment and interpret the trees outputted by RAxML. These graph options include: a tree visualization of the top topologies, scatter plot of windows to their topologies, frequency of top topologies, genome atlas, and a heat map of the informative sites. RAxML mode also provides support for calculating two statistics based on the trees produced within each window as compared to an overall species tree; Robinson-Foulds distance and probability of a gene tree given a species tree.
+RAxML mode gives users a front-end to interact with RAxML (STAMATAKIS 2014a) for Maximum Likelihood based inference of large phylogenetic trees. PhyloVis’s RAxML mode allows one to use RAxML to automatically perform sliding window analysis over an inputted alignment. Users are able to select from a plethora of options in performing their analysis, including: window size, window offset, and number of bootstraps. In this mode, users are able to produce a variety of graphs to help understand their genomic alignment and interpret the trees outputted by RAxML. These graph options include: a tree visualization of the top topologies, scatter plot of windows to their topologies, frequency of top topologies, a line graph of windows to the percent of informative sites, and a heat map of the informative sites. RAxML mode also provides support for calculating two statistics based on the trees produced within each window as compared to an overall species tree: Robinson-Foulds distance and the probability of a gene tree given a species tree.
 
 The file converter in PhyloVis provides a user interface for a Biopython AlignIO file converter function. It allows users to convert between twelve popular genome alignment file types. RAxML mode only accepts phylip-sequential format.
 MS Comparison mode allows users to perform an accuracy comparison between a “truth file” and one or more files in MS format or the results of RAxML mode.
@@ -27,41 +27,47 @@ With D-Statistic mode, users can compute Patterson’s D-Statistic for determini
 
 ## Requirements
 
-PhyloVis currently runs on Mac and Windows operating systems and selects the proper operating system automatically. Python 2.7 is required for this GUI, along with the additional libraries: BioPython, DendroPy, ETE, SciPy, PIL, SVGUtils, Reportlab, natsort and PyQt4. RAxML is also required for performing analysis in RAxML mode.
+PhyloVis currently runs on Mac and Windows operating systems and selects the proper operating system automatically. Python 2.7.13 and Java are required for this GUI, along with the additional libraries: BioPython, DendroPy, ETE, SciPy, PIL, SVGUtils, Reportlab, natsort and PyQt4. RAxML is also required for performing analysis in RAxML mode.
 
 Avoid special characters, such as diacritics, spaces, and punctuation other than dots (“.”) and underscores (“_”)  in the names of the PhyloVis folder and all input files. 
 
 ## Analysis Modes
 
 ### RAxML
-In RAxML mode, there are three analysis sections containing preferences for adjusting the statistics. After selecting a file in phylip-sequential format, standard or advanced RAxML options, types of graphs to be generated, and statistical plots can be modified to fit the user’s preferences.
+In RAxML mode, there are two analysis sections containing preferences for adjusting the statistics. In the Run RAxML section, the user selects a file in phylip-sequential format and modifies the options within the Standard or Advanced RAxML settings to fit their preferences. 
 
 In standard mode, the window size, window offset, and the number of top topologies to be analyzed can be inputted manually as integers greater than one. The model type can be selected from six popular types. Bootstrapping can also be selected; if it is, the user can input the confidence level and the number of bootstraps to be performed. The user can also choose to root the tree at a specific outgroup in the input file.
 
 <img src="https://user-images.githubusercontent.com/6343193/28720944-3af69d42-7374-11e7-8c19-7fc336c5e428.png" alt="RAxML-Standard" width="400">
 
-In advanced mode, the user can input a custom RAxML command in which the -s and -n flags are handled internally. A species tree can also be generated using a custom RAxML command,. Rooting is available for this as well.
+In advanced mode, the user can input a custom RAxML command in which the -s and -n flags are handled internally. A rooted or unrooted species tree can also be generated in this mode using a custom RAxML command or by simply clicking Generate, which runs RAxML on the entire alignment.
 
 <img src="https://user-images.githubusercontent.com/6343193/28720942-396f2304-7374-11e7-8548-85dd6c7b2e1d.png" alt="RAxML-Advanced" width="400">
 
 For more information regarding RAxML and its commands see the [RAxML manual](https://sco.h-its.org/exelixis/resource/download/NewManual.pdf)
 
-The user can select up to five graphs to be generated, including: Top Topologies, Windows to Top Topologies, Top Topology Frequency, Genome Atlas, and Informative Sites Heat Map.
-The Top Topologies option generates an image containing tree visualizations of the most frequently occurring topologies generated by running RAxML on windows of the previously specified size.
-Windows to Top Topologies is a scatter plot in which the x-axis is the window number, and the y-axis is the topology.
-Top Topology Frequency is a circle graph showing the number of times each topology occurs; topologies differing from the top topologies are lumped together and categorized as “Other.”
-The Genome Atlas is a circular representation of the inputted alignment, showing the RAxML tree topologies for different windows along the alignment. Note that this figure works best for alignments with many windows and is still in development.
-Top Topologies, Windows to Top Topologies, Top Topology Frequency, and the Genome Atlas are all generated in such a way that the colors of the topologies correspond with the colors used within the plots.
-The Informative Sites Heat Map depicts the informativeness of each site in the data. The more informative the site, the darker the line in the heat map.
+After running RAxML, the user can enter the Generate Figures section and select any of the following: Top Topologies Tree Visualization, Windows to Top Topologies Scatter Plot, Top Topology Frequency Donut Plot, Windows to Informative Sites Line Graph, Informative Sites Heat Map, the weighted and/or unweighted Robinson-Foulds Distance Scatter Plot, and the Probability of a Gene Tree given the Species Tree Scatter Plot. The user can also specify how many top toplogies they want to analyze and input a species tree file or string in Graph Options.
+
+The Top Topologies Tree Visualization generates an image containing the most frequently occuring local phylogenies generated by running RAxML on windows of the previously specified size. The visualization also includes the number of times each topology occurs. 
+
+The Windows to Top Topologies Scatter Plot shows the windows at which each local phylogeny occurs and depicts the x-axis as the window number and the y-axis as the topology.
+
+The Top Topology Frequency Donut Plot is a graph showing the number of times each topology occurs; topologies differing from the top topologies are lumped together and categorized as “Other.” 
+
+Generate the Top Topologies Tree Visualization, Windows to Top Topologies Scatter Plot, and Top Topology Frequency Donut Plot at the same time to ensure that the colors of the topologies correspond with the colors used within the plots.
+
+The Windows to Informative Sites Line Graph shows how the percent of informative sites differs across each window. Windows are on the x-axis, and the Percent of Informative Sites is on the y-axis. 
+
+The Informative Sites Heat Map depicts the informativeness of each site in the data. If a site is informative, there is a black line. The more informative the site, the thicker the line in the heat map.
+
+The Robinson-Foulds Distance Scatter Plot depicts the Robinson-Foulds distance between the local phylogeny and the species tree. The user can choose to generate the Weighted Robinson-Foulds Distance Scatter Plot, which takes branch lengths into account, or they can generate both the weighted and unweighted plots by not checking the Weighted option.
+
+The Probability of A Gene Tree Given the Species Tree Scatter Plot shows the probability of the local phylogeny at a window actually occurring given the inputted species tree.
 
 <img src="https://user-images.githubusercontent.com/6343193/28720932-3598db9e-7374-11e7-92c8-31397aedc637.png" alt="RAxML-Graph-Options" width="400">
 
-Statistics Options allows the user to select an existing species tree file and generate plots depicting the weighted and/or unweighted Robinson Foulds statistic and the probability of a gene tree given a species tree.
-
-<img src="https://user-images.githubusercontent.com/6343193/28720946-3cfdb0f8-7374-11e7-9498-327c70af24d5.png" alt="RAxML-Statistics-Options" width="400">
-
 ### File Converter
-File Converter mode allows the user to select a file containing DNA alignments in one of eleven popular formats and convert them to a different file format. After selecting the input file and its format, the user must specify the output file’s name and location along with the desired format.
+File Converter mode allows the user to select a file containing DNA alignments in one of twelve popular formats and convert them to a different file format. After selecting the input file and its format, the user must specify the output file’s name and location along with the desired format.
 
 <img src="https://user-images.githubusercontent.com/6343193/28720928-349f1898-7374-11e7-86ee-86a1abcc9341.png" alt="File-Converter" width="400">
 
@@ -73,9 +79,9 @@ When comparing against the RAxML directory, the user has the option to input the
 
 When comparing the truth file to other MS files, the user can input multiple MS files for comparison.
 
-The Robinson Foulds Distance from MS Truth Bar Plot depicts the total difference between the trees in the truth file and other files chosen for comparison. 
+The Robinson-Foulds Distance from MS Truth Bar Plot depicts the total difference between the trees in the truth file and other files chosen for comparison. 
 
-The Percent Matching Sites Bar Plot shows the percentage of sites in the comparison file(s) that contain trees that match the truth file for both weighted and unweighted analyses. Robinson Foulds distance is used to determine if a tree is considered a match or not.
+The Percent Matching Sites Bar Plot shows the percentage of sites in the comparison file(s) that contain trees that match the truth file for both weighted and unweighted analyses. The Robinson-Foulds distance is used to determine if a tree is considered a match or not.
 
 The TMRCA Line Graph shows the tree height over each site when comparing the truth files and other files. This figure is meant to depict to the differences in the time to most recent common ancestor (TMRCA) between each file.
 
@@ -168,7 +174,7 @@ All images can be exported to a desired save location, renamed and saved as one 
         ```
         python --version
         ```
-    - If the command returns "Python 2.7.13" skip to step 3, Otherwise proceed.
+    - If the command returns "Python 2.7.13" skip to step 3. Otherwise proceed.
     - Download and Install [Python 2.7.13](https://www.python.org/downloads/)
     
 
@@ -231,7 +237,6 @@ If you receive this error after running the command in Step 7, run this command:
     
         mkdir -p /Users/owner/Library/Python/2.7/lib/python/site-packages echo 'import site; site.addsitedir("/usr/local/lib/python2.7/site-packages")'
         
-
 ## References
 
 Cock PJA, Antao T, Chang JT, et al. Biopython: freely available Python tools for computational molecular biology and bioinformatics. Bioinformatics. 2009;25(11):1422-1423. doi:10.1093/bioinformatics/btp163.
@@ -242,7 +247,7 @@ ETE 3: Reconstruction, analysis and visualization of phylogenomic data. Jaime Hu
 
 Green RE, Krause J, Briggs AW, et al. A Draft Sequence of the Neandertal Genome. Science (New York, NY). 2010;328(5979):710-722. doi:10.1126/science.1188021.
 
-Richard R. Hudson; Generating samples under a Wright–Fisher neutral model of genetic variation . Bioinformatics 2002; 18 (2): 337-338. doi: 10.1093/bioinformatics/18.2.337
+Richard R. Hudson; Generating samples under a Wright–Fisher neutral model of genetic variation. Bioinformatics 2002; 18 (2): 337-338. doi: 10.1093/bioinformatics/18.2.337
 
 Hunter, John D. "Matplotlib: A 2D Graphics Environment." Computing in Science & Engineering 9.3 (2007): 90-95. 10.1109/MCSE.2007.55
 
