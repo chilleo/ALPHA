@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'module/gui_layout.ui'
 #
-# Created: Wed Sep 27 13:07:24 2017
+# Created: Wed Sep 27 13:11:12 2017
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -180,7 +180,7 @@ class Ui_PhylogeneticVisualization(object):
         self.raxmlToolBox.setObjectName(_fromUtf8("raxmlToolBox"))
         self.raxmlOptionsPage = QtGui.QWidget()
         self.raxmlOptionsPage.setEnabled(True)
-        self.raxmlOptionsPage.setGeometry(QtCore.QRect(0, 0, 705, 662))
+        self.raxmlOptionsPage.setGeometry(QtCore.QRect(0, 0, 589, 418))
         self.raxmlOptionsPage.setObjectName(_fromUtf8("raxmlOptionsPage"))
         self.verticalLayout_21 = QtGui.QVBoxLayout(self.raxmlOptionsPage)
         self.verticalLayout_21.setObjectName(_fromUtf8("verticalLayout_21"))
@@ -1487,7 +1487,7 @@ class Ui_PhylogeneticVisualization(object):
         self.checkboxDonutPlot.setText(_translate("PhylogeneticVisualization", "Top Topology Frequency Donut Plot", None))
         self.checkboxWindowsToInfSites.setText(_translate("PhylogeneticVisualization", "Windows to Informative Sites Line Graph", None))
         self.checkboxHeatMap.setText(_translate("PhylogeneticVisualization", "Informative Sites Heat Map", None))
-        self.checkboxRobinsonFoulds.setText(_translate("PhylogeneticVisualization", "Robinson Foulds", None))
+        self.checkboxRobinsonFoulds.setText(_translate("PhylogeneticVisualization", "Robinson Foulds Distance Scatter Plot", None))
         self.checkboxWeighted.setText(_translate("PhylogeneticVisualization", "Weighted", None))
         self.checkboxPGTST.setText(_translate("PhylogeneticVisualization", "p(GT | ST)", None))
         self.label_27.setText(_translate("PhylogeneticVisualization", "Graph Options", None))

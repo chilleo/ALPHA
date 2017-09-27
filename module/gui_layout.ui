@@ -354,8 +354,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>705</width>
-               <height>662</height>
+               <width>589</width>
+               <height>418</height>
               </rect>
              </property>
              <attribute name="label">
@@ -1535,7 +1535,7 @@
                         <item>
                          <widget class="QCheckBox" name="checkboxRobinsonFoulds">
                           <property name="text">
-                           <string>Robinson Foulds</string>
+                           <string>Robinson Foulds Distance Scatter Plot</string>
                           </property>
                          </widget>
                         </item>
