@@ -75,7 +75,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # mapping from: windows --> page index
         self.windows = {'welcomePage': 0, 'inputPageRax': 1, 'inputPageFileConverter': 2, 'inputPageMS': 3, 'inputPageDStatistic': 4}
         # mapping from: windows --> dictionary of page dimensions
-        self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 640, 'y': 616}, 'inputPageFileConverter': {'x': 459, 'y': 403}, 'inputPageMS': {'x': 600, 'y': 746}, 'inputPageDStatistic': {'x': 600, 'y': 600}}
+        self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 640, 'y': 549}, 'inputPageFileConverter': {'x': 459, 'y': 403}, 'inputPageMS': {'x': 600, 'y': 746}, 'inputPageDStatistic': {'x': 600, 'y': 600}}
         # mapping from: windows --> dictionary of page dimensions
         self.windowLocations = {'welcomePage': {'x': 600, 'y': 300}, 'inputPageRax': {'x': 500, 'y': 175}, 'inputPageFileConverter': {'x': 600, 'y': 300}, 'inputPageMS': {'x': 520, 'y': 100}, 'inputPageDStatistic': {'x': 500, 'y': 175}}
         # mapping from: mode --> page
@@ -156,6 +156,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # self.connect(self.raxmlOperations, QtCore.SIGNAL('RAX_COMPLETE'), self.updatedDisplayWindows)
         self.connect(self.raxmlOperations, QtCore.SIGNAL('SPECIES_TREE_PER'), self.generateSpeciesTreeProgressBar.setValue)
         self.connect(self.raxmlOperations, QtCore.SIGNAL('SPECIES_TREE_COMPLETE'), partial(self.message, type='Err'))
+        self.connect(self.raxmlOperations, QtCore.SIGNAL('SPECIES_TREE_COMPLETE_RETURN_ST'), self.speciesTreeEntry.setText)
         self.connect(self.raxmlOperations, QtCore.SIGNAL('INVALID_ALIGNMENT_FILE'), lambda: self.message('Invalid File', 'Invalid alignment file. Please choose another.', 'Make sure your file has 4 sequences and is in the phylip-relaxed format.', type='Err'))
 
         # run RAX_ML and generate graphs
@@ -748,8 +749,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         elif validator == 'Int':
             entry.setValidator(QtGui.QIntValidator(entry))
 
-    # def resizeEvent(self, event):
-    #     print self.size()
+    def resizeEvent(self, event):
+        print self.size()
 
     # def moveEvent(self, QMoveEvent):
     #     print self.pos()
