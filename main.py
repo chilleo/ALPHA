@@ -5,7 +5,7 @@ from PyQt4 import QtGui, QtCore
 from functools import partial
 
 # GUI
-from raxmlOutputWindows import allTreesWindow, donutPlotWindow, scatterPlotWindow, circleGraphWindow, pgtstWindow, robinsonFouldsWindow, heatMapWindow, bootstrapContractionWindow, dStatisticWindow, msRobinsonFouldsWindow, msPercentMatchingWindow, msTMRCAWindow, windowsToInfSitesWindow
+from raxmlOutputWindows import allTreesWindow, donutPlotWindow, scatterPlotWindow, pgtstWindow, robinsonFouldsWindow, heatMapWindow, bootstrapContractionWindow, dStatisticWindow, msRobinsonFouldsWindow, msPercentMatchingWindow, msTMRCAWindow, windowsToInfSitesWindow
 from module import gui_layout as gui
 
 # logic
@@ -77,7 +77,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # mapping from: windows --> page index
         self.windows = {'welcomePage': 0, 'inputPageRax': 1, 'inputPageFileConverter': 2, 'inputPageMS': 3, 'inputPageDStatistic': 4}
         # mapping from: windows --> dictionary of page dimensions
-        self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 640, 'y': 616}, 'inputPageFileConverter': {'x': 459, 'y': 403}, 'inputPageMS': {'x': 600, 'y': 746}, 'inputPageDStatistic': {'x': 600, 'y': 600}}
+        self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 640, 'y': 549}, 'inputPageFileConverter': {'x': 459, 'y': 403}, 'inputPageMS': {'x': 600, 'y': 746}, 'inputPageDStatistic': {'x': 600, 'y': 600}}
         # mapping from: windows --> dictionary of page dimensions
         self.windowLocations = {'welcomePage': {'x': 600, 'y': 300}, 'inputPageRax': {'x': 500, 'y': 175}, 'inputPageFileConverter': {'x': 600, 'y': 300}, 'inputPageMS': {'x': 520, 'y': 100}, 'inputPageDStatistic': {'x': 500, 'y': 175}}
         # mapping from: mode --> page
@@ -111,18 +111,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.resize(self.windowSizes['welcomePage']['x'], self.windowSizes['welcomePage']['y'])
         self.outputFileConverterEntry.setText(os.getcwd())
 
-        # boolean values denoting if a figure has been generated yet
-        self.treeVizGenerated = False
-        self.windowsToTopTopologiesGenerated = False
-        self.topTopologyFrequencyDonutGenerated = False
-        self.genomeAtlasGenerated = False
-        self.windowsToInfSitesGenerated = False
-        self.infSitesHeatMapGenerated = False
-        self.robinsonFouldsGenerated = False
-        self.pgtstGenerated = False
-
         # open documentation
-        self.actionDocumentation.triggered.connect(lambda: self.openURL('https://peterdulworth.github.io/PhyloVis'))
+        self.actionDocumentation.triggered.connect(lambda: self.openURL('https://github.com/chilleo/ALPHA'))
 
         # only allow integers in the following fields
         self.setValidator(self.windowSizeEntry, 'Int')
@@ -165,12 +155,10 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.connect(self.inputFileEntry, QtCore.SIGNAL('FILE_SELECTED'), lambda: self.updateTaxonComboBoxes(self.speciesTreeComboBoxes, self.inputFileEntry))
         self.connect(self.raxmlOperations, QtCore.SIGNAL('RAX_PER'), self.progressBar.setValue)
         self.connect(self.raxmlOperations, QtCore.SIGNAL('RAX_COMPLETE'), self.raxmlComplete)
-        # self.connect(self.raxmlOperations, QtCore.SIGNAL('RAX_COMPLETE'), self.updatedDisplayWindows)
         self.connect(self.raxmlOperations, QtCore.SIGNAL('SPECIES_TREE_PER'), self.generateSpeciesTreeProgressBar.setValue)
         self.connect(self.raxmlOperations, QtCore.SIGNAL('SPECIES_TREE_COMPLETE'), partial(self.message, type='Err'))
+        self.connect(self.raxmlOperations, QtCore.SIGNAL('SPECIES_TREE_COMPLETE_RETURN_ST'), self.speciesTreeEntry.setText)
         self.connect(self.raxmlOperations, QtCore.SIGNAL('INVALID_ALIGNMENT_FILE'), lambda: self.message('Invalid File', 'Invalid alignment file. Please choose another.', 'Make sure your file has 4 sequences and is in the phylip-relaxed format.', type='Err'))
-
-        # self.connect(self.topologyPlotter, QtCore.SIGNAL('CIRCLE_GRAPH_COMPLETE'), lambda: self.openWindow(self.circleGraphWindow))
 
         # run RAX_ML and generate graphs
         self.runBtn.clicked.connect(self.runRAxML)
@@ -405,8 +393,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             requestedFigures.add('Windows to Top Topologies Scatter Plot')
         if self.checkboxDonutPlot.isChecked():
             requestedFigures.add('Top Topology Frequency Donut Plot')
-        if self.checkboxCircleGraph.isChecked():
-            requestedFigures.add('Genome Atlas')
         if self.checkboxWindowsToInfSites.isChecked():
             requestedFigures.add('Windows to Informative Sites Line Graph')
         if self.checkboxHeatMap.isChecked():
@@ -422,7 +408,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         if self.runComplete:
             if self.raxmlInputErrorHandling():
                 self.figuresToBeRegenerated = self.prevGeneratedFigures.intersection(self.requestedFigures())
-                print self.figuresToBeRegenerated
                 if len(self.figuresToBeRegenerated) > 0:
                     self.msg = QtGui.QMessageBox()
                     self.msg.setText("Regenerate Figures?")
@@ -484,12 +469,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             self.prevGeneratedFigures.add('Windows to Top Topologies Scatter Plot')
             self.scatterPlotWindow = scatterPlotWindow.ScatterPlotWindow('Windows to Top Topologies', windows_to_top_topologies, scatter_colors, ylist)
 
-        # generate circle graph
-        if self.checkboxCircleGraph.isChecked():
-            self.prevGeneratedFigures.add('Genome Atlas')
-            sites_to_informative, windows_to_informative_count, windows_to_informative_pct, pct_informative = self.informativeSites.calculate_informativeness('windows', self.raxmlOperations.windowOffset)
-            self.circleGraphWindow = circleGraphWindow.CircleGraphWindow(self.raxmlOperations.inputFilename, windows_to_top_topologies, topologies_to_colors, self.raxmlOperations.windowSize, self.raxmlOperations.windowOffset, sites_to_informative)
-
         # generate informative sites heatmap graph
         if self.checkboxHeatMap.isChecked():
             self.prevGeneratedFigures.add('Informative Sites Heat Map')
@@ -529,7 +508,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             self.rooted = self.checkboxRooted.isChecked()
 
             # if user is generating Top Topologies or scatter plot or donut plor or circle graph run error handling on top topologies entry
-            if self.checkboxAllTrees.isChecked() or self.checkboxScatterPlot.isChecked() or self.checkboxDonutPlot.isChecked() or self.checkboxCircleGraph.isChecked():
+            if self.checkboxAllTrees.isChecked() or self.checkboxScatterPlot.isChecked() or self.checkboxDonutPlot.isChecked():
                 self.checkEntryPopulated(self.numberOfTopTopologiesEntry, errorTitle='Number of Top Topologies Field is Blank', errorMessage='Please enter a number of top topologies.')
                 self.topTopologies = self.checkEntryInRange(self.numberOfTopTopologiesEntry, min=0, max=16, inclusive=False, errorTitle='Invalid Number of Top Topologies', errorMessage='Please enter an integer between 0 and 15.')
 
@@ -710,7 +689,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         """
             returns the number of checkboxes that are checked
         """
-        return (self.checkboxScatterPlot.checkState() + self.checkboxCircleGraph.checkState() + self.checkboxDonutPlot.checkState() + self.checkboxAllTrees.checkState()) / 2
+        return (self.checkboxScatterPlot.checkState() + self.checkboxDonutPlot.checkState() + self.checkboxAllTrees.checkState()) / 2
 
     def toggleEnabled(self, guiElement):
         """

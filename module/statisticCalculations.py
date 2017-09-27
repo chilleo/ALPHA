@@ -54,13 +54,14 @@ class StatisticsCalculations(QtCore.QThread):
 
     def calculate_p_of_gt_given_st(self, species_tree, gene_tree):
         """
-        Computes the probability that a gene tree occurs given a species tree. If the taxon names between the two trees are not the
-        same then the probability returned is 0.0. If trees are the exact same then probability is 1.0.
-        Inputs:
-        species_tree --- a newick string containing a species tree with branch lengths as outputted by RAxML or inputted by user
-        gene_tree --- a newick string containing a gene tree with branch lengths as outputted by RAxML run on windows
-        Output:
-        p_of_gt_given_st --- the probability that a gene tree occurs given a species tree.
+            Computes the probability that a gene tree occurs given a species tree. If the taxon names between the two trees are not the
+            same then the probability returned is 0.0. If trees are the exact same then probability is 1.0.
+
+            Inputs:
+                species_tree --- a newick string containing a species tree with branch lengths as outputted by RAxML or inputted by user
+                gene_tree --- a newick string containing a gene tree with branch lengths as outputted by RAxML run on windows
+            Output:
+                p_of_gt_given_st --- the probability that a gene tree occurs given a species tree.
         """
 
         # If species_tree input is a file read in the newick string
@@ -101,12 +102,11 @@ class StatisticsCalculations(QtCore.QThread):
         """
         Calculate p(gt|st) for each window and create a mapping
         of window numbers to probabilities.
+
         Inputs:
-        species_tree --- a newick string containing a species tree
-                        with branch lengths as outputted by RAxML or
-                        inputted by user
+            species_tree --- a newick string containing a species tree with branch lengths as outputted by RAxML or inputted by user
         Output:
-        windows_to_p_gtst --- a mapping of window numbers to their p(gt|st).
+            windows_to_p_gtst --- a mapping of window numbers to their p(gt|st).
         """
 
         # Initialize a mapping
@@ -568,8 +568,6 @@ if __name__ == '__main__':
 
     sc = StatisticsCalculations()
 
-    sc.figureBarPlot([1,2,3,4], 'henlo', 'henlo')
+    sc.output_directory = "../RAxML_Files"
 
-    # sc.barPlot([1,2,3,4,5], 'name', 'title', 'x', '% Accuracy', groupLabels=(1,2,3,4,5))
-    # sc.barPlot([3,2,1,4,2], 'name2', 'title2', 'x', '% Accuracy', groupLabels=(1,2,3,4,5))
-    # plt.show()
+    sc.calculate_windows_to_p_gtst("(C:0.00773900199203547429,(G:0.00922097500041624447,O:0.04766300468995082057):0.00139495391245007404,H:0.00972794777559046753):0.0;")
