@@ -451,7 +451,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
                 self.robinsonFouldsWindow = robinsonFouldsWindow.RobinsonFouldsWindow('Weighted Robinson Foulds Distance', windows_to_w_rf, 'Unweighted Robinson Foulds Distance', windows_to_uw_rf)
             else:
                 windows_to_uw_rf = self.statisticsCalculations.calculate_windows_to_rf(self.speciesTree, self.checkboxWeighted.isChecked())
-                self.robinsonFouldsWindow = robinsonFouldsWindow.RobinsonFouldsWindow('Weighted Robinson Foulds Distance', windows_to_uw_rf)
+                self.robinsonFouldsWindow = robinsonFouldsWindow.RobinsonFouldsWindow('Unweighted Robinson Foulds Distance', windows_to_uw_rf)
 
         if self.checkboxPGTST.isChecked():
             self.prevGeneratedFigures.add('p(GT | ST)')

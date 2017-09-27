@@ -47,6 +47,9 @@ class TopologyPlotter(QtCore.QThread):
 
         # list of colors for plots
         self.COLORS = ['#ff0000', '#0000ff', '#ffff00', '#32cd32', '#ba55d3', '#87cefa', '#ffa500', '#ff1493', '#a020f0', '#00ced1', '#adff2f', '#ffd700', '#1e90ff', '#ff7f50', '#008000', '#ffc0cb', '#8a2be2']
+        # self.COLORS = []
+        # print "Num = ", self.num
+        # for i in range(self.num):
 
 
     def topology_counter(self, rooted=False, outgroup=None):
@@ -258,7 +261,7 @@ class TopologyPlotter(QtCore.QThread):
         tops_to_colors = {}
         ylist = []
         count = 0
-        print self.num
+
 
         # y-axis is topology number
         for i in range(len(wins_to_tops)):
