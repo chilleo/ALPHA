@@ -11,6 +11,10 @@
 - [Installation](#installation)
    - [Common Installation Errors](#common-installation-errors)
 - [How To Use](#how-to-use)
+   - [RAxML Mode](#raxml-mode)
+   - [File Converter Mode](#file-converter-mode)
+   - [MS Comparison Mode](#ms-comparison-mode)
+   - [D Statistic Mode](#d-statistic-mode)
 - [Contributors](#contributors)
 - [References](#references)
 
@@ -290,7 +294,7 @@ Click the Compare button to run MS Comparison and generate the desired figures.
 
 For more information on MS Comparison and the graphs it generates, see the [MS Comparison](#ms-comparison) section above.
 
-### D Statistic
+### D Statistic Mode
 To compute the D Statistic, first input the desired alignment in phylip-sequential format. 
 
 Then, input the preferred window size and offset. 
