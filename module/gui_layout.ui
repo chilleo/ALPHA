@@ -59,7 +59,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>3</number>
+         <number>4</number>
         </property>
         <widget class="QWidget" name="welcomePage">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -2830,7 +2830,7 @@ Run RAxML -&gt; Advanced</string>
              </font>
             </property>
             <property name="text">
-             <string>D Statistic</string>
+             <string>D-Statistic</string>
             </property>
            </widget>
           </item>

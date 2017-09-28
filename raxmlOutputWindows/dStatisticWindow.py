@@ -11,7 +11,7 @@ Peter Dulworth
 """
 
 class DStatisticWindow(Window):
-    def __init__(self, dWindows, title='Window Indices to D statistic', xLabel='Window Indices', yLabel='D statistic values'):
+    def __init__(self, dWindows, title='Windows to D-Statistic', xLabel='Window Indices', yLabel='D-Statistic values'):
         Window.__init__(self, windowTitle='D-Statistic Window')
 
         self.plotter.stat_scatter(dWindows, title, xLabel=xLabel, yLabel=yLabel)
