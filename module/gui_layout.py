@@ -1438,7 +1438,7 @@ class Ui_PhylogeneticVisualization(object):
         QtCore.QMetaObject.connectSlotsByName(PhylogeneticVisualization)
 
     def retranslateUi(self, PhylogeneticVisualization):
-        PhylogeneticVisualization.setWindowTitle(_translate("PhylogeneticVisualization", "Alpha: Automated Local Phylogenomic Analyses", None))
+        PhylogeneticVisualization.setWindowTitle(_translate("PhylogeneticVisualization", "ALPHA: Automated Local Phylogenomic Analyses", None))
         self.welcomeLabel.setText(_translate("PhylogeneticVisualization", "ALPHA", None))
         self.label_31.setText(_translate("PhylogeneticVisualization", "<b>A</b>utomated <b>L</b>ocal <b>Ph</b>ylogenomic <b>A</b>nalyses", None))
         self.modeComboBox.setItemText(0, _translate("PhylogeneticVisualization", "RAx_ML", None))
