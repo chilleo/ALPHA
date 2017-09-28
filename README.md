@@ -5,7 +5,7 @@
       - [RAxML](#raxml)
       - [File Converter](#file-converter)
       - [MS Comparison](#ms-comparison)
-      - [D-Statistic](#d-statistic)
+      - [D Statistic](#d-statistic)
     - [Figures](#figures)
     - [Output Files](#output-files)
 - [Installation](#installation)
@@ -16,7 +16,7 @@
 
 ## Introduction
 
-Automated Local Phylogenomic Analyses, or ALPHA, is a python-based application that provides an intuitive user interface for phylogenetic analyses and data visualization. It has four distinct modes that are useful for different types of phylogenetic analysis: RAxML, File Converter, MS Comparison, and D-Statistic.
+Automated Local Phylogenomic Analyses, or ALPHA, is a python-based application that provides an intuitive user interface for phylogenetic analyses and data visualization. It has four distinct modes that are useful for different types of phylogenetic analysis: RAxML, File Converter, MS Comparison, and D Statistic.
 
 <img src="https://user-images.githubusercontent.com/6343193/28720952-4041d668-7374-11e7-829e-0fd22521cfc8.png" alt="Welcome" width="400">
 
@@ -24,7 +24,7 @@ RAxML mode gives users a front-end to interact with RAxML (STAMATAKIS 2014a) for
 
 The file converter in ALPHA provides a user interface for a Biopython AlignIO file converter function. It allows users to convert between twelve popular genome alignment file types. RAxML mode only accepts phylip-sequential format.
 MS Comparison mode allows users to perform an accuracy comparison between a “truth file” and one or more files in MS format or the results of RAxML mode.
-With D-Statistic mode, users can compute Patterson’s D-Statistic for determining introgression in a four taxa alignment. D-Statistic mode can produce graphs for the value of the D-Statistic across sliding windows as well as the value of the D-Statistic across the entire alignment.
+With D Statistic mode, users can compute Patterson’s D Statistic for determining introgression in a four taxa alignment. D Statistic mode produces a scatter plot of the value of the D Statistic across sliding windows as well as the value of the D Statistic across the entire alignment.
 
 ### Requirements
 
@@ -89,12 +89,12 @@ The TMRCA Line Graph shows the tree height over each site when comparing the tru
 
 <img src="https://user-images.githubusercontent.com/6343193/28720938-38044bf2-7374-11e7-890a-f711b3a31983.png" alt="MS-Comparison" width="400">
 
-#### D-Statistic
-D-Statistic mode allows the user to input an alignment file in phylip-sequential format, choose the window size and offset, and select the location of each outgroup in the tree visual. This mode then generates the overall D-Statistic and a scatter plot in which the x-axis is the window number, and the y-axis is the D-Statistic value computed for that window.
+#### D Statistic
+D Statistic mode allows the user to input an alignment file in phylip-sequential format, choose the window size and offset, and select the location of each outgroup in the tree visual. This mode then generates the overall D Statistic and a scatter plot in which the x-axis is the window number, and the y-axis is the D Statistic value computed for that window.
 
 <img src="https://user-images.githubusercontent.com/6343193/28720924-30c81a4e-7374-11e7-88b6-cdf02d169af1.png" alt="D-Statistic" width="400">
 
-For further reading on the D-Statistic and its usage see: \
+For further reading on the D Statistic and its usage see: \
 [Green et al. (2010)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5100745/#SD1), 
 [Durand et al. (2011)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3144383/),
 [Martin et al. (2014)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4271521/) 
@@ -290,15 +290,15 @@ Click the Compare button to run MS Comparison and generate the desired figures.
 
 For more information on MS Comparison and the graphs it generates, see the [MS Comparison](#ms-comparison) section above.
 
-### D-Statistic
-To compute the D-Statistic, first input the desired alignment in phylip-sequential format. 
+### D Statistic
+To compute the D Statistic, first input the desired alignment in phylip-sequential format. 
 
 Then, input the preferred window size and offset. 
 
-Using the provided four taxa tree, select your desired topology. Click the Run button to generate the D-Statistic and the Windows to D-Statistic Scatter Plot.
+Using the provided four taxa tree, select your desired topology. Click the Run button to generate the D Statistic and the Windows to D Statistic Scatter Plot.
 
 
-For more information on the D-Statistic and what it outputs, see the [D-Statistic](#d-statistic) section above.
+For more information on the D Statistic and what it outputs, see the [D Statistic](#d-statistic) section above.
 
 ## Contributors
 - [Chabrielle Allen](https://github.com/chaballen)
