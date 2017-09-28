@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui_layout.ui'
 #
-# Created: Wed Sep 27 19:19:32 2017
+# Created: Wed Sep 27 20:18:12 2017
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -180,7 +180,7 @@ class Ui_PhylogeneticVisualization(object):
         self.raxmlToolBox.setObjectName(_fromUtf8("raxmlToolBox"))
         self.raxmlOptionsPage = QtGui.QWidget()
         self.raxmlOptionsPage.setEnabled(True)
-        self.raxmlOptionsPage.setGeometry(QtCore.QRect(0, 0, 705, 662))
+        self.raxmlOptionsPage.setGeometry(QtCore.QRect(0, 0, 589, 418))
         self.raxmlOptionsPage.setObjectName(_fromUtf8("raxmlOptionsPage"))
         self.verticalLayout_21 = QtGui.QVBoxLayout(self.raxmlOptionsPage)
         self.verticalLayout_21.setObjectName(_fromUtf8("verticalLayout_21"))
@@ -539,7 +539,7 @@ class Ui_PhylogeneticVisualization(object):
         self.verticalLayout_21.addWidget(self.widget)
         self.raxmlToolBox.addItem(self.raxmlOptionsPage, _fromUtf8(""))
         self.graphOptionsPage = QtGui.QWidget()
-        self.graphOptionsPage.setGeometry(QtCore.QRect(0, 0, 949, 641))
+        self.graphOptionsPage.setGeometry(QtCore.QRect(0, 0, 949, 467))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -1432,7 +1432,7 @@ class Ui_PhylogeneticVisualization(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(PhylogeneticVisualization)
-        self.stackedWidget.setCurrentIndex(3)
+        self.stackedWidget.setCurrentIndex(4)
         self.raxmlToolBox.setCurrentIndex(1)
         self.raxmlOptionsTabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(PhylogeneticVisualization)
