@@ -747,8 +747,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         elif validator == 'Int':
             entry.setValidator(QtGui.QIntValidator(entry))
 
-    def resizeEvent(self, event):
-        print self.size()
+    # def resizeEvent(self, event):
+    #     print self.size()
 
     # def moveEvent(self, QMoveEvent):
     #     print self.pos()
