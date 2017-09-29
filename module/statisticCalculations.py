@@ -84,10 +84,16 @@ class StatisticsCalculations(QtCore.QThread):
             # gene_tree = newick_reformat(gene_tree).replace("\n","")
             gene_tree = gene_tree.replace("\n", "")
 
+        # IF YOU COMMENT THIS OUT AGAIN EVERYTHING WILL BREAK
+        # add quotes to the strings
+        species_tree = str(species_tree)
+        species_tree = "'" + species_tree + "'"
+        gene_tree = "'" + gene_tree + "'"
+
         # Run PhyloNet jar file
         dir_path = os.path.dirname(os.path.realpath(__file__))
         j = os.path.join(dir_path, "Unstable.jar")
-        p = subprocess.Popen("java -jar {0} {1} {2}".format(j,species_tree, gene_tree), stdout=subprocess.PIPE)
+        p = subprocess.Popen("java -jar {0} {1} {2}".format(j,species_tree, gene_tree), stdout=subprocess.PIPE, shell=True)
 
         # Read output and convert to float
         (p_of_gt_given_st, err) = p.communicate()
