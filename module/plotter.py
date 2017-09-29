@@ -256,6 +256,7 @@ class Plotter(QtCore.QThread):
 
                 count += 1
 
+
     def doubleLineGraph(self, list1, list2, confidenceThreshold, xLabel='', yLabel=''):
         """
             Create a line graph based on the inputted dictionary

@@ -72,6 +72,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # create new instance of FileConverter class
         self.fileConverter = fc.FileConverter()
 
+        self.topologyPlotter.num = None
+
         # mapping from: windows --> page index
         self.windows = {'welcomePage': 0, 'inputPageRax': 1, 'inputPageFileConverter': 2, 'inputPageMS': 3, 'inputPageDStatistic': 4}
         # mapping from: windows --> dictionary of page dimensions
@@ -435,6 +437,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             self.numberOfUniqueTopologiesLabel.setText(str(len(topologies_to_counts)))
             if num > len(topologies_to_counts):
                 num = len(topologies_to_counts)
+            self.topologyPlotter.num = num
             list_of_top_counts, labels, sizes = self.topologyPlotter.top_freqs(num, topologies_to_counts)
             top_topologies_to_counts = self.topologyPlotter.top_topologies(num, topologies_to_counts)
             windows_to_top_topologies, top_topologies_list = self.topologyPlotter.windows_to_newick(top_topologies_to_counts, unique_topologies_to_newicks, rooted=self.rooted, outgroup=self.outgroupComboBox.currentText())  # all trees, scatter, circle, donut
@@ -448,7 +451,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
                 self.robinsonFouldsWindow = robinsonFouldsWindow.RobinsonFouldsWindow('Weighted Robinson Foulds Distance', windows_to_w_rf, 'Unweighted Robinson Foulds Distance', windows_to_uw_rf)
             else:
                 windows_to_uw_rf = self.statisticsCalculations.calculate_windows_to_rf(self.speciesTree, self.checkboxWeighted.isChecked())
-                self.robinsonFouldsWindow = robinsonFouldsWindow.RobinsonFouldsWindow('Weighted Robinson Foulds Distance', windows_to_uw_rf)
+                self.robinsonFouldsWindow = robinsonFouldsWindow.RobinsonFouldsWindow('Unweighted Robinson Foulds Distance', windows_to_uw_rf)
 
         if self.checkboxPGTST.isChecked():
             self.prevGeneratedFigures.add('p(GT | ST)')
