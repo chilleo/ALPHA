@@ -9,6 +9,7 @@ from dendropy.calculate import treecompare
 import matplotlib.pyplot as plt
 import numpy as np
 from PyQt4 import QtCore
+from sys import platform
 
 """
 Functions:
@@ -84,11 +85,13 @@ class StatisticsCalculations(QtCore.QThread):
             # gene_tree = newick_reformat(gene_tree).replace("\n","")
             gene_tree = gene_tree.replace("\n", "")
 
-        # IF YOU COMMENT THIS OUT AGAIN EVERYTHING WILL BREAK
-        # add quotes to the strings
-        species_tree = str(species_tree)
-        species_tree = "'" + species_tree + "'"
-        gene_tree = "'" + gene_tree + "'"
+
+        if platform == 'darwin':
+            # IF YOU COMMENT THIS OUT AGAIN EVERYTHING WILL BREAK
+            # add quotes to the strings
+            species_tree = str(species_tree)
+            species_tree = "'" + species_tree + "'"
+            gene_tree = "'" + gene_tree + "'"
 
         # Run PhyloNet jar file
         dir_path = os.path.dirname(os.path.realpath(__file__))
