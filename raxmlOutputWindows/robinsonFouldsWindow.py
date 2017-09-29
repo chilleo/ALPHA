@@ -12,7 +12,7 @@ Peter Dulworth
 
 class RobinsonFouldsWindow(Window):
     def __init__(self, title1, data1, title2=None, data2=None, xLabel='Windows', yLabel='RF Distance'):
-        Window.__init__(self, windowTitle='Robinson Foulds Distance From MS Truth', legend=False)
+        Window.__init__(self, windowTitle='Robinson Foulds Distance From Species Tree', legend=False)
 
         if title2 == None:
             self.plotter.stat_scatter(data1, title1, xLabel, yLabel, subplotPosition=111)
