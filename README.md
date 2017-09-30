@@ -6,7 +6,6 @@
       - [File Converter](#file-converter)
       - [MS Comparison](#ms-comparison)
       - [D Statistic](#d-statistic)
-    - [Figures](#figures)
     - [Output Files](#output-files)
 - [Installation](#installation)
    - [Common Installation Errors](#common-installation-errors)
@@ -22,7 +21,7 @@
 
 Automated Local Phylogenomic Analyses, or ALPHA, is a python-based application that provides an intuitive user interface for phylogenetic analyses and data visualization. It has four distinct modes that are useful for different types of phylogenetic analysis: RAxML, File Converter, MS Comparison, and D Statistic.
 
-<img src="https://user-images.githubusercontent.com/6343193/28720952-4041d668-7374-11e7-829e-0fd22521cfc8.png" alt="Welcome" width="400">
+<img src="https://user-images.githubusercontent.com/25121486/30996594-93970970-a487-11e7-996a-2cad60f0002b.png" alt="Welcome" width="400">
 
 RAxML mode gives users a front-end to interact with RAxML (STAMATAKIS 2014a) for Maximum Likelihood based inference of large phylogenetic trees. ALPHA’s RAxML mode allows one to use RAxML to automatically perform sliding window analysis over an inputted alignment. Users are able to select from a plethora of options in performing their analysis, including: window size, window offset, and number of bootstraps. In this mode, users are able to produce a variety of graphs to help understand their genomic alignment and interpret the trees outputted by RAxML. These graph options include: a tree visualization of the top topologies, scatter plot of windows to their topologies, frequency of top topologies, a line graph of windows to the percent of informative sites, and a heat map of the informative sites. RAxML mode also provides support for calculating two statistics based on the trees produced within each window as compared to an overall species tree: Robinson-Foulds distance and the probability of a gene tree given a species tree.
 
@@ -43,11 +42,11 @@ In RAxML mode, there are two analysis sections containing preferences for adjust
 
 In standard mode, the window size, window offset, and the number of top topologies to be analyzed can be inputted manually as integers greater than one. The model type can be selected from six popular types. Bootstrapping can also be selected; if it is, the user can input the confidence level and the number of bootstraps to be performed. The user can also choose to root the tree at a specific outgroup in the input file.
 
-<img src="https://user-images.githubusercontent.com/6343193/28720944-3af69d42-7374-11e7-8c19-7fc336c5e428.png" alt="RAxML-Standard" width="400">
+<img src="https://user-images.githubusercontent.com/25121486/30996603-99bcc0ce-a487-11e7-9346-79d13b717236.png" alt="RAxML-Standard" width="400">
 
 In advanced mode, the user can input a custom RAxML command in which the -s and -n flags are handled internally. A rooted or unrooted species tree can also be generated in this mode using a custom RAxML command or by simply clicking Generate, which runs RAxML on the entire alignment.
 
-<img src="https://user-images.githubusercontent.com/6343193/28720942-396f2304-7374-11e7-8548-85dd6c7b2e1d.png" alt="RAxML-Advanced" width="400">
+<img src="https://user-images.githubusercontent.com/25121486/30996604-9c1e3744-a487-11e7-86cb-a9a923bd7c12.png" alt="RAxML-Advanced" width="400">
 
 For more information regarding RAxML and its commands see the [RAxML manual](https://sco.h-its.org/exelixis/resource/download/NewManual.pdf).
 
@@ -69,12 +68,12 @@ The Robinson-Foulds Distance Scatter Plot depicts the Robinson-Foulds distance b
 
 The Probability of A Gene Tree Given the Species Tree Scatter Plot shows the probability of the local phylogeny at a window actually occurring given the inputted species tree.
 
-<img src="https://user-images.githubusercontent.com/6343193/28720932-3598db9e-7374-11e7-92c8-31397aedc637.png" alt="RAxML-Graph-Options" width="400">
+<img src="https://user-images.githubusercontent.com/25121486/30996682-2de4ebf0-a488-11e7-88fc-dceac9f606b5.png" alt="RAxML-Graph-Options" width="400">
 
 #### File Converter
 File Converter mode allows the user to select a file containing DNA alignments in one of twelve popular formats and convert them to a different file format. After selecting the input file and its format, the user must specify the output file’s name and location along with the desired format.
 
-<img src="https://user-images.githubusercontent.com/6343193/28720928-349f1898-7374-11e7-86ee-86a1abcc9341.png" alt="File-Converter" width="400">
+<img src="https://user-images.githubusercontent.com/25121486/30996725-766589fc-a488-11e7-86b7-1a9f1514e57d.png" alt="File-Converter" width="400">
 
 For more information regarding file types see [BioPython AlignIO](http://biopython.org/wiki/AlignIO).
 
@@ -91,12 +90,12 @@ The Percent Matching Sites Bar Plot shows the percentage of sites in the compari
 
 The TMRCA Line Graph shows the tree height over each site when comparing the truth files and other files. This figure is meant to depict to the differences in the time to most recent common ancestor (TMRCA) between each file.
 
-<img src="https://user-images.githubusercontent.com/6343193/28720938-38044bf2-7374-11e7-890a-f711b3a31983.png" alt="MS-Comparison" width="400">
+<img src="https://user-images.githubusercontent.com/25121486/31040226-4adbfd12-a54a-11e7-9869-57a488908ac0.png" alt="MS-Comparison" width="400">
 
 #### D Statistic
 D Statistic mode allows the user to input an alignment file in phylip-sequential format, choose the window size and offset, and select the location of each outgroup in the tree visual. This mode then generates the overall D Statistic and a scatter plot in which the x-axis is the window number, and the y-axis is the D Statistic value computed for that window.
 
-<img src="https://user-images.githubusercontent.com/6343193/28720924-30c81a4e-7374-11e7-88b6-cdf02d169af1.png" alt="D-Statistic" width="400">
+<img src="https://user-images.githubusercontent.com/25121486/30996746-a109a5e4-a488-11e7-9ef2-0434fa6defd9.png" alt="D-Statistic" width="400">
 
 For further reading on the D Statistic and its usage see: \
 [Green et al. (2010)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5100745/#SD1), 
@@ -211,7 +210,13 @@ If you receive this error after running the command in Step 7, run this command:
         mkdir -p /Users/owner/Library/Python/2.7/lib/python/site-packages echo 'import site; site.addsitedir("/usr/local/lib/python2.7/site-packages")'
 
 ## How To Use
-After installing and opening ALPHA, you can use the drop down menu on the main page to select the mode you'd like to use. Once you enter any of these modes, you can use the "Mode" drop down menu in the upper left corner to enter a different one. 
+After installing and opening ALPHA, you can use the drop down menu on the main page to select the mode you'd like to use. 
+
+<img src="https://user-images.githubusercontent.com/25121486/30996595-94ab4902-a487-11e7-8845-2cd73bf439e5.png" alt="Welcome-Menu" width="400">
+
+Once you enter any of these modes, you can use the "Mode" drop down menu in the upper left corner to enter a different one. 
+
+<img src="https://user-images.githubusercontent.com/25121486/30996597-966220ea-a487-11e7-87a2-a323915d38fa.png" alt="Mode-Menu" width="400">
 
 Here, we use the provided example files (see the folder "exampleFiles" in the ALPHA directory) to show how to use the software.
 
@@ -219,8 +224,13 @@ Here, we use the provided example files (see the folder "exampleFiles" in the AL
 #### Run RAxML
 For Standard Mode:
 - Input the desired window size and offset, and select the desired model.
+
+<img src="https://user-images.githubusercontent.com/25121486/30996607-a17c13c8-a487-11e7-8395-aa1874f713f3.png" alt="RAxML-Windows" width="400">
+
 - If you select the Bootstrap option, input the desired confidence level and number of bootstraps to be run.
 - To root the tree, select the Rooted option. Use the drop down menu to select the desired outgroup. 
+
+<img src="https://user-images.githubusercontent.com/25121486/30996608-a2d04276-a487-11e7-92b4-48ff3ad72280.png" alt="RAxML-Bootstrap" width="400">
 
 For Advanced Mode:
 - If you select the Custom RAxML Command option, input your desired command without the -s and -n flags.
@@ -228,6 +238,10 @@ For Advanced Mode:
   - If you select the Custom RAxML Command option, use the same parameters as above to input your command.
   - To root your species tree, select the Rooted option and select your desired outgroup with the drop down menu on the right.
   - Click the Generate button to create your species tree file.
+
+In this example, we generate a species tree by running RAxML over the entire alignment, which does not require additional inputs.
+
+<img src="https://user-images.githubusercontent.com/25121486/30996678-281e9b08-a488-11e7-8d52-5347030e5f19.png" alt="RAxML-Advanced" width="400">
 
 After modifying these options to your preferences, click the Run RAxML button. The Generate Figures options will be available after you run RAxML.
 
@@ -245,10 +259,14 @@ For Robinson-Foulds Distance Scatter Plot:
 For p(GT|ST) Scatter Plot:
 - Input the Input the species tree by selecting a file or inputting a newick string under the Species Tree section. You can generate a species tree for this by following the steps in the Advanced mode of Run RAxML. The tree must be rooted to generate this plot.
 
+<img src="https://user-images.githubusercontent.com/25121486/30996686-310b25f6-a488-11e7-9c65-5e55d206dd05.png" alt="RAxML-Generate" width="400">
+
 Once you have selected the desired figures to be generated, click the Generate Figures button. 
 
 To resize and manipulate the figures:
 - All figures generated in ALPHA use a Matplotlib output interface, allowing users to customize figures to their liking. Hovering one’s cursor over the icons at the bottom of each figure’s output window provides a short description of each icon’s usage. The following describes each button from left to right.
+ 
+<img src="https://user-images.githubusercontent.com/25121486/30996735-8496fbd2-a488-11e7-8764-cb89ebf6c061.png" alt="Image-Icons" width="400">
  
 - The home button reformats the plot to the default view. 
 - The left arrow button changes the plot to its previous view.
@@ -273,6 +291,7 @@ To use the file converter, first select the input file and its format.
 Then, specify the desired filename, location, and format of the output file. 
 Click the convert button to create your new file. 
 
+<img src="https://user-images.githubusercontent.com/25121486/31040426-ee26dbfc-a54c-11e7-943c-9f07a8f7a55a.png" alt="File-Converter" width="400">
 
 For more information on the File Converter and its formats, see the [File Converter](#file-converter) section above.
 
@@ -291,6 +310,7 @@ To select more than one MS file to compare against, simply click the + button to
 Select any number of the three graphs to generate them.
 Click the Compare button to run MS Comparison and generate the desired figures.
 
+<img src="https://user-images.githubusercontent.com/25121486/31040227-4c8244a0-a54a-11e7-8881-bff830c536f2.png" alt="MS-Comparison" width="400">
 
 For more information on MS Comparison and the graphs it generates, see the [MS Comparison](#ms-comparison) section above.
 
@@ -301,6 +321,7 @@ Then, input the preferred window size and offset.
 
 Using the provided four taxa tree, select your desired topology. Click the Run button to generate the D Statistic and the Windows to D Statistic Scatter Plot.
 
+<img src="https://user-images.githubusercontent.com/25121486/30996748-a3291af8-a488-11e7-8389-4fd4515b64f4.png" alt="D-Statistic" width="400">
 
 For more information on the D Statistic and what it outputs, see the [D Statistic](#d-statistic) section above.
 
