@@ -17,14 +17,16 @@ Travis Benedict
 Peter Dulworth
 """
 
-def calculate_generalized(alignment, taxa, species_tree, reticulations):
+
+def calculate_generalized(alignment, taxa, species_tree, reticulations, verbose=False):
     """
     Calculates the L statistic for the given alignment
     Input:
     alignment --- a sequence alignment in phylip format
     taxa --- a list of the taxa in the desired order
     species_tree --- the inputted species tree over the given taxa
-    reticulations a tuple containing two dictionaries mapping the start leaves to end leaves
+    reticulations --- a tuple containing two dictionaries mapping the start leaves to end leaves
+    verbose --- a boolean for determining if extra information will be printed
     Output:
     l_stat --- the L statistic value
     """
@@ -55,11 +57,19 @@ def calculate_generalized(alignment, taxa, species_tree, reticulations):
 
     l_stat = calculate_L(alignment, taxa, patterns_of_interest)
 
-    print "Newick strings with corresponding patterns: ", newick_patterns
-
-    print "Patterns of interest: ", patterns_of_interest[0], patterns_of_interest[1]
-
-    print "Statistic: ", generate_statistic_string(patterns_of_interest)
+    if verbose:
+        print
+        print "Newick strings with corresponding patterns: ", newick_patterns
+        print
+        print "Probability of gene tree: ", patterns_pgS
+        print 
+        print "Probability of species network with reticulation {0}: ".format(reticulations[0]), patterns_pgN1
+        print "Probability of species network with reticulation {0}: ".format(reticulations[1]), patterns_pgN2
+        print
+        print "Patterns of interest: ", patterns_of_interest[0], patterns_of_interest[1]
+        print
+        print "Statistic: ", generate_statistic_string(patterns_of_interest)
+        print
 
     return l_stat
 
@@ -905,7 +915,5 @@ def calculate_L(alignment, taxa_order, patterns_of_interest):
     l_stat = numerator / float(denominator)
 
     return l_stat
-
-
 
 
