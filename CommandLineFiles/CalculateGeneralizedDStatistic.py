@@ -1080,3 +1080,20 @@ def compute_total_order(species_tree):
 print compute_total_order('((((P1,P2),P3),P4),O);')
 # print all_total_ordering('((((P1,P2),P3),P4),O);')
 # print branch_adjust('((((P1,P2),P3),P4),O);')
+
+
+"""
+Create a list of branch lengths that contains all possible combinations
+This includes repetitions of branch lengths and cant just be done with itertools.permutations
+See line 989
+"""
+
+
+
+"""
+Need to generate a total ordering for each network
+Can change input of compute_total_order to take all_orders
+Generate all orderings for each network reticulation 
+all_total_ordering function should be able to do this for a network without changing anything
+Combine those dictionaries then input to compute_total_order
+"""
