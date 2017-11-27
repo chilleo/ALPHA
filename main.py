@@ -1,5 +1,5 @@
 # utilities
-import sip, sys, os, re, webbrowser, random
+import sip, sys, os, re, webbrowser
 sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore
 from functools import partial
