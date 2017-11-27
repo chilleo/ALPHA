@@ -97,7 +97,7 @@ def calculate_generalized(alignment, taxa, species_tree, reticulations, verbose=
     return l_stat
 
 
-def generate_network_tree(inheritance, species_tree, network_map, count):
+def generate_network_tree(inheritance, species_tree, network_map, count=1):
     """
     Creates a network tree based on the species tree
     and the two leaves to be connected.
@@ -959,10 +959,7 @@ def calculate_L(alignment, taxa_order, patterns_of_interest):
     return l_stat
 
 
-
-
-
-
+##### Functions for total ordering
 
 
 def branch_adjust(species_tree):
@@ -998,7 +995,32 @@ def branch_adjust(species_tree):
 
     return adjusted_trees, taxa
 
-def all_total_ordering(species_tree):
+def network_branch_adjust(species_network):
+    """
+    Create all possible combinations of branch lengths for the given species network
+    Input:
+    species_tree --- a newick string containing the overall species network
+    Output:
+    adjusted_trees --- a set of trees with all combinations of branch lengths
+    """
+    # branch_lengths = [.01, .1, .5, 1.0, 2.0, 4.0]
+    branch_lengths = [.5, 1.0, 2.0, 4.0]
+    adjusted_trees = set([])
+
+    pattern = "((?<!\:)(\:\d+\.\d+))"
+    lengths = re.findall(pattern, species_network)
+
+    ############Adjust branch length stuff to account for all possible combinations
+
+    for b in branch_lengths:
+        new_t = species_network
+        for l in lengths:
+            new_t = new_t.replace(l[0], ":" + str(b))
+        adjusted_trees.add(new_t)
+
+    return adjusted_trees
+
+def all_total_ordering(species_trees, taxa, network=False):
     """
     Create strings which represent the total ordering of p(gt|st)
     Input:
@@ -1006,10 +1028,10 @@ def all_total_ordering(species_tree):
     Output:
     total_orders --- p(gt|st) total orderings to their adjusted species trees 
     """
+    output_str = "Tree"
     st_to_gt_probs = {}
     total_orders = {}
 
-    species_trees, taxa = branch_adjust(species_tree)
     outgroup = taxa[-1]
     gene_trees = generate_unique_trees(taxa, outgroup)
 
@@ -1033,33 +1055,34 @@ def all_total_ordering(species_tree):
             elif prob1 == prob2:
                 order.append(gt1)
                 order.append("=")
-            else:
-                order.append(gt1)
-                order.append("<")
-                print "Equality flip:"
 
             gt1, prob1 = gt2, prob2
 
         order.append(gt1)
 
-        print "Species Tree: {0}, Total Order: {1}".format(st, order)
+        if network == True:
+            output_str = "Network"
+
+        print "Species {0}: {1}, Total Order: {2}".format(output_str, st, order)
         total_orders[tuple(order)] = st
 
     print
     return total_orders
 
-def compute_total_order(species_tree):
+def compute_total_order(all_orders, network=False):
     """
     Create strings which represent the total ordering of p(gt|st)
     Input:
-    species_tree --- a newick string containing the overall species tree without branch lengths
+    all_orders --- p(gt|st) total orderings to their adjusted species trees 
     Output:
     total_order --- the total ordering for the species tree
     """
 
-    all_orders = all_total_ordering(species_tree)
-
     total_order = list(all_orders.keys()[0])
+
+    output_str = "Tree"
+    if network == True:
+        output_str = "Network"
 
     for order in all_orders:
         for i in range(len(order)):
@@ -1067,8 +1090,8 @@ def compute_total_order(species_tree):
             if i % 2 == 0:
                 if order[i] != total_order[i]:
                     print "ERROR: expected {0} but received {1} instead ".format(total_order[i], order[i])
-                    print "Species tree for expected ordering: {0}".format(all_orders[all_orders.keys()[0]])
-                    print "Species tree for received ordering: {0}".format(all_orders[order])
+                    print "Species {0} for expected ordering: {1}".format(output_str, all_orders[all_orders.keys()[0]])
+                    print "Species {0} for received ordering: {1}".format(output_str, all_orders[order])
                     print
             else:
                 if order[i] != total_order[i]:
@@ -1076,8 +1099,70 @@ def compute_total_order(species_tree):
 
     return total_order
 
+
+def network_adjust(species_network):
+    """
+    Create all possible combinations of inheritance probabilities for the given species network
+    Input:
+    species_network --- a newick string containing the overall species network
+    Output:
+    adjusted_networks --- a set of networks with all combinations of branch lengths
+    """
+    inheritance_probs = [0.1, 0.5, 0.9]
+    # inheritance_probs = [0.1, 0.3] can be used for deriving the D but also throws errors for 5 taxon tree
+    # inheritance_probs = [0.9] Throws errors with different branch lengths for 5 taxon tree
+    adjusted_networks = set([])
+
+    pattern = "\:\:0\.\d+"
+    reticulations = re.findall(pattern, species_network)
+
+    ###########Adjust reticulation stuff
+
+    for prob in inheritance_probs:
+        new_net = species_network
+        count = 0
+        for r in reticulations:
+            if count % 2 == 0:
+                new_net = new_net.replace(r, "::{0}".format(str(prob)))
+            else:
+                new_net = new_net.replace(r, "::{0}".format(str(1 - prob)))
+            count += 1
+        net_set = network_branch_adjust(new_net)
+        adjusted_networks = adjusted_networks.union(net_set)
+
+    return adjusted_networks
+
+
+def display_total_orders(species_tree, reticulation):
+    """
+    Generate the total orders for both the species tree and species network
+    Inputs:
+    species_tree --- the desired species tree with arbitrary branch lengths
+    reticulation --- a mapping from one taxon to another representing the desired reticulation
+    """
+
+    network = generate_network_tree((0.03, 0.97), species_tree, reticulation)
+    st = re.sub("\:\d+\.\d+", "", species_tree)
+    trees, taxa = branch_adjust(st)
+    networks = network_adjust(network)
+    all_net_orders = all_total_ordering(networks, taxa, network=True)
+    print compute_total_order(all_net_orders, network=True)
+    print
+    all_st_orders = all_total_ordering(trees, taxa)
+    print compute_total_order(all_st_orders)
+
+
+# display_total_orders("((((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,P4:0.01):0.01,O:0.01);", {"P3": "P1"})
+# display_total_orders("(((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,O:0.01);", {"P3": "P1"})
+
+
+
+# "((((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,P4:0.01):0.01,O:0.01);"
+# "(((((#H0:0::0.3,P1):0.01,P2:0.01):0.01,((P3)#H0:0::0.7):0.01):0.01,P4:0.01):0.01,O:0.01);"
+# "(((((#H1:0::0.7,P1):0.01,P2:0.01):0.01,((P3)#H1:0::0.3):0.01):0.01,P4:0.01):0.01,O:0.01);"
+
 # print compute_total_order('(((P1,P2),P3),O);')
-print compute_total_order('((((P1,P2),P3),P4),O);')
+# print compute_total_order('((((P1,P2),P3),P4),O);')
 # print all_total_ordering('((((P1,P2),P3),P4),O);')
 # print branch_adjust('((((P1,P2),P3),P4),O);')
 
@@ -1085,15 +1170,5 @@ print compute_total_order('((((P1,P2),P3),P4),O);')
 """
 Create a list of branch lengths that contains all possible combinations
 This includes repetitions of branch lengths and cant just be done with itertools.permutations
-See line 989
-"""
-
-
-
-"""
-Need to generate a total ordering for each network
-Can change input of compute_total_order to take all_orders
-Generate all orderings for each network reticulation 
-all_total_ordering function should be able to do this for a network without changing anything
-Combine those dictionaries then input to compute_total_order
+See line 986
 """
