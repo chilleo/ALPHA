@@ -1005,6 +1005,7 @@ def network_branch_adjust(species_network):
     """
     # branch_lengths = [.01, .1, .5, 1.0, 2.0, 4.0]
     branch_lengths = [.5, 1.0, 2.0, 4.0]
+    # branch_lengths = [.01]
     adjusted_trees = set([])
 
     pattern = "((?<!\:)(\:\d+\.\d+))"
@@ -1040,6 +1041,12 @@ def all_total_ordering(species_trees, taxa, network=False):
         for gt in gene_trees:
             gt_to_probs[gt] = calculate_pgtst(st, gt)
         st_to_gt_probs[st] = sorted(gt_to_probs.items(), key=lambda tup: tup[1] ,reverse=True)
+
+    # Add something like this in the code instead of the calculation stuff above
+    #
+    # trees_to_pgS, trees_to_pgN, trees_to_pgS_noO, trees_to_pgN_noO = calculate_newicks_to_stats(species_tree, network,
+    #                                                                                             unique, outgroup)
+    # patterns_pgS, patterns_pgN = calculate_pattern_probabilities(newick_patterns, trees_to_pgS_noO, trees_to_pgN_noO)
 
     for st in sorted(st_to_gt_probs.keys()):
 
@@ -1108,8 +1115,8 @@ def network_adjust(species_network):
     Output:
     adjusted_networks --- a set of networks with all combinations of branch lengths
     """
-    inheritance_probs = [0.1, 0.5, 0.9]
-    # inheritance_probs = [0.1, 0.3] can be used for deriving the D but also throws errors for 5 taxon tree
+    # inheritance_probs = [0.1, 0.5, 0.9]
+    inheritance_probs = [0.1, 0.3] #can be used for deriving the D but also throws errors for 5 taxon tree
     # inheritance_probs = [0.9] Throws errors with different branch lengths for 5 taxon tree
     adjusted_networks = set([])
 
@@ -1152,8 +1159,86 @@ def display_total_orders(species_tree, reticulation):
     print compute_total_order(all_st_orders)
 
 
-# display_total_orders("((((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,P4:0.01):0.01,O:0.01);", {"P3": "P1"})
-# display_total_orders("(((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,O:0.01);", {"P3": "P1"})
+def equality_sets(species_trees, taxa):
+    """
+    Create strings which represent the total ordering of p(gt|st)
+    Input:
+    species_tree --- a newick string containing the overall species tree without branch lengths
+    Output:
+    trees_to_equality --- a mapping of tree strings to a set of other trees with the same p(gt|st)
+    """
+    st_to_gt_probs = {}
+    trees_to_equality = {}
+
+    outgroup = taxa[-1]
+    gene_trees = generate_unique_trees(taxa, outgroup)
+
+    for st in species_trees:
+        gt_to_probs = {}
+        for gt in gene_trees:
+            gt_to_probs[gt] = calculate_pgtst(st, gt)
+        st_to_gt_probs[st] = sorted(gt_to_probs.items(), key=lambda tup: tup[1] ,reverse=True)
+
+    for st in sorted(st_to_gt_probs.keys()):
+
+        gt_probs = st_to_gt_probs[st]
+
+        for i in range(len(gt_probs)):
+
+            gt1, prob1 = gt_probs[i]
+            equal_trees = set([])
+
+            for j in range(i + 1, len(gt_probs)):
+                gt2, prob2 = gt_probs[j]
+                if prob1 == prob2:
+                    equal_trees.add(gt2)
+
+            if len(equal_trees) != 0:
+                if gt1 in trees_to_equality:
+                    if trees_to_equality[gt1] != equal_trees:
+                        print "CHECK THIS OUT"
+                trees_to_equality[gt1] = equal_trees
+
+    return trees_to_equality
+
+
+def set_of_interest(trees_to_equality, trees_to_equality_N):
+    """
+    Inputs:
+    trees_to_equality --- a mapping of tree strings to a set of other trees with the same p(gt|st)
+    trees_to_equality_N --- a mapping of tree strings to a set of other trees with the same p(gt|N)
+    Output:
+    trees_of_interest --- a set of trees that changed equality under the species network
+    """
+
+    trees_of_interest = set([])
+
+    for tree in trees_to_equality:
+
+        if tree not in trees_to_equality_N:
+            t_set = trees_to_equality[tree]
+            t_set.add(tree)
+            trees_of_interest = trees_of_interest.union(t_set)
+        elif trees_to_equality[tree] != trees_to_equality_N[tree]:
+            t_set = trees_to_equality[tree]
+            t_set.add(tree)
+            trees_of_interest = trees_of_interest.union(t_set)
+
+    return trees_of_interest
+
+
+# species_tree, r = '((((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,P4:0.01):0.01,O:0.01);', {'P3': 'P1'}
+species_tree, r = "(((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,O:0.01);", {'P3': 'P1'}
+network = generate_network_tree((0.03, 0.97), species_tree, r)
+st = re.sub("\:\d+\.\d+", "", species_tree)
+trees, taxa = branch_adjust(st)
+networks = network_adjust(network)
+trees_to_equality = equality_sets(trees, taxa)
+trees_to_equality_N = equality_sets(networks, taxa)
+trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
+print trees_of_interest
+# display_total_orders('((((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,P4:0.01):0.01,O:0.01);', {'P3': 'P1'})
+# display_total_orders('(((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,O:0.01);', {'P3': 'P1'})
 
 
 
