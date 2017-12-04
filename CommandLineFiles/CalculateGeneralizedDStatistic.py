@@ -31,70 +31,7 @@ reticulations = [.1, .5, .9]  # Use all possible reticulations for all possible 
 # Then we done maybe
 
 
-def calculate_generalized(alignment, taxa, species_tree, reticulations, verbose=False):
-    """
-    Calculates the L statistic for the given alignment
-    Input:
-    alignment --- a sequence alignment in phylip format
-    taxa --- a list of the taxa in the desired order
-    species_tree --- the inputted species tree over the given taxa
-    reticulations --- a tuple containing two dictionaries mapping the start leaves to end leaves
-    verbose --- a boolean for determining if extra information will be printed
-    Output:
-    l_stat --- the L statistic value
-    """
 
-    # The outgroup is the last taxon in the list of taxa
-    outgroup = taxa[-1]
-
-    # Generate all unique trees over the given topology
-    unique = generate_unique_trees(taxa, outgroup)
-
-    # Map the tree newick strings to their site patterns
-    newick_patterns = newicks_to_patterns_generator(taxa, unique)
-
-    # Create species networks
-    network_map1, network_map2 = reticulations[0], reticulations[1]
-    network = generate_network_tree((0.3, 0.7), species_tree, network_map1, 1)
-    print network
-    # network = generate_network_tree((0.3, 0.7), network, network_map2, 2)
-    # print network
-
-    trees_to_pgS, trees_to_pgN, trees_to_pgS_noO, trees_to_pgN_noO = calculate_newicks_to_stats(species_tree, network,
-                                                                                                unique, outgroup)
-    # patterns_pgS, patterns_pgN = calculate_pattern_probabilities(newick_patterns, trees_to_pgS, trees_to_pgN)
-    patterns_pgS, patterns_pgN = calculate_pattern_probabilities(newick_patterns, trees_to_pgS_noO, trees_to_pgN_noO)
-
-    increase, decrease, same = determine_patterns(patterns_pgS, patterns_pgN)
-
-    l_stat = calculate_L(alignment, taxa, (increase, decrease))
-
-    if verbose:
-        print
-        print "Newick strings with corresponding patterns: ", newick_patterns
-        print
-        print "Probability of gene tree: ", trees_to_pgS
-        print
-        print "Probability of species network: ", trees_to_pgN
-        print
-        print "Probability of gene tree with outgroup removed: ", trees_to_pgS_noO
-        print
-        print "Probability of species network with outgroup removed: ", trees_to_pgN_noO
-        print
-        print "Probability of gene tree patterns: ", patterns_pgS
-        print
-        print "Probability of species network patterns:", patterns_pgN
-        print
-        print "Patterns with increasing probability: ", increase
-        print "Patterns with decreasing probability: ", decrease
-        print "Patterns with same probability ", same
-        print
-        print "Patterns of interest: ", increase, decrease
-        print
-        print "Statistic: ", generate_statistic_string((increase, decrease))
-        print
-
-    return l_stat
 
 
 def generate_network_tree(inheritance, species_tree, network_map, count=1):
@@ -795,42 +732,48 @@ def calculate_pattern_probabilities(newicks_to_patterns, newicks_to_pgS, newicks
     return patterns_to_pgS, patterns_to_pgN
 
 
-def determine_patterns(patterns_to_pgS, patterns_to_pgN):
+def determine_patterns(pattern_set, patterns_to_equality, patterns_to_pgN):
     """
     Determine which patterns are useful in determining introgression
     Inputs:
-    patterns_to_pgS --- a mapping of site patterns to their total p(g|S) value
+    pattern_set -- a set containing all patterns of interest
+    patterns_to_equality --- a mapping of site patterns to site patterns with equivalent p(gt|st)
     patterns_to_pgN --- a mapping of site patterns to their total p(g|N) value for a network
     Outputs:
     terms1 --- a set of patterns to count and add to each other to determine introgression
     terms2 --- a set of other patterns to count and add to each other to determine introgression
     """
 
-    # Initialize sets for the patterns of interest
-    interesting_patterns = set([])
     terms1 = set([])
     terms2 = set([])
-    terms3 = set([])
 
-    # Iterate over each pattern to determine the patterns of interest
-    for pattern in patterns_to_pgS:
+    # Iterate over each pattern to determine the terms of interest
+    for pattern1 in pattern_set:
 
-        tree_probability = patterns_to_pgS[pattern]
+        pat1_prob = patterns_to_pgN[pattern1]
 
-        if patterns_to_pgN[pattern] > tree_probability:
-            terms1.add(pattern)
+        if pattern1 in patterns_to_equality.keys():
+            for pattern2 in patterns_to_equality[pattern1]:
 
-        elif patterns_to_pgN[pattern] < tree_probability:
-            terms2.add(pattern)
+                pat2_prob = patterns_to_pgN[pattern2]
 
-        elif patterns_to_pgN[pattern] == tree_probability:
-            terms3.add(pattern)
+                if pat1_prob > pat2_prob:
+                    terms1.add(pattern1)
+                    terms2.add(pattern2)
 
-            # if patterns_to_pgN[pattern] > tree_probability:
-            #     terms1.add(pattern)
-            #
+                elif pat1_prob < pat2_prob:
+                    terms1.add(pattern2)
+                    terms2.add(pattern1)
 
-    return terms1, terms2, terms3
+    inverted1 = pattern_inverter(terms1)
+    for pattern in inverted1:
+        terms1.add(''.join(pattern))
+
+    inverted2 = pattern_inverter(terms2)
+    for pattern in inverted2:
+        terms2.add(''.join(pattern))
+
+    return terms1, terms2
 
 
 def generate_statistic_string(patterns_of_interest):
@@ -990,7 +933,7 @@ def branch_adjust(species_tree):
         for taxon in taxa:
             new_t = new_t.replace(taxon, "{0}:{1}".format(taxon, b))
         new_t = new_t.replace("),", "):{0},".format(b))
-        new_t = new_t.replace(",(", ",{0}:(".format(b))
+        # new_t = new_t.replace(",(", ",{0}:(".format(b))
         adjusted_trees.add(new_t)
 
     return adjusted_trees, taxa
@@ -1042,11 +985,7 @@ def all_total_ordering(species_trees, taxa, network=False):
             gt_to_probs[gt] = calculate_pgtst(st, gt)
         st_to_gt_probs[st] = sorted(gt_to_probs.items(), key=lambda tup: tup[1] ,reverse=True)
 
-    # Add something like this in the code instead of the calculation stuff above
-    #
-    # trees_to_pgS, trees_to_pgN, trees_to_pgS_noO, trees_to_pgN_noO = calculate_newicks_to_stats(species_tree, network,
-    #                                                                                             unique, outgroup)
-    # patterns_pgS, patterns_pgN = calculate_pattern_probabilities(newick_patterns, trees_to_pgS_noO, trees_to_pgN_noO)
+
 
     for st in sorted(st_to_gt_probs.keys()):
 
@@ -1159,47 +1098,91 @@ def display_total_orders(species_tree, reticulation):
     print compute_total_order(all_st_orders)
 
 
-def equality_sets(species_trees, taxa):
+def equality_sets(species_trees, network, taxa):
     """
     Create strings which represent the total ordering of p(gt|st)
     Input:
     species_tree --- a newick string containing the overall species tree without branch lengths
     Output:
     trees_to_equality --- a mapping of tree strings to a set of other trees with the same p(gt|st)
+    trees_to_equality --- a mapping of tree strings to a set of other trees with the same p(gt|N)
     """
-    st_to_gt_probs = {}
+    st_to_pattern_probs = {}
+    st_to_pattern_probs_N = {}
     trees_to_equality = {}
+    trees_to_equality_N = {}
 
     outgroup = taxa[-1]
     gene_trees = generate_unique_trees(taxa, outgroup)
+    newick_patterns = newicks_to_patterns_generator(taxa, gene_trees)
 
     for st in species_trees:
-        gt_to_probs = {}
-        for gt in gene_trees:
-            gt_to_probs[gt] = calculate_pgtst(st, gt)
-        st_to_gt_probs[st] = sorted(gt_to_probs.items(), key=lambda tup: tup[1] ,reverse=True)
+        ts_to_pgS, ts_to_pgN, trees_to_pgS_noO, trees_to_pgN_noO = calculate_newicks_to_stats(st, network, gene_trees,
+                                                                                              outgroup)
+        patterns_pgS, patterns_pgN = calculate_pattern_probabilities(newick_patterns, trees_to_pgS_noO,
+                                                                     trees_to_pgN_noO)
+        st_to_pattern_probs[st] = sorted(patterns_pgS.items(), key=lambda tup: tup[1] ,reverse=True)
+        st_to_pattern_probs_N[st] = sorted(patterns_pgN.items(), key=lambda tup: tup[1], reverse=True)
 
-    for st in sorted(st_to_gt_probs.keys()):
+    # Generate equality sets based on p(gt|st)
+    for st in sorted(st_to_pattern_probs.keys()):
 
-        gt_probs = st_to_gt_probs[st]
+        gt_probs = st_to_pattern_probs[st]
+        seen_trees = set([])
 
         for i in range(len(gt_probs)):
 
             gt1, prob1 = gt_probs[i]
             equal_trees = set([])
 
-            for j in range(i + 1, len(gt_probs)):
+            seen = set([])
+            for j in range(len(gt_probs)):
+
                 gt2, prob2 = gt_probs[j]
-                if prob1 == prob2:
+                if prob1 == prob2 and gt1 != gt2 and gt2 not in seen_trees:
                     equal_trees.add(gt2)
+                    seen.add(gt2)
 
-            if len(equal_trees) != 0:
-                if gt1 in trees_to_equality:
-                    if trees_to_equality[gt1] != equal_trees:
-                        print "CHECK THIS OUT"
+            # Debugging case
+            if gt1 in trees_to_equality:
+                if trees_to_equality[gt1] != equal_trees:
+                    print "CHECK THIS OUT"
+
+            if len(equal_trees) != 0 and gt1 not in seen_trees:
                 trees_to_equality[gt1] = equal_trees
+                seen_trees.add(gt1)
+                seen_trees = seen_trees.union(seen)
 
-    return trees_to_equality
+        # Generate equality sets based on p(gt|N)
+        for st in sorted(st_to_pattern_probs_N.keys()):
+
+            gt_probs = st_to_pattern_probs_N[st]
+            seen_trees = set([])
+
+            for i in range(len(gt_probs)):
+
+                gt1, prob1 = gt_probs[i]
+                equal_trees = set([])
+
+                seen = set([])
+                for j in range(len(gt_probs)):
+
+                    gt2, prob2 = gt_probs[j]
+                    if prob1 == prob2 and gt1 != gt2 and gt2 not in seen_trees:
+                        equal_trees.add(gt2)
+                        seen.add(gt2)
+
+                # Debugging case
+                if gt1 in trees_to_equality_N:
+                    if trees_to_equality_N[gt1] != equal_trees:
+                        print "CHECK THIS OUT"
+
+                if len(equal_trees) != 0 and gt1 not in seen_trees:
+                    trees_to_equality_N[gt1] = equal_trees
+                    seen_trees.add(gt1)
+                    seen_trees = seen_trees.union(seen)
+
+    return trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN
 
 
 def set_of_interest(trees_to_equality, trees_to_equality_N):
@@ -1216,44 +1199,76 @@ def set_of_interest(trees_to_equality, trees_to_equality_N):
     for tree in trees_to_equality:
 
         if tree not in trees_to_equality_N:
-            t_set = trees_to_equality[tree]
+            t_set = copy.deepcopy(trees_to_equality[tree])
             t_set.add(tree)
             trees_of_interest = trees_of_interest.union(t_set)
         elif trees_to_equality[tree] != trees_to_equality_N[tree]:
-            t_set = trees_to_equality[tree]
+            t_set = copy.deepcopy(trees_to_equality[tree])
             t_set.add(tree)
             trees_of_interest = trees_of_interest.union(t_set)
 
     return trees_of_interest
 
 
-# species_tree, r = '((((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,P4:0.01):0.01,O:0.01);', {'P3': 'P1'}
-species_tree, r = "(((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,O:0.01);", {'P3': 'P1'}
+def calculate_generalized(alignment, species_tree, reticulations, verbose=False):
+    """
+    Calculates the L statistic for the given alignment
+    Input:
+    alignment --- a sequence alignment in phylip format
+    taxa --- a list of the taxa in the desired order
+    species_tree --- the inputted species tree over the given taxa
+    reticulations --- a tuple containing two dictionaries mapping the start leaves to end leaves
+    verbose --- a boolean for determining if extra information will be printed
+    Output:
+    l_stat --- the L statistic value
+    """
+
+    network = generate_network_tree((0.03, 0.97), species_tree, reticulations)
+    st = re.sub("\:\d+\.\d+", "", species_tree)
+    trees, taxa = branch_adjust(st)
+    trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
+    trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
+    increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
+
+    l_stat = calculate_L(alignment, taxa, (increase, decrease))
+
+    if verbose:
+        print
+        print "Newick strings with corresponding patterns: ", newick_patterns
+        print
+        print "Probability of gene tree: ", trees_to_pgS
+        print
+        print "Probability of species network: ", trees_to_pgN
+        print
+        print "Probability of gene tree with outgroup removed: ", trees_to_pgS_noO
+        print
+        print "Probability of species network with outgroup removed: ", trees_to_pgN_noO
+        print
+        print "Probability of gene tree patterns: ", patterns_pgS
+        print
+        print "Probability of species network patterns:", patterns_pgN
+        print
+        print "Patterns with increasing probability: ", increase
+        print "Patterns with decreasing probability: ", decrease
+        print
+        print "Patterns of interest: ", increase, decrease
+        print
+        print "Statistic: ", generate_statistic_string((increase, decrease))
+        print
+
+    return l_stat
+
+species_tree, r = '((((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,P4:0.01):0.01,O:0.01);', {'P3': 'P1'}
+# species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', {'P3': 'P1'}
+# species_tree, r = "(((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,O:0.01);", {'P3': 'P1'}
 network = generate_network_tree((0.03, 0.97), species_tree, r)
 st = re.sub("\:\d+\.\d+", "", species_tree)
 trees, taxa = branch_adjust(st)
 networks = network_adjust(network)
-trees_to_equality = equality_sets(trees, taxa)
-trees_to_equality_N = equality_sets(networks, taxa)
+trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
 trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
+print trees_to_equality
+print trees_to_equality_N
 print trees_of_interest
-# display_total_orders('((((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,P4:0.01):0.01,O:0.01);', {'P3': 'P1'})
-# display_total_orders('(((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,O:0.01);', {'P3': 'P1'})
-
-
-
-# "((((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,P4:0.01):0.01,O:0.01);"
-# "(((((#H0:0::0.3,P1):0.01,P2:0.01):0.01,((P3)#H0:0::0.7):0.01):0.01,P4:0.01):0.01,O:0.01);"
-# "(((((#H1:0::0.7,P1):0.01,P2:0.01):0.01,((P3)#H1:0::0.3):0.01):0.01,P4:0.01):0.01,O:0.01);"
-
-# print compute_total_order('(((P1,P2),P3),O);')
-# print compute_total_order('((((P1,P2),P3),P4),O);')
-# print all_total_ordering('((((P1,P2),P3),P4),O);')
-# print branch_adjust('((((P1,P2),P3),P4),O);')
-
-
-"""
-Create a list of branch lengths that contains all possible combinations
-This includes repetitions of branch lengths and cant just be done with itertools.permutations
-See line 986
-"""
+increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
+print generate_statistic_string((increase, decrease))
