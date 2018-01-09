@@ -1146,12 +1146,27 @@ def equality_sets(species_trees, network, taxa):
             # Debugging case
             if gt1 in trees_to_equality:
                 if trees_to_equality[gt1] != equal_trees:
+                    print
                     print "CHECK THIS OUT"
+                    print "Equality Set for ", gt1, " with ST ", st, ": ", trees_to_equality[gt1]
+                    print "Equality Set for ", gt1, " with ST ", \
+                        sorted(st_to_pattern_probs.keys())[sorted(st_to_pattern_probs.keys()).index(st) - 1], ": ", equal_trees
+                    print
 
+            # Add the equality set to the mapping if tbe pattern is not already in the mapping and set is non empty
             if len(equal_trees) != 0 and gt1 not in seen_trees:
-                trees_to_equality[gt1] = equal_trees
-                seen_trees.add(gt1)
-                seen_trees = seen_trees.union(seen)
+                if gt1 in trees_to_equality:
+                    # If there is already an equality set for that pattern choose the larger of the two
+                    if len(trees_to_equality[gt1]) > len(equal_trees):
+                        break
+                    else:
+                        trees_to_equality[gt1] = equal_trees
+                        seen_trees.add(gt1)
+                        seen_trees = seen_trees.union(seen)
+                else:
+                    trees_to_equality[gt1] = equal_trees
+                    seen_trees.add(gt1)
+                    seen_trees = seen_trees.union(seen)
 
         # Generate equality sets based on p(gt|N)
         for st in sorted(st_to_pattern_probs_N.keys()):
@@ -1175,12 +1190,28 @@ def equality_sets(species_trees, network, taxa):
                 # Debugging case
                 if gt1 in trees_to_equality_N:
                     if trees_to_equality_N[gt1] != equal_trees:
+                        print
                         print "CHECK THIS OUT"
+                        print "Equality Set for ", gt1, " with N ", st, ": ", trees_to_equality[gt1]
+                        print "Equality Set for ", gt1, " with N ", \
+                            sorted(st_to_pattern_probs_N.keys())[
+                                sorted(st_to_pattern_probs_N.keys()).index(st) - 1], ": ", equal_trees
+                        print
 
+                # Add the equality set to the mapping if tbe pattern is not already in the mapping and set is non empty
                 if len(equal_trees) != 0 and gt1 not in seen_trees:
-                    trees_to_equality_N[gt1] = equal_trees
-                    seen_trees.add(gt1)
-                    seen_trees = seen_trees.union(seen)
+                    if gt1 in trees_to_equality_N:
+                        # If there is already an equality set for that pattern choose the larger of the two
+                        if len(trees_to_equality_N[gt1]) > len(equal_trees):
+                            break
+                        else:
+                            trees_to_equality_N[gt1] = equal_trees
+                            seen_trees.add(gt1)
+                            seen_trees = seen_trees.union(seen)
+                    else:
+                        trees_to_equality_N[gt1] = equal_trees
+                        seen_trees.add(gt1)
+                        seen_trees = seen_trees.union(seen)
 
     return trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN
 
@@ -1258,19 +1289,22 @@ def calculate_generalized(alignment, species_tree, reticulations, verbose=False)
 
     return l_stat
 
-species_tree, r = '((((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,P4:0.01):0.01,O:0.01);', {'P3': 'P1'}
-# species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', {'P3': 'P1'}
+# species_tree, r = '((((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,P4:0.01):0.01,O:0.01);', {'P3': 'P1'}
+species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', {'P3': 'P1'}
 # species_tree, r = "(((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,O:0.01);", {'P3': 'P1'}
 network = generate_network_tree((0.03, 0.97), species_tree, r)
+# print network
 st = re.sub("\:\d+\.\d+", "", species_tree)
 trees, taxa = branch_adjust(st)
 networks = network_adjust(network)
 trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
 trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
-print trees_to_equality
-print trees_to_equality_N
-print trees_of_interest
+print "Patterns to equality sets p(gt|st):", trees_to_equality
+print "Patterns to equality sets p(gt|N):", trees_to_equality_N
+print "Patterns of interest:", trees_of_interest
+print
 increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
+
 print generate_statistic_string((increase, decrease))
 
 
@@ -1300,3 +1334,5 @@ def network_to_species_tree(network):
 
 print 'output', network_to_species_tree(network)
 print "should be", species_tree
+
+# print "Statistic:", generate_statistic_string((increase, decrease))

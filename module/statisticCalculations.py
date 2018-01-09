@@ -537,8 +537,12 @@ class StatisticsCalculations(QtCore.QThread):
                 if site_idx > length_of_sequences:
                     break
 
-            # Calculate d statistic for the window
-            d_window = numerator_window / float(denominator_window)
+            # Handle division by zero appropriately
+            if denominator_window != 0:
+                # Calculate d statistic for the window
+                d_window = numerator_window / float(denominator_window)
+            else:
+                d_window = 0
 
             # Map the window index to its D statistic
             windows_to_d[window] = d_window
@@ -557,7 +561,10 @@ class StatisticsCalculations(QtCore.QThread):
             percent_complete = (float(window + 1) / float(num_windows)) * 100
             self.emit(QtCore.SIGNAL('D_PER'), percent_complete)
 
-        d_stat = d_numerator / float(d_denominator)
+        if d_denominator != 0:
+            d_stat = d_numerator / float(d_denominator)
+        else:
+            d_stat = 0
 
         self.emit(QtCore.SIGNAL('D_FINISHED'), d_stat, windows_to_d)
 
@@ -1385,7 +1392,10 @@ class StatisticsCalculations(QtCore.QThread):
         numerator = terms1_total - terms2_total
         denominator = terms1_total + terms2_total
 
-        l_stat = numerator / float(denominator)
+        if denominator != 0:
+            l_stat = numerator / float(denominator)
+        else:
+            l_stat = 0
 
         return l_stat
 
