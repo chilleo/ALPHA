@@ -8,7 +8,8 @@ class TestRAxMLOperations(TestCase):
         self.assertEqual(["Seq0", "Seq1", "Seq2", "Seq3"], raxOps.taxon_names_getter("../exampleFiles/2basePhylip.txt"))
 
     def test_raxml_species_tree(self):
-        self.fail()
+        raxOps = RAxMLOperations.RAxMLOperations()
+        print raxOps.raxml_species_tree("../exampleFiles/2basePhylip.txt")
 
     def test_rooter(self):
         self.fail()

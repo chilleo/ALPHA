@@ -1272,3 +1272,31 @@ print trees_to_equality_N
 print trees_of_interest
 increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
 print generate_statistic_string((increase, decrease))
+
+
+## Changing Network to Species Tree
+def network_to_species_tree(network):
+    """
+
+    :param network:
+    :return:
+    """
+    # remove H1...
+    spec1 = re.sub('(#H\d\W\d\W+\d.\d+\W+)', '', network)
+    print spec1
+    # remove extra parentheses - this is v good
+    spec2 = re.sub('\((P\d+)\)', r'\1 ', spec1)
+    print spec2
+    # adds colon back in?? bad probably
+    spec3 = re.sub(' ', ':', spec2)
+    print spec3
+    # removes extras again?? this is bad
+    spec4 = re.sub('(,\()', ',', spec3)
+    print spec4
+    # removes extra colons
+    spectree = re.sub('(::)', ':', spec4)
+
+    return spectree
+
+print 'output', network_to_species_tree(network)
+print "should be", species_tree

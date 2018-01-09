@@ -247,6 +247,17 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.dStatisticLabel.setEnabled(True)
         self.dStatisticValueLabel.setEnabled(True)
 
+    # **************************** L STATISTIC PAGE ****************************#
+
+    def displayLStatistic(self, lVal, lWindows):
+        self.lVal = lVal
+        self.lWindows = lWindows
+        self.lStatisticWindow = dStatisticWindow.DStatisticWindow(self.lWindows)
+
+        self.lStatisticValueLabel.setText(str(self.lVal))
+        self.lStatisticLabel.setEnabled(True)
+        self.lStatisticValueLabel.setEnabled(True)
+
     # **************************** MS PAGE ****************************#
 
     additionalFileCounter = 0
