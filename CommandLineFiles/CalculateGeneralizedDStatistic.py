@@ -6,6 +6,7 @@ from ete3 import Tree
 import copy
 import subprocess
 from collections import defaultdict
+from sys import platform
 
 """
 Functions:
@@ -71,7 +72,7 @@ def generate_network_tree(inheritance, species_tree, network_map, count=1):
 ##### Generate all unique trees functions
 
 
-def gendistinct(n):
+def genDistinct(n):
     """
     Generate all full binary trees with n leaves
     Input:
@@ -110,7 +111,7 @@ def generate_all_trees(taxa):
     pattern = "([\)][a-zA-Z0-9_.-])"
 
     # Generate all distinct binary trees
-    trees = gendistinct(len(taxa))
+    trees = genDistinct(len(taxa))
 
     # Get all possible permutations of the taxa
     taxa_orders = itertools.permutations(taxa)
@@ -222,11 +223,27 @@ def outgroup_removal(newick, outgroup):
     """
 
     # Replace the outgroup and comma with an empty string
-    newick = newick.replace("," + outgroup, "")
+    new_newick = newick.replace("," + outgroup, "")
 
-    newick = newick[1:-2] + ";"
+    new_newick = new_newick[1:-2] + ";"
 
-    return newick
+    return new_newick
+
+def outgroup_removal_treap(newick, outgroup):
+    """
+    Move the location of the outgroup in a newick string to be at the end of the string
+    Inputs:
+    newick --- a newick string to be reformatted
+    outgroup --- the outgroup
+    """
+
+    # Replace the outgroup and comma with an empty string
+    new_newick = newick.replace("," + outgroup, "")
+
+    new_newick = new_newick[2:-3] + ";"
+
+    return new_newick
+
 
 
 def calculate_pgtst(species_tree, gene_tree):
@@ -271,40 +288,70 @@ def calculate_newicks_to_stats(species_tree, species_network, unique_trees, outg
     species_tree_noO = outgroup_removal(species_tree, outgroup)
     species_network_noO = outgroup_removal(species_network, outgroup)
 
+    if platform == 'darwin':
+        # IF YOU COMMENT THIS OUT AGAIN EVERYTHING WILL BREAK
+        # add quotes to the strings
+        species_tree = str(species_tree)
+        species_tree = "'" + species_tree + "'"
+        species_network = str(species_network)
+        species_network = "'" + species_network + "'"
+        species_network_noO = str(species_network_noO)
+        species_network_noO = "'" + species_network_noO + "'"
+        species_tree_noO = str(species_tree_noO)
+        species_tree_noO = "'" + species_tree_noO + "'"
+
     # Iterate over the trees
     for tree in unique_trees:
+        if platform == 'darwin':
+            # IF YOU COMMENT THIS OUT AGAIN EVERYTHING WILL BREAK
+            # add quotes to the strings
+            tree = "'" + tree + "'"
+
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        j = os.path.join(dir_path, "Unstable.jar")
+
         # Run PhyloNet p(g|S) jar file
-        p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_tree, tree), stdout=subprocess.PIPE,
+        p = subprocess.Popen("java -jar {0} {1} {2}".format(j, species_tree, tree), stdout=subprocess.PIPE,
                              shell=True)
 
+        a = p.stdout.readline()
         # Read output and convert to float
-        p_of_g_given_s = float(p.stdout.readline())
+        p_of_g_given_s = float(a)
 
         # Run PhyloNet p(g|N) jar file
-        p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_network, tree), stdout=subprocess.PIPE,
+        p = subprocess.Popen("java -jar {0} {1} {2}".format(j, species_network, tree), stdout=subprocess.PIPE,
                              shell=True)
 
         # Read output and convert to float
         p_of_g_given_n = float(p.stdout.readline())
 
         # Calculate for trees without outgroup
-        tree_noO = outgroup_removal(tree, outgroup)
+        if platform == "darwin":
+            tree_noO = outgroup_removal_treap(tree, outgroup)
+        else:
+            tree_noO = outgroup_removal(tree, outgroup)
+
+        if platform == 'darwin':
+            tree_noO = "'" + tree_noO + "'"
 
         # Run PhyloNet p(g|S) jar file
-        p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_tree_noO, tree_noO),
-                             stdout=subprocess.PIPE,
+        p = subprocess.Popen("java -jar {0} {1} {2}".format(j, species_tree_noO, tree_noO), stdout=subprocess.PIPE,
                              shell=True)
 
+        x = p.stdout.readline()
+
         # Read output and convert to float
-        p_of_g_given_s_noO = float(p.stdout.readline())
+        p_of_g_given_s_noO = float(x)
 
         # Run PhyloNet p(g|N) jar file
-        p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_network_noO, tree_noO),
-                             stdout=subprocess.PIPE,
+        p = subprocess.Popen("java -jar {0} {1} {2}".format(j, species_network_noO, tree_noO), stdout=subprocess.PIPE,
                              shell=True)
 
         # Read output and convert to float
         p_of_g_given_n_noO = float(p.stdout.readline())
+
+        if platform == "darwin":
+            tree = tree.replace("'", "")
 
         trees_to_pgS[tree] = p_of_g_given_s
         trees_to_pgN[tree] = p_of_g_given_n
@@ -721,6 +768,8 @@ def calculate_pattern_probabilities(newicks_to_patterns, newicks_to_pgS, newicks
 
             # Initialize a probability for each pattern if it does not have one
             if pattern not in patterns_to_pgS:
+                print newicks_to_pgS
+                print newick
                 patterns_to_pgS[pattern] = newicks_to_pgS[newick]
                 patterns_to_pgN[pattern] = newicks_to_pgN[newick]
 
@@ -938,6 +987,7 @@ def branch_adjust(species_tree):
 
     return adjusted_trees, taxa
 
+
 def network_branch_adjust(species_network):
     """
     Create all possible combinations of branch lengths for the given species network
@@ -964,6 +1014,7 @@ def network_branch_adjust(species_network):
 
     return adjusted_trees
 
+
 def all_total_ordering(species_trees, taxa, network=False):
     """
     Create strings which represent the total ordering of p(gt|st)
@@ -983,9 +1034,7 @@ def all_total_ordering(species_trees, taxa, network=False):
         gt_to_probs = {}
         for gt in gene_trees:
             gt_to_probs[gt] = calculate_pgtst(st, gt)
-        st_to_gt_probs[st] = sorted(gt_to_probs.items(), key=lambda tup: tup[1] ,reverse=True)
-
-
+        st_to_gt_probs[st] = sorted(gt_to_probs.items(), key=lambda tup: tup[1], reverse=True)
 
     for st in sorted(st_to_gt_probs.keys()):
 
@@ -1014,6 +1063,7 @@ def all_total_ordering(species_trees, taxa, network=False):
 
     print
     return total_orders
+
 
 def compute_total_order(all_orders, network=False):
     """
@@ -1055,7 +1105,7 @@ def network_adjust(species_network):
     adjusted_networks --- a set of networks with all combinations of branch lengths
     """
     # inheritance_probs = [0.1, 0.5, 0.9]
-    inheritance_probs = [0.1, 0.3] #can be used for deriving the D but also throws errors for 5 taxon tree
+    inheritance_probs = [0.1, 0.3]  # can be used for deriving the D but also throws errors for 5 taxon tree
     # inheritance_probs = [0.9] Throws errors with different branch lengths for 5 taxon tree
     adjusted_networks = set([])
 
@@ -1121,7 +1171,7 @@ def equality_sets(species_trees, network, taxa):
                                                                                               outgroup)
         patterns_pgS, patterns_pgN = calculate_pattern_probabilities(newick_patterns, trees_to_pgS_noO,
                                                                      trees_to_pgN_noO)
-        st_to_pattern_probs[st] = sorted(patterns_pgS.items(), key=lambda tup: tup[1] ,reverse=True)
+        st_to_pattern_probs[st] = sorted(patterns_pgS.items(), key=lambda tup: tup[1], reverse=True)
         st_to_pattern_probs_N[st] = sorted(patterns_pgN.items(), key=lambda tup: tup[1], reverse=True)
 
     # Generate equality sets based on p(gt|st)
@@ -1289,6 +1339,7 @@ def calculate_generalized(alignment, species_tree, reticulations, verbose=False)
 
     return l_stat
 
+
 # species_tree, r = '((((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,P4:0.01):0.01,O:0.01);', {'P3': 'P1'}
 species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', {'P3': 'P1'}
 # species_tree, r = "(((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,O:0.01);", {'P3': 'P1'}
@@ -1331,6 +1382,7 @@ def network_to_species_tree(network):
     spectree = re.sub('(::)', ':', spec4)
 
     return spectree
+
 
 print 'output', network_to_species_tree(network)
 print "should be", species_tree

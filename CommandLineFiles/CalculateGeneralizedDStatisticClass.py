@@ -1,575 +1,41 @@
-import subprocess
-import os
-from natsort import natsorted
 import re
-import dendropy
-from dendropy import Tree
-import math
-from dendropy.calculate import treecompare
-import matplotlib.pyplot as plt
-import numpy as np
-from PyQt4 import QtCore
-from sys import platform
+import os
 import itertools
 import ete3
 from ete3 import Tree
+from PyQt4 import QtCore
 import copy
+import subprocess
 from collections import defaultdict
 
 """
-Functions:
-    __init__(self, output_directory='RAxML_Files', parent=None)
-    newick_reformat(self, newick)
-    calculate_p_of_gt_given_st(self, species_tree, gene_tree)
-    calculate_windows_to_p_gtst(self, species_tree)
-    calculate_robinson_foulds(self, species_tree, gene_tree, weighted)
-    calculate_windows_to_rf(self, species_tree, weighted)
-    stat_scatter(self, stat_map, name, title, xlabel, ylabel)
-    calculate_d(self, alignment, window_size, window_offset, taxon1, taxon2, taxon3, taxon4)
-    run(self)
+ALPHA
 ~
 Chabrielle Allen
 Travis Benedict
 Peter Dulworth
 """
 
+class GeneralizedDStatistic(QtCore.QThread):
+    def __init__(self, parent=None):
+        super(GeneralizedDStatistic, self).__init__(parent)
 
-class StatisticsCalculations(QtCore.QThread):
-    def __init__(self, output_directory='RAxML_Files', parent=None):
-        super(StatisticsCalculations, self).__init__(parent)
-        self.output_directory = output_directory
+    # Looking for changes in total ordering see Luay email
 
-    def newick_reformat(self, newick):
-        """
-        Reformat the inputted newick string to work with the PhyloNet jar file
-        "(a:2.5,(b:1.0,c:1.0):1.5)" This format works
-        "(a:2.0,(b:1.0,c:1.0):1.0);" This format works
-        "(a:2.0,(b:1.0,c:1.0)):1.0;" THIS FORMAT DOES NOT WORK --- trees from RAxML are in this format
-        Inputs:
-        newick --- an incorrectly formatted newick string
-        Output:
-        newick --- a correctly formatted newick string
-        """
+    branch_lengths = [.01, .1, .5, 1.0, 2.0, 4.0]  # Probability equalities should be same for all branch length settings
 
-        # Find root length and remove it
-        pattern = "(?!.*\))(.*?)(?=\;)"
+    # Iterate over all possible combinations of branch lengths use small trees
 
-        newick = re.sub(pattern, '', newick)
+    reticulations = [.1, .5, .9]  # Use all possible reticulations for all possible branch lengths
 
-        return newick
 
-    def calculate_p_of_gt_given_st(self, species_tree, gene_tree):
-        """
-            Computes the probability that a gene tree occurs given a species tree. If the taxon names between the two trees are not the
-            same then the probability returned is 0.0. If trees are the exact same then probability is 1.0.
+    # Compute total ordering at the end to output
 
-            Inputs:
-                species_tree --- a newick string containing a species tree with branch lengths as outputted by RAxML or inputted by user
-                gene_tree --- a newick string containing a gene tree with branch lengths as outputted by RAxML run on windows
-            Output:
-                p_of_gt_given_st --- the probability that a gene tree occurs given a species tree.
-        """
+    # Go from total ordering to site pattern statistic
+    # Then we done maybe
 
-        # If species_tree input is a file read in the newick string
-        if os.path.isfile(species_tree):
-            with open(species_tree) as f:
-                species_tree = f.readline()
 
-        # Check if the species tree is formatted correctly for PhyloNet if not reformat it
-        if species_tree[-2] != ")" or species_tree[-1] != ")":
-            # species_tree = newick_reformat(species_tree).replace("\n","")
-            species_tree = species_tree.replace("\n", "")
-
-        # If gene_tree input is a file read in the newick string
-        if os.path.isfile(gene_tree):
-            with open(gene_tree) as f:
-                gene_tree = f.readline()
-
-        # Check if the gene tree is formatted correctly for PhyloNet if not reformat it
-        if gene_tree[-2] != ")" or gene_tree[-1] != ")":
-            # gene_tree = newick_reformat(gene_tree).replace("\n","")
-            gene_tree = gene_tree.replace("\n", "")
-
-
-        if platform == 'darwin':
-            # IF YOU COMMENT THIS OUT AGAIN EVERYTHING WILL BREAK
-            # add quotes to the strings
-            species_tree = str(species_tree)
-            species_tree = "'" + species_tree + "'"
-            gene_tree = "'" + gene_tree + "'"
-
-        # Run PhyloNet jar file
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        j = os.path.join(dir_path, "Unstable.jar")
-        p = subprocess.Popen("java -jar {0} {1} {2}".format(j,species_tree, gene_tree), stdout=subprocess.PIPE, shell=True)
-
-        # Read output and convert to float
-        (p_of_gt_given_st, err) = p.communicate()
-
-        return p_of_gt_given_st
-
-    def calculate_windows_to_p_gtst(self, species_tree):
-        """
-        Calculate p(gt|st) for each window and create a mapping
-        of window numbers to probabilities.
-
-        Inputs:
-            species_tree --- a newick string containing a species tree with branch lengths as outputted by RAxML or inputted by user
-        Output:
-            windows_to_p_gtst --- a mapping of window numbers to their p(gt|st).
-        """
-
-        # Initialize a mapping
-        windows_to_p_gtst = {}
-
-        # Iterate over each folder in the given directory
-        for filename in natsorted(os.listdir(self.output_directory)):
-
-            # If file is the file with the best tree newick string
-            if os.path.splitext(filename)[0] == "RAxML_bestTree":
-                window_num = (os.path.splitext(filename)[1]).replace(".", "")
-
-                gene_tree_filename = os.path.join(self.output_directory, filename)
-
-                p_gtst = self.calculate_p_of_gt_given_st(species_tree, gene_tree_filename)
-
-                # Reformat output
-                p_gtst = float(p_gtst.replace('\r', '').replace('\n', ''))
-
-                windows_to_p_gtst[window_num] = p_gtst
-
-        return windows_to_p_gtst
-
-    def calculate_robinson_foulds(self, species_tree, gene_tree, weighted):
-        """
-        Calculates the Robinson Foulds distances for weighted and unweighted
-        trees.
-
-        Input:
-        species_tree -- newick file or newick string containing the species tree
-        gene_tree   -- newick file or newick string containing the tree to
-                          be compared to the species tree
-        weighted       -- boolean parameter for whether the files have weights
-
-        Returns:
-        The weighted and/or unweighted Robinson Foulds distance of the species
-        tree and input tree.
-        """
-
-        # taxon names
-        tns = dendropy.TaxonNamespace()
-
-        # Create dendropy tree from species tree input file
-        if os.path.isfile(species_tree):
-            species_tree = Tree.get_from_path(species_tree, 'newick', taxon_namespace=tns)
-
-        # Create dendropy tree from species tree input newick string
-        else:
-            species_tree = Tree.get_from_string(species_tree, 'newick', taxon_namespace=tns)
-
-        # Create dendropy tree from gene tree input file
-        if os.path.isfile(gene_tree):
-            gene_tree = Tree.get_from_path(gene_tree, 'newick', taxon_namespace=tns)
-
-        # Create dendropy tree from gene tree input newick string
-        else:
-            gene_tree = Tree.get_from_string(gene_tree, 'newick', taxon_namespace=tns)
-
-        # both weighted and unweighted foulds distance
-        if weighted:
-            return treecompare.weighted_robinson_foulds_distance(species_tree, gene_tree), \
-                   treecompare.unweighted_robinson_foulds_distance(species_tree, gene_tree)
-
-        # only unweighted foulds distance
-        else:
-            return treecompare.unweighted_robinson_foulds_distance(species_tree, gene_tree)
-
-    def calculate_windows_to_rf(self, species_tree, weighted):
-        """
-        Calculate Robinson-Foulds distance for each window and create a
-        mapping of window numbers to RF distance.
-        Inputs:
-        species_tree --- a newick string containing a species tree with
-                         branch lengths as outputted by RAxML or inputted
-                         by user
-        weighted --- a boolean corresponding to calculating the weighted
-                     or unweighted RF distance
-        Output:
-        windows_to_rf --- a mapping of window numbers to their RF distance.
-        """
-
-        # Initialize a mapping for the weighted and unweighted RF distance
-        windows_to_w_rf = {}
-        windows_to_uw_rf = {}
-
-        # Iterate over each folder in the given directory
-        for filename in natsorted(os.listdir(self.output_directory)):
-
-            # If file is the file with the best tree newick string
-            if os.path.splitext(filename)[0] == "RAxML_bestTree":
-                # makes file and calculates rf distance
-                window_num = (os.path.splitext(filename)[1]).replace(".", "")
-
-                gene_tree_filename = os.path.join(self.output_directory, filename)
-
-                rf_distance = self.calculate_robinson_foulds(species_tree, gene_tree_filename, weighted)
-
-                if weighted:
-
-                    # Weighted RF
-                    windows_to_w_rf[window_num] = rf_distance[0]
-                    # Unweighted RF
-                    windows_to_uw_rf[window_num] = rf_distance[1]
-
-                else:
-
-                    # Unweighted RF
-                    windows_to_uw_rf[window_num] = rf_distance
-
-        # returns weighted and/or unweighted Robinson Foulds mappings
-        if weighted:
-            return windows_to_w_rf, windows_to_uw_rf
-
-        else:
-            return windows_to_uw_rf
-
-    def stat_scatter(self, stat_map, name, title, xlabel, ylabel):
-        """
-        Creates a scatter plot with the x-axis being the
-        windows and the y-axis being the statistic to
-        be graphed.
-
-        Input:
-        stat_map -- a mapping outputted by either
-                    calculate_windows_to_p_gtst or
-                    calculate_windows_to_rf ([0] or [1])
-        name -- the name of the save file
-        title -- the title of the plot
-        xlabel -- the label for the x axis
-        ylabel -- the label for the y axis
-
-        Returns:
-        A scatter plot with windows as the x-axis and
-        a statistic as the y-axis.
-        """
-        # sizes plot circles
-        area = math.pi * (3) ** 2
-
-        x_list = []
-
-        # makes x values integers
-        xlist = stat_map.keys()
-        for j in range(len(xlist)):
-            x_list.append(int(xlist[j]))
-
-        x = np.array(x_list)
-
-        # gets y values from dictionary
-        ylist = stat_map.values()
-        y = np.array(ylist)
-
-        plt.scatter(x, y, s=area, c='#000000', alpha=1)
-
-        # label the axes
-        plt.xlabel(xlabel, fontsize=10)
-        plt.ylabel(ylabel, fontsize=10)
-
-        plt.title(title, fontsize=15)
-        plt.tight_layout()
-        plt.savefig(name)
-
-        plt.clf()
-
-    def figureBarPlot(self, data, name, title, labelHeights=False, legend=False, legendNames=(), xTicks=False, groupLabels=()):
-        """
-            generates bar chart
-        """
-
-        figure = plt.figure()
-
-        numberOfBars = len(data)
-        ind = np.arange(numberOfBars)  # the x locations for the groups
-        width = .667  # the width of the bars
-        ax = figure.add_subplot(111)
-        colors = [(43.0/255.0, 130.0/255.0, 188.0/255.0), (141.0/255.0, 186.0/255.0, 87.0/255.0), (26.0/255.0, 168.0/255.0, 192.0/255.0), (83.5/255.0, 116.5/255.0, 44.5/255.0)]
-
-        ax.bar(ind, data, width, color=colors)
-
-        plt.title(title, fontsize=15)
-        plt.savefig(name)
-        plt.show()
-
-        # plt.clf()
-
-    def barPlot(self, data, name, title, xLabel, yLabel, labelHeights=False, legend=False, legendNames=(), xTicks=False, groupLabels=()):
-        """
-            generates bar chart
-        """
-
-        def autoLabel(rects, ax):
-            """
-            Attach a text label above each bar displaying its height
-            """
-            for rect in rects:
-                height = rect.get_height()
-                ax.text(rect.get_x() + rect.get_width() / 2., 1.05 * height, '%d' % int(height), ha='center', va='bottom')
-
-
-        plt.figure()
-
-        numberOfBars = len(data)
-        ind = np.arange(numberOfBars)  # the x locations for the groups
-        width = .667  # the width of the bars
-        fig, ax = plt.subplots()
-        colors = [(43.0/255.0, 130.0/255.0, 188.0/255.0), (141.0/255.0, 186.0/255.0, 87.0/255.0), (26.0/255.0, 168.0/255.0, 192.0/255.0), (83.5/255.0, 116.5/255.0, 44.5/255.0)]
-        bars = []
-
-        bars.append(ax.bar(ind, data, width, color=colors))
-
-        ax.set_xticks([])
-        if xTicks:
-            ax.set_xticks(ind)
-
-        if len(groupLabels) > 0:
-            ax.set_xticks(ind)
-            ax.set_xticklabels(groupLabels)
-
-        if legend:
-            legendBoxes = []
-            for bar in bars:
-                legendBoxes.append(bar[0])
-            ax.legend(legendBoxes, legendNames)
-
-        if labelHeights:
-            autoLabel(bars[0], ax)
-            autoLabel(bars[1], ax)
-
-        # label the axes
-        plt.xlabel(xLabel, fontsize=10)
-        plt.ylabel(yLabel, fontsize=10)
-
-        plt.title(title, fontsize=15)
-        # plt.tight_layout()
-        plt.savefig(name)
-
-        # plt.clf()
-
-    def groupedBarPlot(self, data, name, title, xLabel, yLabel, labelHeights=False, legend=False, legendNames=(), xTicks=False, groupLabels=()):
-        """
-                    generates bar chart
-                """
-
-        def autoLabel(rects, ax):
-            """
-            Attach a text label above each bar displaying its height
-            """
-            for rect in rects:
-                height = rect.get_height()
-                ax.text(rect.get_x() + rect.get_width() / 2., 1.05 * height, '%d' % int(height), ha='center', va='bottom')
-
-        useGroups = True
-
-        if type(data[0]) == list:
-            if len(data[0]) == 1:
-                useGroups = False
-        else:
-            newData = []
-            for el in data:
-                newData.append([el])
-            data = newData
-            useGroups = False
-
-        numberOfBarGroups = len(data[0])
-        ind = np.arange(numberOfBarGroups)  # the x locations for the groups
-        width = (0.6667) / float(len(data))  # the width of the bars
-        offset = 0.0
-        fig, ax = plt.subplots()
-        colors = [(43.0 / 255.0, 130.0 / 255.0, 188.0 / 255.0), (141.0 / 255.0, 186.0 / 255.0, 87.0 / 255.0), (26.0 / 255.0, 168.0 / 255.0, 192.0 / 255.0), (83.5 / 255.0, 116.5 / 255.0, 44.5 / 255.0)]
-        groups = []
-        padding = 0
-
-        if not useGroups:
-            padding = 0.25
-
-        for i in range(len(data)):
-            groups.append(ax.bar(ind + offset, data[i], width, color=colors[i % 4]))
-            offset += width + padding
-
-        ax.set_xticks([])
-        if xTicks:
-            ax.set_xticks(ind + ((numberOfBarGroups - 1.0)) * width / 2.0)
-
-        if len(groupLabels) > 0:
-            ax.set_xticklabels(groupLabels)
-
-        if legend:
-            legendBoxes = []
-            for group in groups:
-                legendBoxes.append(group[0])
-            ax.legend(legendBoxes, legendNames)
-
-        if labelHeights:
-            autoLabel(groups[0], ax)
-            autoLabel(groups[1], ax)
-
-        # label the axes
-        plt.xlabel(xLabel, fontsize=10)
-        plt.ylabel(yLabel, fontsize=10)
-
-        plt.title(title, fontsize=15)
-        plt.tight_layout()
-        plt.savefig(name)
-        # plt.show()
-
-        plt.clf()
-
-    def calculate_d(self, alignment, window_size, window_offset, taxon1, taxon2, taxon3, taxon4):
-        """
-            Calculates the D statistic for the given alignment
-
-            Input:
-                i. alignment --- a sequence alignment in phylip format
-                ii. window_size --- the size of the desired windows
-                iii. window_offset --- the offset that was used to create the windows
-                iv. taxon1 --- first taxon for ABBA-BABA test
-                v. taxon2 --- second taxon for ABBA-BABA test
-                vi. taxon3 --- third taxon for ABBA-BABA test
-                vii. taxon4 --- outgroup for ABBA-BABA test
-
-            Output:
-                i. d_stat --- the D statistic value
-                ii. windows_to_d --- a mapping of window indices to D values
-        """
-
-        # Initialize the site index to 0
-        site_idx = 0
-
-        # Initialize values for the d statistic numerator and denominator
-        d_numerator = 0
-        d_denominator = 0
-
-        windows_to_d = {}
-
-        sequence_list = []
-        taxon_list = []
-
-        with open(alignment) as f:
-
-            # Create a list of each line in the file
-            lines = f.readlines()
-
-            # First line contains the number and length of the sequences
-            first_line = lines[0].split()
-            length_of_sequences = int(first_line[1])
-
-        # Initialize a count for the total number of windows
-        num_windows = 0
-
-        i = 0
-
-        if window_size > length_of_sequences:
-            num_windows = 1
-            window_size = length_of_sequences
-        else:
-            # Determine the total number of windows needed
-            while (i + window_size - 1 < length_of_sequences):
-                i += window_size
-                num_windows += 1
-
-        for line in lines[1:]:
-            # Add each sequence to a list
-            sequence = line.split()[1]
-            sequence_list.append(sequence)
-
-            # Add each taxon to a list
-            taxon = line.split()[0]
-            taxon_list.append(taxon)
-
-        # Get the index of each taxon in the inputted order
-        taxon1_idx = taxon_list.index(taxon1)
-        taxon2_idx = taxon_list.index(taxon2)
-        taxon3_idx = taxon_list.index(taxon3)
-        taxon4_idx = taxon_list.index(taxon4)
-
-        # Initialize values for the d statistic numerator and denominator for each window
-        numerator_window = 0
-        denominator_window = 0
-
-        # Iterate over each window
-        for window in range(num_windows):
-
-            # Iterate over the indices in each window
-            for window_idx in range(window_size):
-
-                site = []
-
-                # Iterate over each sequence in the alignment
-                for sequence in sequence_list:
-                    # Add each base in a site to a list
-                    site.append(sequence[site_idx])
-
-                # Get the genetic sites in the correct order
-                P1, P2, P3, O = site[taxon1_idx], site[taxon2_idx], site[taxon3_idx], site[taxon4_idx]
-
-                # Case of ABBA
-                if P1 == O and P2 == P3 and P1 != P2:
-                    ABBA = 1
-                    BABA = 0
-
-                # Case of BABA
-                elif P1 == P3 and P2 == O and P1 != P2:
-                    ABBA = 0
-                    BABA = 1
-
-                # Neither case
-                else:
-                    ABBA = 0
-                    BABA = 0
-
-                numerator_window += (ABBA - BABA)
-                denominator_window += (ABBA + BABA)
-
-                # Increment the site index
-                site_idx += 1
-
-                # Handle case for when the final window is shorter than the others
-                if site_idx > length_of_sequences:
-                    break
-
-            # Handle division by zero appropriately
-            if denominator_window != 0:
-                # Calculate d statistic for the window
-                d_window = numerator_window / float(denominator_window)
-            else:
-                d_window = 0
-
-            # Map the window index to its D statistic
-            windows_to_d[window] = d_window
-
-            # Add the numerator and denominator of each window to the overall numerator and denominator
-            d_numerator += numerator_window
-            d_denominator += denominator_window
-
-            # Reset numerator and denominator
-            numerator_window = 0
-            denominator_window = 0
-
-            # Account for overlapping windows
-            site_idx += (window_offset - window_size)
-
-            percent_complete = (float(window + 1) / float(num_windows)) * 100
-            self.emit(QtCore.SIGNAL('D_PER'), percent_complete)
-
-        if d_denominator != 0:
-            d_stat = d_numerator / float(d_denominator)
-        else:
-            d_stat = 0
-
-        self.emit(QtCore.SIGNAL('D_FINISHED'), d_stat, windows_to_d)
-
-    # Generalized D statistic functions
-
-    def generate_network_tree(self, inheritance, species_tree, network_map):
+    def generate_network_tree(self, inheritance, species_tree, network_map, count=1):
         """
         Creates a network tree based on the species tree
         and the two leaves to be connected.
@@ -597,14 +63,16 @@ class StatisticsCalculations(QtCore.QThread):
         end = network_map[start]
 
         # add nodes into tree in proper format
-        network = s_tree.replace(start, '((' + start + ')#H1:0::' + str(inheritance[0]) + ')')
-        network = network.replace(end, '(#H1:0::' + str(inheritance[1]) + ',' + end + ')')
+        network = s_tree.replace(start, '((' + start + ')#H' + str(count) + ':0::' + str(inheritance[0]) + ')')
+        network = network.replace(end, '(#H' + str(count) + ':0::' + str(inheritance[1]) + ',' + end + ')')
 
         return network
 
-    # Generate all unique trees functions
 
-    def gendistinct(self, n):
+    ##### Generate all unique trees functions
+
+
+    def genDistinct(self, n):
         """
         Generate all full binary trees with n leaves
         Input:
@@ -629,6 +97,7 @@ class StatisticsCalculations(QtCore.QThread):
 
         return dp[-1]
 
+
     def generate_all_trees(self, taxa):
         """
         Create all trees given a set of taxa
@@ -642,7 +111,7 @@ class StatisticsCalculations(QtCore.QThread):
         pattern = "([\)][a-zA-Z0-9_.-])"
 
         # Generate all distinct binary trees
-        trees = self.gendistinct(len(taxa))
+        trees = self.genDistinct(len(taxa))
 
         # Get all possible permutations of the taxa
         taxa_orders = itertools.permutations(taxa)
@@ -652,7 +121,6 @@ class StatisticsCalculations(QtCore.QThread):
 
         # Iterate over each tree in the set
         for tree in trees:
-            # print 'tree', tree
             # Reformat the tree
             tree = tree.replace('.', '')
 
@@ -678,9 +146,8 @@ class StatisticsCalculations(QtCore.QThread):
                 bi_tree = bi_tree + ";"
                 all_trees.append(bi_tree)
 
-                # print bi_tree
-
         return all_trees
+
 
     def generate_unique_trees(self, taxa, outgroup):
         """
@@ -743,7 +210,9 @@ class StatisticsCalculations(QtCore.QThread):
 
         return unique_newicks
 
-    # L-Statistic Calculations Functions
+
+    ###### Statistics Calculations Functions
+
 
     def outgroup_removal(self, newick, outgroup):
         """
@@ -760,9 +229,30 @@ class StatisticsCalculations(QtCore.QThread):
 
         return newick
 
+
+    def calculate_pgtst(self, species_tree, gene_tree):
+        """
+        Calculate p(gt|st) or p(gt|sn)
+        Input:
+        species_tree --- a species tree or network in newick format
+        gene_tree --- a gene tree in newick format
+        Output:
+        pgtst --- p(gt|st) or p(gt|sn)
+        """
+
+        # Run PhyloNet p(g|S) jar file
+        p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_tree, gene_tree), stdout=subprocess.PIPE,
+                             shell=True)
+
+        # Read output and convert to float
+        pgtst = float(p.stdout.readline())
+
+        return pgtst
+
+
     def calculate_newicks_to_stats(self, species_tree, species_network, unique_trees, outgroup):
         """
-        Compute p(g|S) and p(g|N) for each g in unique_trees and 
+        Compute p(g|S) and p(g|N) for each g in unique_trees and
         map the tree newick string to those values
         Inputs:
         species_tree --- the species tree newick string for the taxa
@@ -770,7 +260,7 @@ class StatisticsCalculations(QtCore.QThread):
         unique_trees --- the set of all unique topologies over n taxa
         outgroup --- the outgroup
         Output:
-        trees_to_pgS--- a mapping of tree newick strings to their p(g|S) values 
+        trees_to_pgS--- a mapping of tree newick strings to their p(g|S) values
         trees_to_pgN--- a mapping of tree newick strings to their p(g|N) values
         """
 
@@ -785,15 +275,14 @@ class StatisticsCalculations(QtCore.QThread):
         # Iterate over the trees
         for tree in unique_trees:
             # Run PhyloNet p(g|S) jar file
-            p = subprocess.Popen("java -jar ../unstable.jar {0} {1}".format(species_tree, tree), stdout=subprocess.PIPE,
+            p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_tree, tree), stdout=subprocess.PIPE,
                                  shell=True)
 
             # Read output and convert to float
             p_of_g_given_s = float(p.stdout.readline())
 
             # Run PhyloNet p(g|N) jar file
-            p = subprocess.Popen("java -jar ../unstable.jar {0} {1}".format(species_network, tree),
-                                 stdout=subprocess.PIPE,
+            p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_network, tree), stdout=subprocess.PIPE,
                                  shell=True)
 
             # Read output and convert to float
@@ -803,7 +292,7 @@ class StatisticsCalculations(QtCore.QThread):
             tree_noO = self.outgroup_removal(tree, outgroup)
 
             # Run PhyloNet p(g|S) jar file
-            p = subprocess.Popen("java -jar ../unstable.jar {0} {1}".format(species_tree_noO, tree_noO),
+            p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_tree_noO, tree_noO),
                                  stdout=subprocess.PIPE,
                                  shell=True)
 
@@ -811,7 +300,7 @@ class StatisticsCalculations(QtCore.QThread):
             p_of_g_given_s_noO = float(p.stdout.readline())
 
             # Run PhyloNet p(g|N) jar file
-            p = subprocess.Popen("java -jar ../unstable.jar {0} {1}".format(species_network_noO, tree_noO),
+            p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_network_noO, tree_noO),
                                  stdout=subprocess.PIPE,
                                  shell=True)
 
@@ -825,11 +314,12 @@ class StatisticsCalculations(QtCore.QThread):
 
         return trees_to_pgS, trees_to_pgN, trees_to_pgS_noO, trees_to_pgN_noO
 
+
     def determine_interesting_trees(self, trees_to_pgS, trees_to_pgN):
         """
         Get the subset of trees who are initially equal based on p(g|S) but unequal based on p(g|N)
         Input:
-        trees_to_pgS--- a mapping of tree newick strings to their p(g|S) values 
+        trees_to_pgS--- a mapping of tree newick strings to their p(g|S) values
         trees_to_pgN--- a mapping of tree newick strings to their p(g|N) values
         Output:
         interesting_trees --- the subset of tree topologies to look at for determining introgression
@@ -881,7 +371,9 @@ class StatisticsCalculations(QtCore.QThread):
 
         return interesting_trees
 
-    # Site Pattern Functions
+
+    ##### Site Pattern Functions
+
 
     def outgroup_reformat(self, newick, outgroup):
         """
@@ -897,6 +389,7 @@ class StatisticsCalculations(QtCore.QThread):
         newick = newick[:-2] + "," + outgroup + ");"
 
         return newick
+
 
     def pattern_inverter(self, patterns):
         """
@@ -939,6 +432,7 @@ class StatisticsCalculations(QtCore.QThread):
 
         return inverted
 
+
     def pattern_string_generator(self, patterns):
         """
         Creates a list of viable pattern strings that are easier to read
@@ -971,6 +465,7 @@ class StatisticsCalculations(QtCore.QThread):
                 pattern_strings.append(pattern_str)
 
         return pattern_strings
+
 
     def site_pattern_generator(self, taxa_order, newick, outgroup):
         """
@@ -1061,7 +556,7 @@ class StatisticsCalculations(QtCore.QThread):
                 # Otherwise there is no clade
                 else:
                     # Get the index of the leaf in the pattern
-                    pat_idx = taxa.index(node)
+                    pat_idx = taxa_order.index(node)
 
                     # Set those pattern indices to "A"
                     pattern[pat_idx] = "A"
@@ -1178,6 +673,7 @@ class StatisticsCalculations(QtCore.QThread):
 
         return finished_patterns
 
+
     def newicks_to_patterns_generator(self, taxa_order, newicks):
         """
         Generate the site patterns for each newick string and map the strings to their patterns
@@ -1199,15 +695,17 @@ class StatisticsCalculations(QtCore.QThread):
 
         return newicks_to_patterns
 
-    # Interesting sites functions
+
+    ##### Interesting sites functions
+
 
     def calculate_pattern_probabilities(self, newicks_to_patterns, newicks_to_pgS, newicks_to_pgN):
         """
-        Creates a mapping of site patterns to their total p(g|S) values across all gene trees and 
+        Creates a mapping of site patterns to their total p(g|S) values across all gene trees and
         a mapping of site patterns to their total p(g|N) values across all gene trees
         Inputs:
         newicks_to_patterns --- a mapping of tree newick strings to their site patterns
-        newicks_to_pgS--- a mapping of tree newick strings to their p(g|S) values 
+        newicks_to_pgS--- a mapping of tree newick strings to their p(g|S) values
         newicks_to_pgN--- a mapping of tree newick strings to their p(g|N) values
         Outputs:
         patterns_to_pgS --- a mapping of site patterns to their total p(g|S) value
@@ -1234,43 +732,50 @@ class StatisticsCalculations(QtCore.QThread):
 
         return patterns_to_pgS, patterns_to_pgN
 
-    def determine_patterns(self, patterns_to_pgS, patterns_to_pgN1, patterns_to_pgN2):
+
+    def determine_patterns(self, pattern_set, patterns_to_equality, patterns_to_pgN):
         """
         Determine which patterns are useful in determining introgression
         Inputs:
-        patterns_to_pgS --- a mapping of site patterns to their total p(g|S) value
-        patterns_to_pgN1 --- a mapping of site patterns to their total p(g|N) value for a network
-        patterns_to_pgN2 --- a mapping of site patterns to their total p(g|N) value for a different network
+        pattern_set -- a set containing all patterns of interest
+        patterns_to_equality --- a mapping of site patterns to site patterns with equivalent p(gt|st)
+        patterns_to_pgN --- a mapping of site patterns to their total p(g|N) value for a network
         Outputs:
         terms1 --- a set of patterns to count and add to each other to determine introgression
         terms2 --- a set of other patterns to count and add to each other to determine introgression
         """
 
-        # Initialize sets for the patterns of interest
-        interesting_patterns = set([])
         terms1 = set([])
         terms2 = set([])
 
-        # Iterate over each pattern to determine the patterns of interest
-        for pattern in patterns_to_pgS:
+        # Iterate over each pattern to determine the terms of interest
+        for pattern1 in pattern_set:
 
-            tree_probability = patterns_to_pgS[pattern]
+            pat1_prob = patterns_to_pgN[pattern1]
 
-            # If either network probability is not equal to the tree probability and the network probabilities are not equal the pattern is of interest
-            if (patterns_to_pgN1[pattern] != tree_probability or patterns_to_pgN2[pattern] != tree_probability) and \
-                            patterns_to_pgN1[pattern] != patterns_to_pgN2[pattern]:
-                interesting_patterns.add(pattern)
+            if pattern1 in patterns_to_equality.keys():
+                for pattern2 in patterns_to_equality[pattern1]:
 
-        # Iterate over each interesting pattern and determine which set of terms to add the pattern to
-        for pattern in interesting_patterns:
+                    pat2_prob = patterns_to_pgN[pattern2]
 
-            if patterns_to_pgN1[pattern] > patterns_to_pgN2[pattern]:
-                terms1.add(pattern)
+                    if pat1_prob > pat2_prob:
+                        terms1.add(pattern1)
+                        terms2.add(pattern2)
 
-            elif patterns_to_pgN2[pattern] > patterns_to_pgN1[pattern]:
-                terms2.add(pattern)
+                    elif pat1_prob < pat2_prob:
+                        terms1.add(pattern2)
+                        terms2.add(pattern1)
+
+        inverted1 = self.pattern_inverter(terms1)
+        for pattern in inverted1:
+            terms1.add(''.join(pattern))
+
+        inverted2 = self.pattern_inverter(terms2)
+        for pattern in inverted2:
+            terms2.add(''.join(pattern))
 
         return terms1, terms2
+
 
     def generate_statistic_string(self, patterns_of_interest):
         """
@@ -1297,7 +802,9 @@ class StatisticsCalculations(QtCore.QThread):
 
         return L_statistic
 
-    # Function for calculating statistic
+
+    ##### Function for calculating statistic
+
 
     def calculate_L(self, alignment, taxa_order, patterns_of_interest):
         """
@@ -1391,81 +898,447 @@ class StatisticsCalculations(QtCore.QThread):
         numerator = terms1_total - terms2_total
         denominator = terms1_total + terms2_total
 
-        if denominator != 0:
-            l_stat = numerator / float(denominator)
-        else:
-            l_stat = 0
+        l_stat = numerator / float(denominator)
 
         return l_stat
 
-    def l_statistic(self, alignment, taxa, species_tree, reticulations):
+
+    ##### Functions for total ordering
+
+
+    def branch_adjust(self, species_tree):
+        """
+        Create all possible combinations of branch lengths for the given species tree
+        Input:
+        species_tree --- a newick string containing the overall species tree
+        Output:
+        adjusted_trees --- a set of trees with all combinations of branch lengths
+        """
+        # branch_lengths = [.01, .1, .5, 1.0, 2.0, 4.0]
+        branch_lengths = [.5, 1.0, 2.0, 4.0]
+        adjusted_trees = set([])
+
+        taxa = []
+        pattern = "((?<=\()[\w]+)|((?<=\,)[\w]+)"
+        leaves = re.findall(pattern, species_tree)
+        for leaf in leaves:
+            if leaf[0] == '':
+                taxa.append(leaf[1])
+            else:
+                taxa.append(leaf[0])
+
+        ############Adjust branch length stuff to account for all possible combinations
+
+        for b in branch_lengths:
+            new_t = species_tree
+            for taxon in taxa:
+                new_t = new_t.replace(taxon, "{0}:{1}".format(taxon, b))
+            new_t = new_t.replace("),", "):{0},".format(b))
+            # new_t = new_t.replace(",(", ",{0}:(".format(b))
+            adjusted_trees.add(new_t)
+
+        return adjusted_trees, taxa
+
+
+    def network_branch_adjust(self, species_network):
+        """
+        Create all possible combinations of branch lengths for the given species network
+        Input:
+        species_tree --- a newick string containing the overall species network
+        Output:
+        adjusted_trees --- a set of trees with all combinations of branch lengths
+        """
+        # branch_lengths = [.01, .1, .5, 1.0, 2.0, 4.0]
+        branch_lengths = [.5, 1.0, 2.0, 4.0]
+        # branch_lengths = [.01]
+        adjusted_trees = set([])
+
+        pattern = "((?<!\:)(\:\d+\.\d+))"
+        lengths = re.findall(pattern, species_network)
+
+        ############Adjust branch length stuff to account for all possible combinations
+
+        for b in branch_lengths:
+            new_t = species_network
+            for l in lengths:
+                new_t = new_t.replace(l[0], ":" + str(b))
+            adjusted_trees.add(new_t)
+
+        return adjusted_trees
+
+
+    def all_total_ordering(self, species_trees, taxa, network=False):
+        """
+        Create strings which represent the total ordering of p(gt|st)
+        Input:
+        species_tree --- a newick string containing the overall species tree without branch lengths
+        Output:
+        total_orders --- p(gt|st) total orderings to their adjusted species trees
+        """
+        output_str = "Tree"
+        st_to_gt_probs = {}
+        total_orders = {}
+
+        outgroup = taxa[-1]
+        gene_trees = self.generate_unique_trees(taxa, outgroup)
+
+        for st in species_trees:
+            gt_to_probs = {}
+            for gt in gene_trees:
+                gt_to_probs[gt] = self.calculate_pgtst(st, gt)
+            st_to_gt_probs[st] = sorted(gt_to_probs.items(), key=lambda tup: tup[1], reverse=True)
+
+        for st in sorted(st_to_gt_probs.keys()):
+
+            gt_probs = st_to_gt_probs[st]
+            order = []
+            gt1, prob1 = gt_probs[0]
+
+            for i in range(1, len(gene_trees)):
+                gt2, prob2 = gt_probs[i]
+                if prob1 > prob2:
+                    order.append(gt1)
+                    order.append(">")
+                elif prob1 == prob2:
+                    order.append(gt1)
+                    order.append("=")
+
+                gt1, prob1 = gt2, prob2
+
+            order.append(gt1)
+
+            if network == True:
+                output_str = "Network"
+
+            print "Species {0}: {1}, Total Order: {2}".format(output_str, st, order)
+            total_orders[tuple(order)] = st
+
+        print
+        return total_orders
+
+
+    def compute_total_order(self, all_orders, network=False):
+        """
+        Create strings which represent the total ordering of p(gt|st)
+        Input:
+        all_orders --- p(gt|st) total orderings to their adjusted species trees
+        Output:
+        total_order --- the total ordering for the species tree
+        """
+
+        total_order = list(all_orders.keys()[0])
+
+        output_str = "Tree"
+        if network == True:
+            output_str = "Network"
+
+        for order in all_orders:
+            for i in range(len(order)):
+
+                if i % 2 == 0:
+                    if order[i] != total_order[i]:
+                        print "ERROR: expected {0} but received {1} instead ".format(total_order[i], order[i])
+                        print "Species {0} for expected ordering: {1}".format(output_str, all_orders[all_orders.keys()[0]])
+                        print "Species {0} for received ordering: {1}".format(output_str, all_orders[order])
+                        print
+                else:
+                    if order[i] != total_order[i]:
+                        total_order[i] = ">="
+
+        return total_order
+
+
+    def network_adjust(self, species_network):
+        """
+        Create all possible combinations of inheritance probabilities for the given species network
+        Input:
+        species_network --- a newick string containing the overall species network
+        Output:
+        adjusted_networks --- a set of networks with all combinations of branch lengths
+        """
+        # inheritance_probs = [0.1, 0.5, 0.9]
+        inheritance_probs = [0.1, 0.3]  # can be used for deriving the D but also throws errors for 5 taxon tree
+        # inheritance_probs = [0.9] Throws errors with different branch lengths for 5 taxon tree
+        adjusted_networks = set([])
+
+        pattern = "\:\:0\.\d+"
+        reticulations = re.findall(pattern, species_network)
+
+        ###########Adjust reticulation stuff
+
+        for prob in inheritance_probs:
+            new_net = species_network
+            count = 0
+            for r in reticulations:
+                if count % 2 == 0:
+                    new_net = new_net.replace(r, "::{0}".format(str(prob)))
+                else:
+                    new_net = new_net.replace(r, "::{0}".format(str(1 - prob)))
+                count += 1
+            net_set = self.network_branch_adjust(new_net)
+            adjusted_networks = adjusted_networks.union(net_set)
+
+        return adjusted_networks
+
+
+    def display_total_orders(self, species_tree, reticulation):
+        """
+        Generate the total orders for both the species tree and species network
+        Inputs:
+        species_tree --- the desired species tree with arbitrary branch lengths
+        reticulation --- a mapping from one taxon to another representing the desired reticulation
+        """
+
+        network = self.generate_network_tree((0.03, 0.97), species_tree, reticulation)
+        st = re.sub("\:\d+\.\d+", "", species_tree)
+        trees, taxa = self.branch_adjust(st)
+        networks = self.network_adjust(network)
+        all_net_orders = self.all_total_ordering(networks, taxa, network=True)
+        print self.compute_total_order(all_net_orders, network=True)
+        print
+        all_st_orders = self.all_total_ordering(trees, taxa)
+        print self.compute_total_order(all_st_orders)
+
+
+    def equality_sets(self, species_trees, network, taxa):
+        """
+        Create strings which represent the total ordering of p(gt|st)
+        Input:
+        species_tree --- a newick string containing the overall species tree without branch lengths
+        Output:
+        trees_to_equality --- a mapping of tree strings to a set of other trees with the same p(gt|st)
+        trees_to_equality --- a mapping of tree strings to a set of other trees with the same p(gt|N)
+        """
+        st_to_pattern_probs = {}
+        st_to_pattern_probs_N = {}
+        trees_to_equality = {}
+        trees_to_equality_N = {}
+
+        outgroup = taxa[-1]
+        gene_trees = self.generate_unique_trees(taxa, outgroup)
+        newick_patterns = self.newicks_to_patterns_generator(taxa, gene_trees)
+
+        for st in species_trees:
+            ts_to_pgS, ts_to_pgN, trees_to_pgS_noO, trees_to_pgN_noO = self.calculate_newicks_to_stats(st, network, gene_trees,
+                                                                                                  outgroup)
+            patterns_pgS, patterns_pgN = self.calculate_pattern_probabilities(newick_patterns, trees_to_pgS_noO,
+                                                                         trees_to_pgN_noO)
+            st_to_pattern_probs[st] = sorted(patterns_pgS.items(), key=lambda tup: tup[1], reverse=True)
+            st_to_pattern_probs_N[st] = sorted(patterns_pgN.items(), key=lambda tup: tup[1], reverse=True)
+
+        # Generate equality sets based on p(gt|st)
+        for st in sorted(st_to_pattern_probs.keys()):
+
+            gt_probs = st_to_pattern_probs[st]
+            seen_trees = set([])
+
+            for i in range(len(gt_probs)):
+
+                gt1, prob1 = gt_probs[i]
+                equal_trees = set([])
+
+                seen = set([])
+                for j in range(len(gt_probs)):
+
+                    gt2, prob2 = gt_probs[j]
+                    if prob1 == prob2 and gt1 != gt2 and gt2 not in seen_trees:
+                        equal_trees.add(gt2)
+                        seen.add(gt2)
+
+                # Debugging case
+                if gt1 in trees_to_equality:
+                    if trees_to_equality[gt1] != equal_trees:
+                        print
+                        print "CHECK THIS OUT"
+                        print "Equality Set for ", gt1, " with ST ", st, ": ", trees_to_equality[gt1]
+                        print "Equality Set for ", gt1, " with ST ", \
+                            sorted(st_to_pattern_probs.keys())[sorted(st_to_pattern_probs.keys()).index(st) - 1], ": ", equal_trees
+                        print
+
+                # Add the equality set to the mapping if tbe pattern is not already in the mapping and set is non empty
+                if len(equal_trees) != 0 and gt1 not in seen_trees:
+                    if gt1 in trees_to_equality:
+                        # If there is already an equality set for that pattern choose the larger of the two
+                        if len(trees_to_equality[gt1]) > len(equal_trees):
+                            break
+                        else:
+                            trees_to_equality[gt1] = equal_trees
+                            seen_trees.add(gt1)
+                            seen_trees = seen_trees.union(seen)
+                    else:
+                        trees_to_equality[gt1] = equal_trees
+                        seen_trees.add(gt1)
+                        seen_trees = seen_trees.union(seen)
+
+            # Generate equality sets based on p(gt|N)
+            for st in sorted(st_to_pattern_probs_N.keys()):
+
+                gt_probs = st_to_pattern_probs_N[st]
+                seen_trees = set([])
+
+                for i in range(len(gt_probs)):
+
+                    gt1, prob1 = gt_probs[i]
+                    equal_trees = set([])
+
+                    seen = set([])
+                    for j in range(len(gt_probs)):
+
+                        gt2, prob2 = gt_probs[j]
+                        if prob1 == prob2 and gt1 != gt2 and gt2 not in seen_trees:
+                            equal_trees.add(gt2)
+                            seen.add(gt2)
+
+                    # Debugging case
+                    if gt1 in trees_to_equality_N:
+                        if trees_to_equality_N[gt1] != equal_trees:
+                            print
+                            print "CHECK THIS OUT"
+                            print "Equality Set for ", gt1, " with N ", st, ": ", trees_to_equality[gt1]
+                            print "Equality Set for ", gt1, " with N ", \
+                                sorted(st_to_pattern_probs_N.keys())[
+                                    sorted(st_to_pattern_probs_N.keys()).index(st) - 1], ": ", equal_trees
+                            print
+
+                    # Add the equality set to the mapping if tbe pattern is not already in the mapping and set is non empty
+                    if len(equal_trees) != 0 and gt1 not in seen_trees:
+                        if gt1 in trees_to_equality_N:
+                            # If there is already an equality set for that pattern choose the larger of the two
+                            if len(trees_to_equality_N[gt1]) > len(equal_trees):
+                                break
+                            else:
+                                trees_to_equality_N[gt1] = equal_trees
+                                seen_trees.add(gt1)
+                                seen_trees = seen_trees.union(seen)
+                        else:
+                            trees_to_equality_N[gt1] = equal_trees
+                            seen_trees.add(gt1)
+                            seen_trees = seen_trees.union(seen)
+
+        return trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN
+
+
+    def set_of_interest(self, trees_to_equality, trees_to_equality_N):
+        """
+        Inputs:
+        trees_to_equality --- a mapping of tree strings to a set of other trees with the same p(gt|st)
+        trees_to_equality_N --- a mapping of tree strings to a set of other trees with the same p(gt|N)
+        Output:
+        trees_of_interest --- a set of trees that changed equality under the species network
+        """
+
+        trees_of_interest = set([])
+
+        for tree in trees_to_equality:
+
+            if tree not in trees_to_equality_N:
+                t_set = copy.deepcopy(trees_to_equality[tree])
+                t_set.add(tree)
+                trees_of_interest = trees_of_interest.union(t_set)
+            elif trees_to_equality[tree] != trees_to_equality_N[tree]:
+                t_set = copy.deepcopy(trees_to_equality[tree])
+                t_set.add(tree)
+                trees_of_interest = trees_of_interest.union(t_set)
+
+        return trees_of_interest
+
+
+    def calculate_generalized(self, alignment, species_tree, reticulations, verbose=False):
         """
         Calculates the L statistic for the given alignment
         Input:
         alignment --- a sequence alignment in phylip format
         taxa --- a list of the taxa in the desired order
         species_tree --- the inputted species tree over the given taxa
-        reticulations a tuple containing two dictionaries mapping the start leaves to end leaves
+        reticulations --- a tuple containing two dictionaries mapping the start leaves to end leaves
+        verbose --- a boolean for determining if extra information will be printed
         Output:
         l_stat --- the L statistic value
         """
 
-        # The outgroup is the last taxon in the list of taxa
-        outgroup = taxa[-1]
+        network = self.generate_network_tree((0.03, 0.97), species_tree, reticulations)
+        st = re.sub("\:\d+\.\d+", "", species_tree)
+        trees, taxa = self.branch_adjust(st)
+        trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = self.equality_sets(trees, network, taxa)
+        trees_of_interest = self.set_of_interest(trees_to_equality, trees_to_equality_N)
+        increase, decrease = self.determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
 
-        # Generate all unique trees over the given topology
-        unique = self.generate_unique_trees(taxa, outgroup)
+        l_stat = self.calculate_L(alignment, taxa, (increase, decrease))
 
-        # Map the tree newick strings to their site patterns
-        newick_patterns = self.newicks_to_patterns_generator(taxa, unique)
+        if verbose:
+            print
+            print "Newick strings with corresponding patterns: ", self.newick_patterns
+            print
+            print "Probability of gene tree: ", self.trees_to_pgS
+            print
+            print "Probability of species network: ", self.trees_to_pgN
+            print
+            print "Probability of gene tree with outgroup removed: ", self.trees_to_pgS_noO
+            print
+            print "Probability of species network with outgroup removed: ", self.trees_to_pgN_noO
+            print
+            print "Probability of gene tree patterns: ", patterns_pgS
+            print
+            print "Probability of species network patterns:", patterns_pgN
+            print
+            print "Patterns with increasing probability: ", increase
+            print "Patterns with decreasing probability: ", decrease
+            print
+            print "Patterns of interest: ", increase, decrease
+            print
+            print "Statistic: ", self.generate_statistic_string((increase, decrease))
+            print
 
-        # Create species networks
-        network_map1, network_map2 = reticulations[0], reticulations[1]
-        network1 = self.generate_network_tree((0.3, 0.7), species_tree, network_map1)
-        network2 = self.generate_network_tree((0.3, 0.7), species_tree, network_map2)
+        return l_stat
 
-        trees_to_pgS, trees_to_pgN, trees_to_pgS_noO, trees_to_pgN_noO = self.calculate_newicks_to_stats(species_tree,
-                                                                                                    network1,
-                                                                                                    unique, outgroup)
-        patterns_pgS, patterns_pgN1 = self.calculate_pattern_probabilities(newick_patterns, trees_to_pgS, trees_to_pgN)
+    ## Changing Network to Species Tree
+    def network_to_species_tree(self, network):
+        """
 
-        trees_to_pgS, trees_to_pgN, trees_to_pgS_noO, trees_to_pgN_noO = self.calculate_newicks_to_stats(species_tree,
-                                                                                                    network2,
-                                                                                                    unique, outgroup)
-        patterns_pgS, patterns_pgN2 = self.calculate_pattern_probabilities(newick_patterns, trees_to_pgS, trees_to_pgN)
+        :param network:
+        :return:
+        """
+        # remove H1...
+        spec1 = re.sub('(#H\d\W\d\W+\d.\d+\W+)', '', network)
+        print spec1
+        # remove extra parentheses - this is v good
+        spec2 = re.sub('\((P\d+)\)', r'\1 ', spec1)
+        print spec2
+        # adds colon back in?? bad probably
+        spec3 = re.sub(' ', ':', spec2)
+        print spec3
+        # removes extras again?? this is bad
+        spec4 = re.sub('(,\()', ',', spec3)
+        print spec4
+        # removes extra colons
+        spectree = re.sub('(::)', ':', spec4)
 
-        patterns_of_interest = self.determine_patterns(patterns_pgS, patterns_pgN1, patterns_pgN2)
-
-        l_stat = self.calculate_L(alignment, taxa, patterns_of_interest)
-
-        # return l_stat
-        self.emit(QtCore.SIGNAL('L_Finished'), l_stat)
-
-    # alignment = "C:\\Users\\travi\\Documents\\PhyloVis\\testFiles\\ChillLeo-Copy.phylip"
-    # taxa = ["P1", "P2", "P3", "O"]
-    # species_tree = "(((P1:0.8,P2:0.8):0.8,P3:0.8),O);"
-    # reticulations = ({"P3": "P2"}, {"P3": "P1"})
-    #
-    # print l_statistic(alignment, taxa, species_tree, reticulations)
-
-    def run(self):
-        try:
-            self.calculate_d(self.dAlignment, self.dWindowSize,
-                             self.dWindowOffset, self.taxons[0], self.taxons[1], self.taxons[2], self.taxons[3])
-        except IOError:
-            self.emit(QtCore.SIGNAL('INVALID_ALIGNMENT_FILE'),
-                      'Invalid File.', 'Invalid alignment file. Please choose another.', self.dAlignment)
-        except ZeroDivisionError:
-            self.emit(QtCore.SIGNAL('INVALID_ALIGNMENT_FILE'),
-                      'Invalid Taxon Selection.', 'Please make sure that all taxons are unique.', self.dAlignment)
-        finally:
-            return
-
+        return spectree
 
 if __name__ == '__main__':
 
-    sc = StatisticsCalculations()
+    gds = GeneralizedDStatistic()
 
-    sc.output_directory = "../RAxML_Files"
+    # species_tree, r = '((((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,P4:0.01):0.01,O:0.01);', {'P3': 'P1'}
+    species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', {'P3': 'P1'}
+    # species_tree, r = "(((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,O:0.01);", {'P3': 'P1'}
+    network = gds.generate_network_tree((0.03, 0.97), species_tree, r)
+    # print network
+    st = re.sub("\:\d+\.\d+", "", species_tree)
+    trees, taxa = gds.branch_adjust(st)
+    networks = gds.network_adjust(network)
+    trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = gds.equality_sets(trees, network, taxa)
+    trees_of_interest = gds.set_of_interest(trees_to_equality, trees_to_equality_N)
+    print "Patterns to equality sets p(gt|st):", trees_to_equality
+    print "Patterns to equality sets p(gt|N):", trees_to_equality_N
+    print "Patterns of interest:", trees_of_interest
+    print
+    increase, decrease = gds.determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
 
-    sc.calculate_windows_to_p_gtst("(C:0.00773900199203547429,(G:0.00922097500041624447,O:0.04766300468995082057):0.00139495391245007404,H:0.00972794777559046753):0.0;")
+    print gds.generate_statistic_string((increase, decrease))
+
+
+    print 'output', gds.network_to_species_tree(network)
+    print "should be", species_tree
+
+    # print "Statistic:", generate_statistic_string((increase, decrease))

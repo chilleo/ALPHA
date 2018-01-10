@@ -17,6 +17,9 @@ from module import informativeSites as infSites
 from module import bootstrapContraction as bc
 from module import msComparison as ms
 
+# generalized d-statistic
+from CommandLineFiles import CalculateGeneralizedDStatistic as cgd
+
 
 class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
     def __init__(self, parent=None):
@@ -52,10 +55,10 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.menubar.setNativeMenuBar(False)
 
         # set GUI icon
-        self.setWindowIcon(QtGui.QIcon('imgs/phylovisLogo.png'))
+        self.setWindowIcon(QtGui.QIcon('imgs/alphaLogo.png'))
 
         # self.welcomeLogoImage.setScaledContents(True)
-        self.welcomeLogoImage.setPixmap(QtGui.QPixmap('imgs/phylovisLogo.png'))
+        self.welcomeLogoImage.setPixmap(QtGui.QPixmap('imgs/alphaLogo.png'))
 
         # create new instance of RaxmlOperations class
         self.raxmlOperations = ro.RAxMLOperations()

@@ -11,10 +11,10 @@ Peter Dulworth
 """
 
 class LStatisticWindow(Window):
-    def __init__(self, lWindows, title='Windows to L Statistic', xLabel='Window Indices', yLabel='L Statistic values'):
+    def __init__(self, lWindows):
         Window.__init__(self, windowTitle='L Statistic Window')
 
-        self.plotter.stat_scatter(lWindows, title, xLabel=xLabel, yLabel=yLabel)
+        self.plotter.stat_scatter(lWindows, 'Windows to L Statistic','Window Indices', 'L Statistic values')
         self.show()
 
 
