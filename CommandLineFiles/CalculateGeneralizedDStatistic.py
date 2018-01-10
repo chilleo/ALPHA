@@ -298,6 +298,10 @@ def calculate_newicks_to_stats(species_tree, species_network, unique_trees, outg
         # Read output and convert to float
         p_of_g_given_s_noO = float(p.stdout.readline())
 
+        print tree_noO
+        print species_tree_noO
+        print p_of_g_given_s_noO
+
         # Run PhyloNet p(g|N) jar file
         p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_network_noO, tree_noO),
                              stdout=subprocess.PIPE,
