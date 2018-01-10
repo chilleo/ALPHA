@@ -1,5 +1,5 @@
 # utilities
-import sip, sys, os, re, webbrowser, random
+import sip, sys, os, re, webbrowser
 sip.setapi('QString', 2)
 from PyQt4 import QtGui, QtCore
 from functools import partial
@@ -16,6 +16,9 @@ from module import fileConverterController as fc
 from module import informativeSites as infSites
 from module import bootstrapContraction as bc
 from module import msComparison as ms
+
+# generalized d-statistic
+from CommandLineFiles import CalculateGeneralizedDStatistic as cgd
 
 
 class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
@@ -52,10 +55,10 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.menubar.setNativeMenuBar(False)
 
         # set GUI icon
-        self.setWindowIcon(QtGui.QIcon('imgs/phylovisLogo.png'))
+        self.setWindowIcon(QtGui.QIcon('imgs/alphaLogo.png'))
 
         # self.welcomeLogoImage.setScaledContents(True)
-        self.welcomeLogoImage.setPixmap(QtGui.QPixmap('imgs/phylovisLogo.png'))
+        self.welcomeLogoImage.setPixmap(QtGui.QPixmap('imgs/alphaLogo.png'))
 
         # create new instance of RaxmlOperations class
         self.raxmlOperations = ro.RAxMLOperations()
@@ -246,6 +249,17 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.dStatisticValueLabel.setText(str(self.dVal))
         self.dStatisticLabel.setEnabled(True)
         self.dStatisticValueLabel.setEnabled(True)
+
+    # **************************** L STATISTIC PAGE ****************************#
+
+    def displayLStatistic(self, lVal, lWindows):
+        self.lVal = lVal
+        self.lWindows = lWindows
+        self.lStatisticWindow = dStatisticWindow.DStatisticWindow(self.lWindows)
+
+        self.lStatisticValueLabel.setText(str(self.lVal))
+        self.lStatisticLabel.setEnabled(True)
+        self.lStatisticValueLabel.setEnabled(True)
 
     # **************************** MS PAGE ****************************#
 
