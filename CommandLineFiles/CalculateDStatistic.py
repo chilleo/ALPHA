@@ -23,10 +23,6 @@ def calculate_d(alignment, window_size, window_offset, taxon1, taxon2, taxon3, t
     # Initialize the site index to 0
     site_idx = 0
 
-    # Initialize values for the d statistic numerator and denominator
-    d_numerator = 0
-    d_denominator = 0
-
     windows_to_d = {}
 
     sequence_list = []
@@ -51,8 +47,8 @@ def calculate_d(alignment, window_size, window_offset, taxon1, taxon2, taxon3, t
         window_size = length_of_sequences
     else:
         # Determine the total number of windows needed
-        while i + window_size - 1 < length_of_sequences:
-            i += window_size
+        while (i + window_size - 1 < length_of_sequences):
+            i += window_offset
             num_windows += 1
 
     for line in lines[1:]:
@@ -116,14 +112,13 @@ def calculate_d(alignment, window_size, window_offset, taxon1, taxon2, taxon3, t
                 break
 
         # Calculate d statistic for the window
-        d_window = numerator_window / float(denominator_window)
+        if denominator_window != 0:
+            d_window = numerator_window / float(denominator_window)
+        else:
+            d_window = 0
 
         # Map the window index to its D statistic
         windows_to_d[window] = d_window
-
-        # Add the numerator and denominator of each window to the overall numerator and denominator
-        d_numerator += numerator_window
-        d_denominator += denominator_window
 
         # Reset numerator and denominator
         numerator_window = 0
@@ -132,7 +127,44 @@ def calculate_d(alignment, window_size, window_offset, taxon1, taxon2, taxon3, t
         # Account for overlapping windows
         site_idx += (window_offset - window_size)
 
-    d_stat = d_numerator / float(d_denominator)
+    d_numerator = 0
+    d_denominator = 0
+
+    # Iterate over the site indices
+    for site_idx in range(length_of_sequences):
+
+        site = []
+
+        # Iterate over each sequence in the alignment
+        for sequence in sequence_list:
+            # Add each base in a site to a list
+            site.append(sequence[site_idx])
+
+        # Get the genetic sites in the correct order
+        P1, P2, P3, O = site[taxon1_idx], site[taxon2_idx], site[taxon3_idx], site[taxon4_idx]
+
+        # Case of ABBA
+        if P1 == O and P2 == P3 and P1 != P2:
+            ABBA = 1
+            BABA = 0
+
+        # Case of BABA
+        elif P1 == P3 and P2 == O and P1 != P2:
+            ABBA = 0
+            BABA = 1
+
+        # Neither case
+        else:
+            ABBA = 0
+            BABA = 0
+
+        d_numerator += (ABBA - BABA)
+        d_denominator += (ABBA + BABA)
+
+    if d_denominator != 0:
+        d_stat = d_numerator / float(d_denominator)
+    else:
+        d_stat = 0
 
     return d_stat, windows_to_d
 

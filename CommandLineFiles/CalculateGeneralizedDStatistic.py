@@ -7,6 +7,7 @@ import copy
 import subprocess
 from collections import defaultdict
 from sys import platform
+from scipy import stats
 
 """
 Functions:
@@ -17,25 +18,8 @@ Travis Benedict
 Peter Dulworth
 """
 
-# Looking for changes in total ordering see Luay email
 
-branch_lengths = [.01, .1, .5, 1.0, 2.0, 4.0]  # Probability equalities should be same for all branch length settings
-
-# Iterate over all possible combinations of branch lengths use small trees
-
-reticulations = [.1, .5, .9]  # Use all possible reticulations for all possible branch lengths
-
-
-# Compute total ordering at the end to output
-
-# Go from total ordering to site pattern statistic
-# Then we done maybe
-
-
-
-
-
-def generate_network_tree(inheritance, species_tree, network_map, count=1):
+def generate_network_tree(inheritance, species_tree, reticulations):
     """
     Creates a network tree based on the species tree
     and the two leaves to be connected.
@@ -49,22 +33,24 @@ def generate_network_tree(inheritance, species_tree, network_map, count=1):
     Returns:
     A newick string network with the added nodes.
     """
+
     # check for a species tree file
     if os.path.isfile(species_tree):
         with open(species_tree) as f:
-            s_tree = f.readline()
+            network = f.readline()
 
     # check for a species tree string
     else:
-        s_tree = species_tree
+        network = species_tree
 
-    # get taxa for the edge in the network
-    start = network_map.keys()[0]
-    end = network_map[start]
+    for i in range(len(reticulations)):
+        # get taxa for the edge in the network
+        start = reticulations[i][0]
+        end = reticulations[i][1]
 
-    # add nodes into tree in proper format
-    network = s_tree.replace(start, '((' + start + ')#H' + str(count) + ':0::' + str(inheritance[0]) + ')')
-    network = network.replace(end, '(#H' + str(count) + ':0::' + str(inheritance[1]) + ',' + end + ')')
+        # add nodes into tree in proper format
+        network = network.replace(start, '((' + start + ')#H' + str(i+1) + ':0::' + str(inheritance[0]) + ')')
+        network = network.replace(end, '(#H' + str(i+1) + ':0::' + str(inheritance[1]) + ',' + end + ')')
 
     return network
 
@@ -314,9 +300,8 @@ def calculate_newicks_to_stats(species_tree, species_network, unique_trees, outg
         p = subprocess.Popen("java -jar {0} {1} {2}".format(j, species_tree, tree), stdout=subprocess.PIPE,
                              shell=True)
 
-        a = p.stdout.readline()
         # Read output and convert to float
-        p_of_g_given_s = float(a)
+        p_of_g_given_s = float(p.stdout.readline())
 
         # Run PhyloNet p(g|N) jar file
         p = subprocess.Popen("java -jar {0} {1} {2}".format(j, species_network, tree), stdout=subprocess.PIPE,
@@ -338,14 +323,8 @@ def calculate_newicks_to_stats(species_tree, species_network, unique_trees, outg
         p = subprocess.Popen("java -jar {0} {1} {2}".format(j, species_tree_noO, tree_noO), stdout=subprocess.PIPE,
                              shell=True)
 
-        x = p.stdout.readline()
-
         # Read output and convert to float
-        p_of_g_given_s_noO = float(x)
-
-        print tree_noO
-        print species_tree_noO
-        print p_of_g_given_s_noO
+        p_of_g_given_s_noO = float(p.stdout.readline())
 
         # Run PhyloNet p(g|N) jar file
         p = subprocess.Popen("java -jar {0} {1} {2}".format(j, species_network_noO, tree_noO), stdout=subprocess.PIPE,
@@ -772,8 +751,6 @@ def calculate_pattern_probabilities(newicks_to_patterns, newicks_to_pgS, newicks
 
             # Initialize a probability for each pattern if it does not have one
             if pattern not in patterns_to_pgS:
-                print newicks_to_pgS
-                print newick
                 patterns_to_pgS[pattern] = newicks_to_pgS[newick]
                 patterns_to_pgN[pattern] = newicks_to_pgN[newick]
 
@@ -857,6 +834,28 @@ def generate_statistic_string(patterns_of_interest):
 
 ##### Function for calculating statistic
 
+def calculate_significance(left, right):
+    """
+    Determines statistical significance based on a chi-squared goodness of fit test
+    Input:
+    left --- the total count for site patterns in the left term of the statistic
+    right --- the total count for site patterns in the right term of the statistic
+    Output:
+    significant --- a boolean corresponding to whether or not the result is statistically significant
+    """
+
+    alpha = 0.05
+
+    # Calculate the test statistic
+    chisq = (left - right)**2 / (left + right)
+
+    # Calulate the p-value based on a chi square distribtion with df = 1
+    pval = stats.chi2.cdf(chisq, 1)
+
+    if pval < alpha:
+        return False
+    else:
+        return True
 
 def calculate_L(alignment, taxa_order, patterns_of_interest):
     """
@@ -865,8 +864,11 @@ def calculate_L(alignment, taxa_order, patterns_of_interest):
     alignment --- a sequence alignment in phylip format
     taxa_order --- the desired order of the taxa
     patterns_of_interest --- a tuple containing the sets of patterns used for determining a statistic
+    window_size --- the desired window size
+    windw_offset --- the desired offset between windows
     Output:
     l_stat --- the L statistic value
+    windows_to_L --- a mapping of window indices to L statistic values
     """
 
     # Separate the patterns of interest into their two terms
@@ -950,10 +952,147 @@ def calculate_L(alignment, taxa_order, patterns_of_interest):
     numerator = terms1_total - terms2_total
     denominator = terms1_total + terms2_total
 
-    l_stat = numerator / float(denominator)
+    significant = calculate_significance(terms1_total, terms2_total)
 
-    return l_stat
+    if denominator != 0:
+        l_stat = numerator / float(denominator)
+    else:
+        l_stat = 0
 
+    return l_stat, significant
+
+
+def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_size, window_offset):
+    """
+    Calculates the L statistic for the given alignment
+    Input:
+    alignment --- a sequence alignment in phylip format
+    taxa_order --- the desired order of the taxa
+    patterns_of_interest --- a tuple containing the sets of patterns used for determining a statistic
+    window_size --- the desired window size
+    windw_offset --- the desired offset between windows
+    Output:
+    l_stat --- the L statistic value
+    windows_to_l --- a mapping of window indices to L statistic values
+    """
+
+    # Separate the patterns of interest into their two terms
+    terms1 = patterns_of_interest[0]
+    terms2 = patterns_of_interest[1]
+
+    sequence_list = []
+    taxon_list = []
+
+    with open(alignment) as f:
+
+        # Create a list of each line in the file
+        lines = f.readlines()
+
+        # First line contains the number and length of the sequences
+        first_line = lines[0].split()
+        length_of_sequences = int(first_line[1])
+
+    for line in lines[1:]:
+        # Add each sequence to a list
+        sequence = line.split()[1]
+        sequence_list.append(sequence)
+
+        # Add each taxon to a list
+        taxon = line.split()[0]
+        taxon_list.append(taxon)
+
+    # The outgroup is the last taxa in taxa order
+    outgroup = taxa_order[-1]
+
+    i = 0
+    num_windows = 0
+    if window_size > length_of_sequences:
+        num_windows = 1
+        window_size = length_of_sequences
+    else:
+        # Determine the total number of windows needed
+        while (i + window_size - 1 < length_of_sequences):
+            i += window_offset
+            num_windows += 1
+
+    site_idx = 0
+    windows_to_l = {}
+
+    # Iterate over each window
+    for window in range(num_windows):
+
+        terms1_counts = defaultdict(int)
+        terms2_counts = defaultdict(int)
+
+        # Iterate over the indices in each window
+        for window_idx in range(window_size):
+
+            # Map each taxa to the base at a given site
+            taxa_to_site = {}
+
+            # Create a set of the bases at a given site to determine if the site is biallelic
+            bases = set([])
+
+            # Iterate over each sequence in the alignment
+            for sequence, taxon in zip(sequence_list, taxon_list):
+                # Map each taxon to the corresponding base at the site
+                base = sequence[site_idx]
+                taxa_to_site[taxon] = base
+                bases.add(base)
+
+            if len(bases) == 2:
+
+                # Create the pattern that each site has
+                site_pattern = []
+
+                # The ancestral gene is always the same as the outgroup
+                ancestral = taxa_to_site[outgroup]
+
+                # Iterate over each taxon
+                for taxon in taxa_order:
+                    nucleotide = taxa_to_site[taxon]
+
+                    # Determine if the correct derived/ancestral status of each nucleotide
+                    if nucleotide == ancestral:
+                        site_pattern.append("A")
+                    else:
+                        site_pattern.append("B")
+
+                # Convert the site pattern to a string
+                site_string = pattern_string_generator([site_pattern])[0]
+
+                # If the site string is a pattern of interest add to its count for one of the terms
+                if site_string in terms1:
+                    terms1_counts[site_string] += 1
+
+                elif site_string in terms2:
+                    terms2_counts[site_string] += 1
+
+            # Increment the site index
+            site_idx += 1
+
+        terms1_total = sum(terms1_counts.values())
+        terms2_total = sum(terms2_counts.values())
+
+        numerator = terms1_total - terms2_total
+        denominator = terms1_total + terms2_total
+
+        if denominator != 0:
+            l_stat = numerator / float(denominator)
+        else:
+            l_stat = 0
+
+        # Map the window index to its D statistic
+        windows_to_l[window] = l_stat
+
+        # Reset numerator and denominator
+        numerator = 0
+        denominator = 0
+
+        # Account for overlapping windows
+        site_idx += (window_offset - window_size)
+
+    return windows_to_l
 
 ##### Functions for total ordering
 
@@ -1198,14 +1337,14 @@ def equality_sets(species_trees, network, taxa):
                     seen.add(gt2)
 
             # Debugging case
-            if gt1 in trees_to_equality:
-                if trees_to_equality[gt1] != equal_trees:
-                    print
-                    print "CHECK THIS OUT"
-                    print "Equality Set for ", gt1, " with ST ", st, ": ", trees_to_equality[gt1]
-                    print "Equality Set for ", gt1, " with ST ", \
-                        sorted(st_to_pattern_probs.keys())[sorted(st_to_pattern_probs.keys()).index(st) - 1], ": ", equal_trees
-                    print
+            # if gt1 in trees_to_equality:
+            #     if trees_to_equality[gt1] != equal_trees:
+            #         print
+            #         print "CHECK THIS OUT"
+            #         print "Equality Set for ", gt1, " with ST ", st, ": ", trees_to_equality[gt1]
+            #         print "Equality Set for ", gt1, " with ST ", \
+            #             sorted(st_to_pattern_probs.keys())[sorted(st_to_pattern_probs.keys()).index(st) - 1], ": ", equal_trees
+            #         print
 
             # Add the equality set to the mapping if tbe pattern is not already in the mapping and set is non empty
             if len(equal_trees) != 0 and gt1 not in seen_trees:
@@ -1242,15 +1381,15 @@ def equality_sets(species_trees, network, taxa):
                         seen.add(gt2)
 
                 # Debugging case
-                if gt1 in trees_to_equality_N:
-                    if trees_to_equality_N[gt1] != equal_trees:
-                        print
-                        print "CHECK THIS OUT"
-                        print "Equality Set for ", gt1, " with N ", st, ": ", trees_to_equality[gt1]
-                        print "Equality Set for ", gt1, " with N ", \
-                            sorted(st_to_pattern_probs_N.keys())[
-                                sorted(st_to_pattern_probs_N.keys()).index(st) - 1], ": ", equal_trees
-                        print
+                # if gt1 in trees_to_equality_N:
+                #     if trees_to_equality_N[gt1] != equal_trees:
+                #         print
+                #         print "CHECK THIS OUT"
+                #         print "Equality Set for ", gt1, " with N ", st, ": ", trees_to_equality[gt1]
+                #         print "Equality Set for ", gt1, " with N ", \
+                #             sorted(st_to_pattern_probs_N.keys())[
+                #                 sorted(st_to_pattern_probs_N.keys()).index(st) - 1], ": ", equal_trees
+                #         print
 
                 # Add the equality set to the mapping if tbe pattern is not already in the mapping and set is non empty
                 if len(equal_trees) != 0 and gt1 not in seen_trees:
@@ -1295,7 +1434,7 @@ def set_of_interest(trees_to_equality, trees_to_equality_N):
     return trees_of_interest
 
 
-def calculate_generalized(alignment, species_tree, reticulations, verbose=False):
+def calculate_generalized(alignment, species_tree, reticulations, window_size, window_offset, verbose=False):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1303,6 +1442,8 @@ def calculate_generalized(alignment, species_tree, reticulations, verbose=False)
     taxa --- a list of the taxa in the desired order
     species_tree --- the inputted species tree over the given taxa
     reticulations --- a tuple containing two dictionaries mapping the start leaves to end leaves
+    window_size --- the desired window size
+    window_offset --- the desired offset between windows
     verbose --- a boolean for determining if extra information will be printed
     Output:
     l_stat --- the L statistic value
@@ -1311,84 +1452,34 @@ def calculate_generalized(alignment, species_tree, reticulations, verbose=False)
     network = generate_network_tree((0.03, 0.97), species_tree, reticulations)
     st = re.sub("\:\d+\.\d+", "", species_tree)
     trees, taxa = branch_adjust(st)
+    newick_patterns = newicks_to_patterns_generator(taxa, trees)
     trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
     trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
     increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
 
-    l_stat = calculate_L(alignment, taxa, (increase, decrease))
+    l_stat, significant = calculate_L(alignment, taxa, (increase, decrease))
+    windows_to_l = calculate_windows_to_L(alignment, taxa, (increase, decrease), window_size, window_offset)
 
     if verbose:
         print
         print "Newick strings with corresponding patterns: ", newick_patterns
         print
-        print "Probability of gene tree: ", trees_to_pgS
-        print
-        print "Probability of species network: ", trees_to_pgN
-        print
-        print "Probability of gene tree with outgroup removed: ", trees_to_pgS_noO
-        print
-        print "Probability of species network with outgroup removed: ", trees_to_pgN_noO
-        print
         print "Probability of gene tree patterns: ", patterns_pgS
         print
         print "Probability of species network patterns:", patterns_pgN
         print
-        print "Patterns with increasing probability: ", increase
-        print "Patterns with decreasing probability: ", decrease
+        print "Patterns that were formerly equal with increasing probability: ", increase
+        print "Patterns that were formerly equal with decreasing probability: ", decrease
         print
         print "Patterns of interest: ", increase, decrease
         print
         print "Statistic: ", generate_statistic_string((increase, decrease))
         print
 
-    return l_stat
+    return l_stat, significant, windows_to_l
 
 
-# species_tree, r = '((((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,P4:0.01):0.01,O:0.01);', {'P3': 'P1'}
-species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', {'P3': 'P1'}
-# species_tree, r = "(((P1:0.01,P2:0.01):0.01,P3:0.01):0.01,O:0.01);", {'P3': 'P1'}
-network = generate_network_tree((0.03, 0.97), species_tree, r)
-# print network
-st = re.sub("\:\d+\.\d+", "", species_tree)
-trees, taxa = branch_adjust(st)
-networks = network_adjust(network)
-trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
-trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
-print "Patterns to equality sets p(gt|st):", trees_to_equality
-print "Patterns to equality sets p(gt|N):", trees_to_equality_N
-print "Patterns of interest:", trees_of_interest
-print
-increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
+# species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1'),('P3', 'P2')]
+# alignment = "C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"
+# print calculate_generalized(alignment, species_tree, r, 50000, 50000, True)
 
-print generate_statistic_string((increase, decrease))
-
-
-## Changing Network to Species Tree
-def network_to_species_tree(network):
-    """
-
-    :param network:
-    :return:
-    """
-    # remove H1...
-    spec1 = re.sub('(#H\d\W\d\W+\d.\d+\W+)', '', network)
-    print spec1
-    # remove extra parentheses - this is v good
-    spec2 = re.sub('\((P\d+)\)', r'\1 ', spec1)
-    print spec2
-    # adds colon back in?? bad probably
-    spec3 = re.sub(' ', ':', spec2)
-    print spec3
-    # removes extras again?? this is bad
-    spec4 = re.sub('(,\()', ',', spec3)
-    print spec4
-    # removes extra colons
-    spectree = re.sub('(::)', ':', spec4)
-
-    return spectree
-
-
-print 'output', network_to_species_tree(network)
-print "should be", species_tree
-
-# print "Statistic:", generate_statistic_string((increase, decrease))
