@@ -203,6 +203,31 @@ class Plotter(QtCore.QThread):
 
         return ax
 
+    def treeImage(self, title, newick, rooted=False, outgroup=False):
+        """
+            Given a newick string, creates an image of the tree.
+            Used in L Statistic GUI.
+        """
+
+        plt.title(title, fontsize=15)
+        plt.axis('off')
+
+        ax = plt.subplot(1, 1, 1)
+        ax.text(0, 0, str(1) + ' Occurrences', style='italic')
+
+        # disable axis
+        ax.axis('off')
+
+        # Create the tree object
+        tree = Phylo.read(StringIO(newick), "newick")
+        tree.rooted = rooted
+
+        if rooted:
+            tree.root_with_outgroup(outgroup)
+
+        # Create the tree image
+        Phylo.draw(tree, axes=ax, do_show=False)
+
     def topologyColorizer(self, title, newicksToColors, topologies_to_counts, rooted=False, outgroup=False):
         """
             Create colored tree topology images based on a color scheme where the color of a tree is determined by the frequency that it occurs.
@@ -256,7 +281,6 @@ class Plotter(QtCore.QThread):
 
                 count += 1
 
-
     def doubleLineGraph(self, list1, list2, confidenceThreshold, xLabel='', yLabel=''):
         """
             Create a line graph based on the inputted dictionary
@@ -308,7 +332,6 @@ class Plotter(QtCore.QThread):
         ax.legend(groupLabels1)
 
         return ax
-
 
     def lineGraph(self, data, title, xLabel='', yLabel='', subplotPosition=111):
         """
@@ -583,14 +606,17 @@ class Plotter(QtCore.QThread):
         elif self.plot == 'heatmap':
             self.heatMap(self.title, self.sitesToInformative)
 
+
 if __name__ == '__main__':  # if we're running file directly and not importing it
     p = Plotter()
     # p.figureBarPlot([1,2,3,4], 'name')
-    a = {0: '(C,(G,O),H);', 1: '((C,G),O,H);', 2: '(C,(G,O),H);', 3: '(C,(G,O),H);', 4: '(C,(G,O),H);', 5: '(C,(G,O),H);', 6: '(C,(G,O),H);', 7: '(C,(G,O),H);', 8: '((C,G),O,H);', 9: '(C,(G,O),H);'}
-    b = ['#ff0000', '#0000ff', '#ff0000', '#ff0000', '#ff0000', '#ff0000', '#ff0000', '#ff0000', '#0000ff', '#ff0000']
-    c = [1, 0, 1, 1, 1, 1, 1, 1, 0, 1]
+    # a = {0: '(C,(G,O),H);', 1: '((C,G),O,H);', 2: '(C,(G,O),H);', 3: '(C,(G,O),H);', 4: '(C,(G,O),H);', 5: '(C,(G,O),H);', 6: '(C,(G,O),H);', 7: '(C,(G,O),H);', 8: '((C,G),O,H);', 9: '(C,(G,O),H);'}
+    # b = ['#ff0000', '#0000ff', '#ff0000', '#ff0000', '#ff0000', '#ff0000', '#ff0000', '#ff0000', '#0000ff', '#ff0000']
+    # c = [1, 0, 1, 1, 1, 1, 1, 1, 0, 1]
     # p.heatMap('title', )
 
-    p.barPlot('', [1,2,3,4,5 ], '', '', groupLabels=('one', 'two', '3', 4, '5'))
+
+    # p.barPlot('', [1,2,3,4,5 ], '', '', groupLabels=('one', 'two', '3', 4, '5'))
+    p.treeImage("title", "(a,(b,c))")
 
     plt.show()
