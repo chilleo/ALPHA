@@ -847,7 +847,10 @@ def calculate_significance(left, right):
     alpha = 0.05
 
     # Calculate the test statistic
-    chisq = (left - right)**2 / (left + right)
+    if left + right > 0:
+        chisq = (left - right)**2 / (left + right)
+    else:
+        chisq = 0
 
     # Calulate the p-value based on a chi square distribtion with df = 1
     pval = stats.chi2.cdf(chisq, 1)
@@ -1480,6 +1483,13 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
 
 
 # species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1'),('P3', 'P2')]
+# species_tree = '(((P1,P2),(P3,P4)),O);'
 # alignment = "C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"
 # print calculate_generalized(alignment, species_tree, r, 50000, 50000, True)
 
+
+# calculate_generalized('C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip', '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1'),('P3', 'P2')], 50000, 50000, True)
+#
+# python -c "from CalculateGeneralizedDStatistic import *; print calculate_generalized('C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip', '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1'),('P3', 'P2')], 50000, 50000, True)"
+#
+# python -c "from CalculateGeneralizedDStatistic import *; print calculate_generalized('PhylipFile', 'SpeciesTree', [('FlowSource', 'FlowSink')], WindowSize, WindowOffset, True/FalseForVerbose)"

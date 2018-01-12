@@ -1382,7 +1382,10 @@ class GeneralizedDStatistic(QtCore.QThread):
         alpha = 0.05
 
         # Calculate the test statistic
-        chisq = (left - right)**2 / (left + right)
+        if left + right > 0:
+            chisq = (left - right)**2 / (left + right)
+        else:
+            chisq = 0
 
         # Calulate the p-value based on a chi square distribtion with df = 1
         pval = stats.chi2.cdf(chisq, 1)
