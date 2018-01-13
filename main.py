@@ -38,8 +38,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             os.mkdir('plots')
 
         # remove all files in plots folder
-        for fileName in os.listdir('plots'):
-            os.remove('plots/' + fileName)
+        # for fileName in os.listdir('plots'):
+        #     os.remove('plots/' + fileName)
 
         # initialize gui_layout
         self.setupUi(self)
@@ -78,19 +78,19 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.topologyPlotter.num = None
 
         # mapping from: windows --> page index
-        self.windows = {'welcomePage': 0, 'inputPageRax': 1, 'inputPageFileConverter': 2, 'inputPageMS': 3, 'inputPageDStatistic': 4}
+        self.windows = {'welcomePage': 0, 'inputPageRax': 1, 'inputPageFileConverter': 2, 'inputPageMS': 3, 'inputPageDStatistic': 4, 'inputPageLStatistic': 5}
         # mapping from: windows --> dictionary of page dimensions
-        self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 640, 'y': 549}, 'inputPageFileConverter': {'x': 459, 'y': 403}, 'inputPageMS': {'x': 600, 'y': 746}, 'inputPageDStatistic': {'x': 600, 'y': 600}}
+        self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 640, 'y': 549}, 'inputPageFileConverter': {'x': 459, 'y': 403}, 'inputPageMS': {'x': 600, 'y': 746}, 'inputPageDStatistic': {'x': 600, 'y': 600}, 'inputPageLStatistic': {'x': 800, 'y': 900}}
         # mapping from: windows --> dictionary of page dimensions
-        self.windowLocations = {'welcomePage': {'x': 600, 'y': 300}, 'inputPageRax': {'x': 500, 'y': 175}, 'inputPageFileConverter': {'x': 600, 'y': 300}, 'inputPageMS': {'x': 520, 'y': 100}, 'inputPageDStatistic': {'x': 500, 'y': 175}}
+        self.windowLocations = {'welcomePage': {'x': 600, 'y': 300}, 'inputPageRax': {'x': 500, 'y': 175}, 'inputPageFileConverter': {'x': 600, 'y': 300}, 'inputPageMS': {'x': 520, 'y': 100}, 'inputPageDStatistic': {'x': 500, 'y': 175}, 'inputPageLStatistic': {'x': 450, 'y': 75}}
         # mapping from: mode --> page
-        self.comboboxModes_to_windowNames = {'RAx_ML': 'inputPageRax', 'File Converter': 'inputPageFileConverter', 'MS Comparison': 'inputPageMS', 'D Statistic': 'inputPageDStatistic'}
+        self.comboboxModes_to_windowNames = {'RAx_ML': 'inputPageRax', 'File Converter': 'inputPageFileConverter', 'MS Comparison': 'inputPageMS', 'D Statistic': 'inputPageDStatistic', 'L Statistic': 'inputPageLStatistic'}
         # mapping from: mode --> menu action
-        self.comboboxModes_to_actionModes = {'RAx_ML': self.actionRax, 'File Converter': self.actionConverter, 'MS Comparison': self.actionMS, 'D Statistic': self.actionDStatistic}
+        self.comboboxModes_to_actionModes = {'RAx_ML': self.actionRax, 'File Converter': self.actionConverter, 'MS Comparison': self.actionMS, 'D Statistic': self.actionDStatistic, 'L Statistic': self.actionLStatistic}
         # if running windows os
         if sys.platform == 'win32':
             # mapping from: windows --> dictionary of page dimensions
-            self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 925, 'y': 688}, 'inputPageFileConverter': {'x': 630, 'y': 375}, 'inputPageMS': {'x': 675, 'y': 815}, 'inputPageDStatistic': {'x': 600, 'y': 570}}
+            self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 925, 'y': 688}, 'inputPageFileConverter': {'x': 630, 'y': 375}, 'inputPageMS': {'x': 675, 'y': 815}, 'inputPageDStatistic': {'x': 600, 'y': 570}, 'inputPageLStatistic': {'x': 600, 'y': 570}}
         # set of previously generated RAxML Figures
         self.prevGeneratedFigures = set()
 
@@ -136,6 +136,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.actionConverter.triggered.connect(lambda: self.ensureSingleModeSelected(self.actionConverter, 'inputPageFileConverter'))
         self.actionMS.triggered.connect(lambda: self.ensureSingleModeSelected(self.actionMS, 'inputPageMS'))
         self.actionDStatistic.triggered.connect(lambda: self.ensureSingleModeSelected(self.actionDStatistic, 'inputPageDStatistic'))
+        self.actionLStatistic.triggered.connect(lambda: self.ensureSingleModeSelected(self.actionLStatistic, 'inputPageLStatistic'))
 
         # triggers select file dialogs
         self.inputFileBtn.clicked.connect(lambda: self.getFileName(self.inputFileEntry))

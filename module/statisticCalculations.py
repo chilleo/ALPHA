@@ -10,11 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PyQt4 import QtCore
 from sys import platform
-import itertools
-import ete3
 from ete3 import Tree
-import copy
-from collections import defaultdict
 
 """
 Functions:
