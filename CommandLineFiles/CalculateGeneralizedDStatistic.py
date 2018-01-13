@@ -1158,7 +1158,7 @@ def network_branch_adjust(species_network):
             new_t = new_t.replace(l[0], ":" + str(b))
         adjusted_trees.add(new_t)
 
-    return adjusted_trees
+    return list(adjusted_trees)
 
 
 def all_total_ordering(species_trees, taxa, network=False):
@@ -1452,10 +1452,10 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
     l_stat --- the L statistic value
     """
 
-    network = generate_network_tree((0.03, 0.97), species_tree, reticulations)
     st = re.sub("\:\d+\.\d+", "", species_tree)
     trees, taxa = branch_adjust(st)
     newick_patterns = newicks_to_patterns_generator(taxa, trees)
+    network = generate_network_tree((0.03, 0.97), list(trees)[0], reticulations)
     trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
     trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
     increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
@@ -1482,10 +1482,16 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
     return l_stat, significant, windows_to_l
 
 
-# species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1'),('P3', 'P2')]
-# species_tree = '(((P1,P2),(P3,P4)),O);'
-# alignment = "C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"
+# species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
+# # species_tree = '(((P1,P2),(P3,P4)),O);'
+# # alignment = "C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"
+# alignment = "C:\\Users\\travi\\Desktop\\seqfileNamed"
 # print calculate_generalized(alignment, species_tree, r, 50000, 50000, True)
+
+
+# print calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
+
+# python -c "from CalculateGeneralizedDStatistic import *; print calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),P5);', [('P1', 'P3')], 50000, 50000, True)"
 
 
 # calculate_generalized('C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip', '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1'),('P3', 'P2')], 50000, 50000, True)

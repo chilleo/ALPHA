@@ -872,7 +872,7 @@ class GeneralizedDStatistic(QtCore.QThread):
                         site_pattern.append("B")
 
                 # Convert the site pattern to a string
-                site_string = pattern_string_generator([site_pattern])[0]
+                site_string = self.pattern_string_generator([site_pattern])[0]
 
                 # If the site string is a pattern of interest add to its count for one of the terms
                 if site_string in terms1:
@@ -887,7 +887,7 @@ class GeneralizedDStatistic(QtCore.QThread):
         numerator = terms1_total - terms2_total
         denominator = terms1_total + terms2_total
 
-        significant = calculate_significance(terms1_total, terms2_total)
+        significant = self.calculate_significance(terms1_total, terms2_total)
 
         if denominator != 0:
             l_stat = numerator / float(denominator)
@@ -993,7 +993,7 @@ class GeneralizedDStatistic(QtCore.QThread):
                             site_pattern.append("B")
 
                     # Convert the site pattern to a string
-                    site_string = pattern_string_generator([site_pattern])[0]
+                    site_string = self.pattern_string_generator([site_pattern])[0]
 
                     # If the site string is a pattern of interest add to its count for one of the terms
                     if site_string in terms1:
@@ -1396,7 +1396,7 @@ class GeneralizedDStatistic(QtCore.QThread):
             return True
 
 
-    def calculate_generalized(self, alignment, species_tree, reticulations, verbose=False):
+    def calculate_generalized(self, alignment, species_tree, window_size, window_offset, reticulations, verbose=False):
         """
         Calculates the L statistic for the given alignment
         Input:
@@ -1409,10 +1409,10 @@ class GeneralizedDStatistic(QtCore.QThread):
         l_stat --- the L statistic value
         """
 
-        network = self.generate_network_tree((0.03, 0.97), species_tree, reticulations)
         st = re.sub("\:\d+\.\d+", "", species_tree)
         trees, taxa = self.branch_adjust(st)
         newick_patterns = self.newicks_to_patterns_generator(taxa, trees)
+        network = self.generate_network_tree((0.03, 0.97), list(trees)[0], reticulations)
         trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = self.equality_sets(trees, network, taxa)
         trees_of_interest = self.set_of_interest(trees_to_equality, trees_to_equality_N)
         increase, decrease = self.determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
