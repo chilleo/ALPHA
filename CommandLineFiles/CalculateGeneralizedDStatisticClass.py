@@ -1383,17 +1383,17 @@ class GeneralizedDStatistic(QtCore.QThread):
 
         # Calculate the test statistic
         if left + right > 0:
-            chisq = (left - right)**2 / (left + right)
+            chisq = (left - right) ** 2 / float(left + right)
         else:
             chisq = 0
 
-        # Calulate the p-value based on a chi square distribtion with df = 1
-        pval = stats.chi2.cdf(chisq, 1)
+        # Calculate the p-value based on a chi square distribtion with df = 1
+        pval = 1 - stats.chi2.cdf(chisq, 1)
 
         if pval < alpha:
-            return False
-        else:
             return True
+        else:
+            return False
 
 
     def calculate_generalized(self, alignment, species_tree, window_size, window_offset, reticulations, verbose=False):
