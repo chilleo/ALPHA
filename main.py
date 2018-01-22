@@ -375,8 +375,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             Output:
             a list of tuples (a,b) where a is the source taxa and b is the target taxa of the reticulation
         """
-        sourceNodes = [cb.currentText() for cb in self.lStatisticSourceComboBoxes]
-        targetNodes = [cb.currentText() for cb in self.lStatisticTargetComboBoxes]
+        sourceNodes = [cb.currentText().encode('utf-8') for cb in self.lStatisticSourceComboBoxes]
+        targetNodes = [cb.currentText().encode('utf-8') for cb in self.lStatisticTargetComboBoxes]
         return [(sourceNodes[i], targetNodes[i]) for i in range(len(sourceNodes))]
 
     # **************************** MS PAGE ****************************#
