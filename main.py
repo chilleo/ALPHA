@@ -229,21 +229,25 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # **************************** L STATISTIC PAGE **************************** #
 
         # list of combo boxes containing the taxa from the alignment for the L statistic
-        self.lStatisticTaxonComboBoxes = []
+        self.lStatisticSourceComboBoxes = [ self.reticulationSource0 ]
+        self.lStatisticTargetComboBoxes = [ self.reticulationTarget0 ]
+
+        # newick string for species tree
+        self.lSpeciesTree = ""
 
         # select alignment and species tree for L statistic
         self.lAlignmentBtn.clicked.connect(lambda: self.getFileName(self.lAlignmentEntry))
         self.lSpeciesTreeBtn.clicked.connect(lambda: self.getFileName(self.lSpeciesTreeEntry))
 
         # when an alignment is selected update the combo boxes
-        self.connect(self.lAlignmentEntry, QtCore.SIGNAL('FILE_SELECTED'), lambda: self.updateTaxonComboBoxes(self.raxmlTaxonComboBoxes, self.lAlignmentEntry))
+        self.connect(self.lAlignmentEntry, QtCore.SIGNAL('FILE_SELECTED'), lambda: self.updateTaxonComboBoxes(self.lStatisticSourceComboBoxes, self.lAlignmentEntry))
+        self.connect(self.lAlignmentEntry, QtCore.SIGNAL('FILE_SELECTED'), lambda: self.updateTaxonComboBoxes(self.lStatisticTargetComboBoxes, self.lAlignmentEntry))
 
         # when an species tree is selected update the graph
         self.connect(self.lSpeciesTreeEntry, QtCore.SIGNAL('FILE_SELECTED'), self.updateLTree)
 
         # dynamically add more file entries
-        self.lStatisticAddReticulationBtn.clicked.connect(
-                lambda: self.addReticulationComboBox('lAdditionalReticulationHorizontalLayout', 'lAdditionalSourceComboBox', 'lAdditionalTargetComboBox', 'lRemoveComboBoxBtn'))
+        self.lStatisticAddReticulationBtn.clicked.connect(self.addReticulationComboBox)
 
     # **************************** WELCOME PAGE **************************** #
 
@@ -277,8 +281,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
     # **************************** L STATISTIC PAGE **************************** #
 
     additionalReticulationCounter = 0
-    additionalReticulationSourceNames = []
-    additionalReticulationTargetNames = []
 
     def displayLStatistic(self, lVal, lWindows):
         self.lVal = lVal
@@ -289,18 +291,16 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.lStatisticLabel.setEnabled(True)
         self.lStatisticValueLabel.setEnabled(True)
 
-    def addReticulationComboBox(self, horizontalLayoutName, cBox1Name, cBox2Name, btnName):
+    def addReticulationComboBox(self):
         self.additionalReticulationCounter += 1
-        self.additionalReticulationSourceNames.append(cBox1Name + str(self.additionalReticulationCounter))
-        self.additionalReticulationTargetNames.append(cBox2Name + str(self.additionalReticulationCounter))
 
         # create horizontal layout
         HL = QtGui.QHBoxLayout()
-        HL.setObjectName(horizontalLayoutName + str(self.additionalReticulationCounter))
+        HL.setObjectName("reticulation_hl" + str(self.additionalReticulationCounter))
 
         # create btn to remove and add to horizontal layout
         btn = QtGui.QToolButton(self.reticulationGroupBox)
-        btn.setObjectName(btnName + str(self.additionalReticulationCounter))
+        btn.setObjectName("removeReticulationBtn" + str(self.additionalReticulationCounter))
         btn.setText('-')
         btn.setFixedHeight(21)
         btn.setFixedWidth(23)
@@ -308,7 +308,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         # create combo box and add to horizontal layout
         sourceComboBox = QtGui.QComboBox(self.reticulationGroupBox)
-        sourceComboBox.setObjectName(cBox1Name + str(self.additionalReticulationCounter))
+        sourceComboBox.setObjectName("reticulationSource" + str(self.additionalReticulationCounter))
         HL.addWidget(sourceComboBox)
 
         # create label "=>" and add to horizontal layout
@@ -319,7 +319,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         # create combo box and add to horizontal layout
         targetComboBox = QtGui.QComboBox(self.reticulationGroupBox)
-        targetComboBox.setObjectName(cBox2Name + str(self.additionalReticulationCounter))
+        targetComboBox.setObjectName("reticulationTarget" + str(self.additionalReticulationCounter))
         HL.addWidget(targetComboBox)
 
         # create horizontal spacer and add to horizontal layout
@@ -329,33 +329,55 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.resize(self.width(), self.height() + 30)
         self.reticulationComboBoxParentVL.addLayout(HL)
 
+        self.lStatisticSourceComboBoxes.append(sourceComboBox)
+        self.lStatisticTargetComboBoxes.append(targetComboBox)
+
+        # if an alignment has already been selected, populate any new reticulation boxes with the taxa from the alignment
+        if self.lAlignmentEntry.text() != "":
+            self.updateTaxonComboBoxes([sourceComboBox, targetComboBox], self.lAlignmentEntry)
+
         btn.clicked.connect(lambda: self.removeReticulationComboBox(HL, sourceComboBox, arrowLabel, targetComboBox, btn, hSpacer))
 
-    def removeReticulationComboBox(self, HL, cBox1, arrow, cBox2, btn, hSpacer):
+        print "+ ", [x.objectName() for x in self.lStatisticSourceComboBoxes]
+        print "+ ", [x.objectName() for x in self.lStatisticTargetComboBoxes]
+        print "+ ", self.getReticulations()
+
+    def removeReticulationComboBox(self, HL, sourceComboBox, arrow, targetComboBox, btn, hSpacer):
         HL.deleteLater()
-        cBox1.deleteLater()
+        sourceComboBox.deleteLater()
         arrow.deleteLater()
-        cBox2.deleteLater()
+        targetComboBox.deleteLater()
         btn.deleteLater()
-        self.additionalReticulationSourceNames.remove(cBox1.objectName())
-        self.additionalReticulationTargetNames.remove(cBox2.objectName())
         self.resize(self.width(), self.height() - 30)
+
+        self.lStatisticSourceComboBoxes.remove(sourceComboBox)
+        self.lStatisticTargetComboBoxes.remove(targetComboBox)
+
+        print "- ", [x.objectName() for x in self.lStatisticSourceComboBoxes]
+        print "- ", [x.objectName() for x in self.lStatisticTargetComboBoxes]
+        print "- ", self.getReticulations()
 
     def updateLTree(self):
         # read the species tree
         with open(self.lSpeciesTreeEntry.text(), 'r') as stf:
             self.lSpeciesTree = stf.read().replace('\n', '')
 
-        print self.lSpeciesTree
-
         # generate new image
-        # self.plotter.treeImage(newick, rooted=True, outgroup="O")
-        self.plotter.treeImage(self.lSpeciesTree)
+        self.plotter.treeImage(self.lSpeciesTree) # rooted=True, outgroup="O"
 
         # set background image
         self.lImagePixmap = QtGui.QPixmap('imgs/LStatisticTree.png')
         self.lImageLabel.setScaledContents(True)
         self.lImageLabel.setPixmap(self.lImagePixmap)
+
+    def getReticulations(self):
+        """
+            Output:
+            a list of tuples (a,b) where a is the source taxa and b is the target taxa of the reticulation
+        """
+        sourceNodes = [cb.currentText() for cb in self.lStatisticSourceComboBoxes]
+        targetNodes = [cb.currentText() for cb in self.lStatisticTargetComboBoxes]
+        return [(sourceNodes[i], targetNodes[i]) for i in range(len(sourceNodes))]
 
     # **************************** MS PAGE ****************************#
 
