@@ -203,19 +203,15 @@ class Plotter(QtCore.QThread):
 
         return ax
 
-    def treeImage(self, title, newick, rooted=False, outgroup=False):
+    def treeImage(self, newick, rooted=False, outgroup=False):
         """
             Given a newick string, creates an image of the tree.
             Used in L Statistic GUI.
         """
 
-        plt.title(title, fontsize=15)
+        plt.figure(figsize=(8,4))
         plt.axis('off')
-
         ax = plt.subplot(1, 1, 1)
-        ax.text(0, 0, str(1) + ' Occurrences', style='italic')
-
-        # disable axis
         ax.axis('off')
 
         # Create the tree object
@@ -227,6 +223,7 @@ class Plotter(QtCore.QThread):
 
         # Create the tree image
         Phylo.draw(tree, axes=ax, do_show=False)
+        plt.savefig('../imgs/LStatisticTree.png')
 
     def topologyColorizer(self, title, newicksToColors, topologies_to_counts, rooted=False, outgroup=False):
         """
@@ -617,6 +614,6 @@ if __name__ == '__main__':  # if we're running file directly and not importing i
 
 
     # p.barPlot('', [1,2,3,4,5 ], '', '', groupLabels=('one', 'two', '3', 4, '5'))
-    p.treeImage("title", "(a,(b,c))")
+    p.treeImage("(C,(G,O),H);", rooted=True, outgroup="O")
 
     plt.show()

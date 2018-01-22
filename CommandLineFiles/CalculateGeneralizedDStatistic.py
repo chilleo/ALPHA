@@ -215,6 +215,7 @@ def outgroup_removal(newick, outgroup):
 
     return new_newick
 
+
 def outgroup_removal_treap(newick, outgroup):
     """
     Move the location of the outgroup in a newick string to be at the end of the string
@@ -229,7 +230,6 @@ def outgroup_removal_treap(newick, outgroup):
     new_newick = new_newick[2:-3] + ";"
 
     return new_newick
-
 
 
 def calculate_pgtst(species_tree, gene_tree):
@@ -834,6 +834,7 @@ def generate_statistic_string(patterns_of_interest):
 
 ##### Function for calculating statistic
 
+
 def calculate_significance(left, right):
     """
     Determines statistical significance based on a chi-squared goodness of fit test
@@ -859,6 +860,7 @@ def calculate_significance(left, right):
         return False
     else:
         return True
+
 
 def calculate_L(alignment, taxa_order, patterns_of_interest):
     """
@@ -1096,6 +1098,7 @@ def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_s
         site_idx += (window_offset - window_size)
 
     return windows_to_l
+
 
 ##### Functions for total ordering
 
@@ -1481,6 +1484,8 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
 
     return l_stat, significant, windows_to_l
 
+
+# print calculate_generalized('/Users/Peter/PycharmProjects/ALPHA/CLFILE', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
 
 # species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
 # # species_tree = '(((P1,P2),(P3,P4)),O);'

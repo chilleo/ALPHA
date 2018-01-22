@@ -129,6 +129,7 @@ class RAxMLOperations(QtCore.QThread):
         self.emit(QtCore.SIGNAL('SPECIES_TREE_PER'), 100)
         self.emit(QtCore.SIGNAL('SPECIES_TREE_COMPLETE'), 'Species Tree Generated', "'Show Details...' to view the species tree newick.", self.speciesTree)
         self.emit(QtCore.SIGNAL('SPECIES_TREE_COMPLETE_RETURN_ST'), self.speciesTree)
+        print self.speciesTree
 
     def rooter(self, newick_file, outgroup):
         """

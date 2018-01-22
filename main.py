@@ -38,8 +38,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             os.mkdir('plots')
 
         # remove all files in plots folder
-        # for fileName in os.listdir('plots'):
-        #     os.remove('plots/' + fileName)
+        for fileName in os.listdir('plots'):
+            os.remove('plots/' + fileName)
 
         # initialize gui_layout
         self.setupUi(self)
@@ -184,7 +184,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.connect(self.fileConverter, QtCore.SIGNAL('FILE_CONVERTER_COMPLETE'), self.message)
         self.connect(self.fileConverter, QtCore.SIGNAL('FILE_CONVERTER_ERR'), self.message)
 
-        # **************************** MS PAGE ****************************#
+        # **************************** MS PAGE **************************** #
 
         self.msCompareBtn.clicked.connect(self.runMSCompare)
         self.msFileBtn.clicked.connect(lambda: self.getFileName(self.msFileEntry))
@@ -199,16 +199,17 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         self.msRaxmlDirectoryBtn.clicked.connect(lambda: self.openDirectory(self.msRaxmlDirectoryEntry))
 
+        # dynamically add more file entries
         self.msUploadAnother.clicked.connect(lambda: self.addFileEntry('msAdditionalFileHorizontalLayout', 'msAdditionalFileEntry', 'msAdditionalFileBtn', 'msRemoveFileBtn'))
 
-        # **************************** D STATISTIC PAGE ****************************#
+        # **************************** D STATISTIC PAGE **************************** #
 
         # set background image
         self.imagePixmap = QtGui.QPixmap('imgs/tree.png')
         self.imageLabel.setScaledContents(True)
         self.imageLabel.setPixmap(self.imagePixmap)
 
-        # run
+        # select alignment for d statistic
         self.dAlignmentBtn.clicked.connect(lambda: self.getFileName(self.dAlignmentEntry))
 
         # when file entry text is changed
@@ -222,12 +223,33 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.dRunBtn.clicked.connect(self.runDStatistic)
         self.connect(self.statisticsCalculations, QtCore.SIGNAL('INVALID_ALIGNMENT_FILE'), partial(self.message, type='Err'))
 
-    # **************************** WELCOME PAGE ****************************#
+        # **************************** L STATISTIC PAGE **************************** #
+
+        # select alignment and species tree for L statistic
+        self.lAlignmentBtn.clicked.connect(lambda: self.getFileName(self.lAlignmentEntry))
+        self.lSpeciesTreeBtn.clicked.connect(lambda: self.getFileName(self.lSpeciesTreeEntry))
+
+        # when an alignment is selected update the combo boxes
+        self.connect(self.lAlignmentEntry, QtCore.SIGNAL('FILE_SELECTED'), lambda: self.updateTaxonComboBoxes(self.raxmlTaxonComboBoxes, self.lAlignmentEntry))
+
+        # when an species tree is selected update the graph
+        self.connect(self.lSpeciesTreeEntry, QtCore.SIGNAL('FILE_SELECTED'), self.updateLTree)
+
+        # set background image
+        # self.imagePixmap = QtGui.QPixmap('imgs/tree.png')
+        # self.imageLabel.setScaledContents(True)
+        # self.imageLabel.setPixmap(self.imagePixmap)
+
+        # dynamically add more file entries
+        self.lStatisticAddReticulationBtn.clicked.connect(
+                lambda: self.addReticulationComboBox('lAdditionalReticulationHorizontalLayout', 'lAdditionalSourceComboBox', 'lAdditionalTargetComboBox', 'lRemoveComboBoxBtn'))
+
+    # **************************** WELCOME PAGE **************************** #
 
     def initializeMode(self):
         self.ensureSingleModeSelected(self.comboboxModes_to_actionModes[self.modeComboBox.currentText()], self.comboboxModes_to_windowNames[self.modeComboBox.currentText()])
 
-    # **************************** D STATISTIC PAGE ****************************#
+    # **************************** D STATISTIC PAGE **************************** #
 
     def runDStatistic(self):
         try:
@@ -251,7 +273,11 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.dStatisticLabel.setEnabled(True)
         self.dStatisticValueLabel.setEnabled(True)
 
-    # **************************** L STATISTIC PAGE ****************************#
+    # **************************** L STATISTIC PAGE **************************** #
+
+    additionalReticulationCounter = 0
+    additionalReticulationSourceNames = []
+    additionalReticulationTargetNames = []
 
     def displayLStatistic(self, lVal, lWindows):
         self.lVal = lVal
@@ -261,6 +287,64 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.lStatisticValueLabel.setText(str(self.lVal))
         self.lStatisticLabel.setEnabled(True)
         self.lStatisticValueLabel.setEnabled(True)
+
+    def addReticulationComboBox(self, horizontalLayoutName, cBox1Name, cBox2Name, btnName):
+        self.additionalReticulationCounter += 1
+        self.additionalReticulationSourceNames.append(cBox1Name + str(self.additionalReticulationCounter))
+        self.additionalReticulationTargetNames.append(cBox2Name + str(self.additionalReticulationCounter))
+
+        # create horizontal layout
+        HL = QtGui.QHBoxLayout()
+        HL.setObjectName(horizontalLayoutName + str(self.additionalReticulationCounter))
+
+        # create btn to remove and add to horizontal layout
+        btn = QtGui.QToolButton(self.reticulationGroupBox)
+        btn.setObjectName(btnName + str(self.additionalReticulationCounter))
+        btn.setText('-')
+        btn.setFixedHeight(21)
+        btn.setFixedWidth(23)
+        HL.addWidget(btn)
+
+        # create combo box and add to horizontal layout
+        sourceComboBox = QtGui.QComboBox(self.reticulationGroupBox)
+        sourceComboBox.setObjectName(cBox1Name + str(self.additionalReticulationCounter))
+        HL.addWidget(sourceComboBox)
+
+        # create label "=>" and add to horizontal layout
+        arrowLabel = QtGui.QLabel(self.reticulationGroupBox)
+        arrowLabel.setObjectName("arrow" + str(self.additionalReticulationCounter))
+        arrowLabel.setText("=>")
+        HL.addWidget(arrowLabel)
+
+        # create combo box and add to horizontal layout
+        targetComboBox = QtGui.QComboBox(self.reticulationGroupBox)
+        targetComboBox.setObjectName(cBox2Name + str(self.additionalReticulationCounter))
+        HL.addWidget(targetComboBox)
+
+        # create horizontal spacer and add to horizontal layout
+        hSpacer = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        HL.addItem(hSpacer)
+
+        self.resize(self.width(), self.height() + 30)
+        self.reticulationComboBoxParentVL.addLayout(HL)
+
+        btn.clicked.connect(lambda: self.removeReticulationComboBox(HL, sourceComboBox, arrowLabel, targetComboBox, btn, hSpacer))
+
+    def removeReticulationComboBox(self, HL, cBox1, arrow, cBox2, btn, hSpacer):
+        HL.deleteLater()
+        cBox1.deleteLater()
+        arrow.deleteLater()
+        cBox2.deleteLater()
+        btn.deleteLater()
+        self.additionalReticulationSourceNames.remove(cBox1.objectName())
+        self.additionalReticulationTargetNames.remove(cBox2.objectName())
+        self.resize(self.width(), self.height() - 30)
+
+    def updateLTree(self):
+        # set background image
+        self.lImagePixmap = QtGui.QPixmap('imgs/LStatisticTree.png')
+        self.lImageLabel.setScaledContents(True)
+        self.lImageLabel.setPixmap(self.lImagePixmap)
 
     # **************************** MS PAGE ****************************#
 
