@@ -8,6 +8,8 @@ from collections import defaultdict
 from sys import platform
 from scipy import stats
 from ete3 import Tree
+from natsort import natsorted
+from module import fileConverterController
 
 """
 Functions:
@@ -1241,20 +1243,83 @@ def set_of_interest(trees_to_equality, trees_to_equality_N):
     return trees_of_interest
 
 
-def calculate_generalized(alignment, species_tree, reticulations, window_size, window_offset, verbose=False):
+def concat_directory(directory_path):
+    """
+        Concatenates all the alignments in a given directory and returns a single file.
+
+        Input:
+            directory_path --- a string path to the directory the use wants to use.
+        Output:
+            file_path --- a string path to the file that was created as a result of the concatenation.
+    """
+
+    # create new instance of file converter controller
+    fc = fileConverterController.FileConverter()
+
+    # filter out hidden files
+    filenames = filter(lambda n: not n.startswith(".") , natsorted(os.listdir(directory_path)))
+
+    # get the number of lines on each file
+    with open(os.path.join(directory_path, filenames[0]), "r") as f:
+        n = len(list(f))
+
+    # initialize a list with an empty string for each line
+    output_file_list = [""] * n
+
+    # Iterate over each folder in the given directory in numerical order
+    for i in range(len(filenames)):
+
+        # get full path of file
+        input_file = os.path.join(directory_path, filenames[i])
+
+        # if its a fasta file -> convert to phylip
+        if filenames[i].endswith(".fa") or filenames[i].endswith(".fasta"):
+            fc.fileConverter(input_file, "fasta", "phylip-sequential", input_file + ".phylip")
+            input_file = input_file + ".phylip"
+
+        # create a list of the input files lines
+        with open(input_file, 'r') as f:
+            input_file_list = [l.rstrip() for l in list(f)]
+
+        print input_file_list
+
+        for j in range(len(input_file_list)):
+            # if this is the first file
+            if i == 0:
+                output_file_list[j] = input_file_list[j]
+            else:
+                if j == 0:
+                    num_bp = int(input_file_list[0].split(" ")[2])
+                    total_bp = int(output_file_list[j].split(" ")[2]) + num_bp
+                    output_file_list[j] = " " + str(n - 1) + " " + str(total_bp)
+                else:
+                    output_file_list[j] += input_file_list[j]
+
+
+    # write the contents of the output file list to a text file
+    with open(os.path.abspath(directory_path) + "/concatFile.phylip.txt", "w") as o:
+        for line in output_file_list:
+            print >> o, line
+
+
+def calculate_generalized(alignment, species_tree, reticulations, window_size, window_offset, verbose=False, useDir=False, directory=""):
     """
     Calculates the L statistic for the given alignment
     Input:
-    alignment --- a sequence alignment in phylip format
-    taxa --- a list of the taxa in the desired order
-    species_tree --- the inputted species tree over the given taxa
-    reticulations --- a tuple containing two dictionaries mapping the start leaves to end leaves
-    window_size --- the desired window size
-    window_offset --- the desired offset between windows
-    verbose --- a boolean for determining if extra information will be printed
+        alignment --- a sequence alignment in phylip format
+        taxa --- a list of the taxa in the desired order
+        species_tree --- the inputted species tree over the given taxa
+        reticulations --- a tuple containing two dictionaries mapping the start leaves to end leaves
+        window_size --- the desired window size
+        window_offset --- the desired offset between windows
+        verbose --- a boolean for determining if extra information will be printed
+        useDir --- a boolean for determining if the user wants to input an entire directory of alignments or only a single alignment
+        directory --- a string path to the directory the use wants to use. NOTE: only necessary if useDir=True.
     Output:
-    l_stat --- the L statistic value
+        l_stat --- the L statistic value
     """
+
+    print alignment
 
     st = re.sub("\:\d+\.\d+", "", species_tree)
     trees, taxa = branch_adjust(st)
@@ -1263,6 +1328,9 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
     trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
     trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
     increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
+
+    if useDir:
+        alignment = concat_directory(directory);
 
     l_stat, significant = calculate_L(alignment, taxa, (increase, decrease))
     windows_to_l = calculate_windows_to_L(alignment, taxa, (increase, decrease), window_size, window_offset)
@@ -1285,28 +1353,53 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
 
     return l_stat, significant, windows_to_l
 
-# file = 'C:\\Users\\travi\\Desktop\\clphylipseq.txt'
-# # r = [('L', 'R')]
-# r = [('Q', 'R')]
-# # r = [('Q', 'G')]
-# print calculate_generalized(file , '((C,G),(((A,Q),L),R));', r, 100000, 100000, True)
+if __name__ == '__main__':  # if we're running file directly and not importing it
+    # file = 'C:\\Users\\travi\\Desktop\\clphylipseq.txt'
+    # # r = [('L', 'R')]
+    # r = [('Q', 'R')]
+    # # r = [('Q', 'G')]
+    # print calculate_generalized(file , '((C,G),(((A,Q),L),R));', r, 100000, 100000, True)
 
-# print calculate_generalized('/Users/Peter/PycharmProjects/ALPHA/CLFILE', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
+    concat_directory("/Users/Peter/PycharmProjects/ALPHA/test_fasta_dir")
+    # print calculate_generalized('/Users/Peter/PycharmProjects/ALPHA/CLFILE', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
 
-# species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
-# species_tree = '(((P1,P2),(P3,P4)),O);'
-# alignment = "C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"
-# alignment = "C:\\Users\\travi\\Desktop\\seqfileNamed"
-# print calculate_generalized(alignment, species_tree, r, 50000, 50000, True)
-
-
-# print calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
-
-# python -c "from CalculateGeneralizedDStatistic import *; print calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),P5);', [('P1', 'P3')], 50000, 50000, True)"
+    # species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
+    # species_tree = '(((P1,P2),(P3,P4)),O);'
+    # alignment = "C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"
+    # alignment = "C:\\Users\\travi\\Desktop\\seqfileNamed"
+    # print calculate_generalized(alignment, species_tree, r, 50000, 50000, True)
 
 
-# calculate_generalized('C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip', '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1'),('P3', 'P2')], 50000, 50000, True)
-#
-# python -c "from CalculateGeneralizedDStatistic import *; print calculate_generalized('C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip', '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1'),('P3', 'P2')], 50000, 50000, True)"
-#
-# python -c "from CalculateGeneralizedDStatistic import *; print calculate_generalized('PhylipFile', 'SpeciesTree', [('FlowSource', 'FlowSink')], WindowSize, WindowOffset, True/FalseForVerbose)"
+    # print calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
+
+    # python -c "from CalculateGeneralizedDStatistic import *; print calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),P5);', [('P1', 'P3')], 50000, 50000, True)"
+
+
+    # calculate_generalized('C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip', '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1'),('P3', 'P2')], 50000, 50000, True)
+    #
+    # python -c "from CalculateGeneralizedDStatistic import *; print calculate_generalized('C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip', '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1'),('P3', 'P2')], 50000, 50000, True)"
+    #
+    # python -c "from CalculateGeneralizedDStatistic import *; print calculate_generalized('PhylipFile', 'SpeciesTree', [('FlowSource', 'FlowSink')], WindowSize, WindowOffset, True/FalseForVerbose)"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

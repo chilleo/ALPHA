@@ -32,9 +32,9 @@ from PyQt4 import QtCore
         top_topology_visualization(self)
         generateCircleGraph(self, file, windows_to_top_topologies, topologies_to_colors, window_size, window_offset, sites_to_informative)
         run(self)
-        
+
     ~
-    
+
     Chabrielle Allen
     Travis Benedict
     Peter Dulworth
@@ -48,7 +48,6 @@ class TopologyPlotter(QtCore.QThread):
         # list of colors for plots
         self.COLORS = ['#ff0000', '#0000ff', '#ffff00', '#32cd32', '#ba55d3', '#87cefa', '#ffa500', '#ff1493', '#a020f0', '#00ced1', '#adff2f', '#ffd700', '#1e90ff', '#ff7f50', '#008000', '#ffc0cb', '#8a2be2']
         self.COLORS = []
-
 
     def topology_counter(self, rooted=False, outgroup=None):
         """
@@ -260,7 +259,6 @@ class TopologyPlotter(QtCore.QThread):
         top_colors = []
         ylist = []
         count = 0
-
 
         # y-axis is topology number
         for i in range(len(wins_to_tops)):
@@ -603,23 +601,23 @@ class TopologyPlotter(QtCore.QThread):
         diagram = GenomeDiagram.Diagram(name)
 
         diagram.new_track(
-            1,
-            greytrack=0,
-            name="Track",
-            height=2,
-            hide=0,
-            scale=1,
-            scale_color=colors.black,
-            scale_font='Helvetica',
-            scale_fontsize=6,
-            scale_fontangle=45,
-            scale_ticks=1,
-            scale_largeticks=0.3,
-            scale_smallticks=0.1,
-            scale_largetick_interval=(length_of_sequences / 6),
-            scale_smalltick_interval=(length_of_sequences / 12),
-            scale_largetick_labels=1,
-            scale_smalltick_labels=0
+                1,
+                greytrack=0,
+                name="Track",
+                height=2,
+                hide=0,
+                scale=1,
+                scale_color=colors.black,
+                scale_font='Helvetica',
+                scale_fontsize=6,
+                scale_fontangle=45,
+                scale_ticks=1,
+                scale_largeticks=0.3,
+                scale_smallticks=0.1,
+                scale_largetick_interval=(length_of_sequences / 6),
+                scale_smalltick_interval=(length_of_sequences / 12),
+                scale_largetick_labels=1,
+                scale_smalltick_labels=0
         )
 
         if includeOther:

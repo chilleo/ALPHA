@@ -362,6 +362,12 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         with open(self.lSpeciesTreeEntry.text(), 'r') as stf:
             self.lSpeciesTree = stf.read().replace('\n', '')
 
+        # Regular expression for identifying floats
+        # float_pattern = "([+-]?\\d*\\.\\d+)(?![-+0-9\\.])"
+
+        # remove branch lengths
+        # self.lSpeciesTree = ((re.sub(float_pattern, '', self.lSpeciesTree)).replace(":", "")).replace("\n", "")
+
         # generate new image
         self.plotter.treeImage(self.lSpeciesTree) # rooted=True, outgroup="O"
 
