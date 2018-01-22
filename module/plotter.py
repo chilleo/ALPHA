@@ -223,7 +223,7 @@ class Plotter(QtCore.QThread):
 
         # Create the tree image
         Phylo.draw(tree, axes=ax, do_show=False)
-        plt.savefig('../imgs/LStatisticTree.png')
+        plt.savefig('imgs/LStatisticTree.png')
 
     def topologyColorizer(self, title, newicksToColors, topologies_to_counts, rooted=False, outgroup=False):
         """

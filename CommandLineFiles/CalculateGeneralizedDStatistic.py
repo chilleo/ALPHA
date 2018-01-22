@@ -1088,6 +1088,7 @@ def network_branch_adjust(species_network):
 
     return list(adjusted_trees)
 
+
 def network_adjust(species_network):
     """
     Create all possible combinations of inheritance probabilities for the given species network

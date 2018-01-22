@@ -16,6 +16,7 @@ from module import fileConverterController as fc
 from module import informativeSites as infSites
 from module import bootstrapContraction as bc
 from module import msComparison as ms
+from module import plotter as p
 
 # generalized d-statistic
 from CommandLineFiles import CalculateGeneralizedDStatistic as cgd
@@ -74,6 +75,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.msComparison = ms.MsComparison()
         # create new instance of FileConverter class
         self.fileConverter = fc.FileConverter()
+        # create new instance of Plotter class
+        self.plotter = p.Plotter()
 
         self.topologyPlotter.num = None
 
@@ -225,6 +228,9 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         # **************************** L STATISTIC PAGE **************************** #
 
+        # list of combo boxes containing the taxa from the alignment for the L statistic
+        self.lStatisticTaxonComboBoxes = []
+
         # select alignment and species tree for L statistic
         self.lAlignmentBtn.clicked.connect(lambda: self.getFileName(self.lAlignmentEntry))
         self.lSpeciesTreeBtn.clicked.connect(lambda: self.getFileName(self.lSpeciesTreeEntry))
@@ -234,11 +240,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         # when an species tree is selected update the graph
         self.connect(self.lSpeciesTreeEntry, QtCore.SIGNAL('FILE_SELECTED'), self.updateLTree)
-
-        # set background image
-        # self.imagePixmap = QtGui.QPixmap('imgs/tree.png')
-        # self.imageLabel.setScaledContents(True)
-        # self.imageLabel.setPixmap(self.imagePixmap)
 
         # dynamically add more file entries
         self.lStatisticAddReticulationBtn.clicked.connect(
@@ -341,6 +342,16 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.resize(self.width(), self.height() - 30)
 
     def updateLTree(self):
+        # read the species tree
+        with open(self.lSpeciesTreeEntry.text(), 'r') as stf:
+            self.lSpeciesTree = stf.read().replace('\n', '')
+
+        print self.lSpeciesTree
+
+        # generate new image
+        # self.plotter.treeImage(newick, rooted=True, outgroup="O")
+        self.plotter.treeImage(self.lSpeciesTree)
+
         # set background image
         self.lImagePixmap = QtGui.QPixmap('imgs/LStatisticTree.png')
         self.lImageLabel.setScaledContents(True)

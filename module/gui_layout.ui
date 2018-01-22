@@ -349,7 +349,7 @@
              <bool>true</bool>
             </property>
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="raxmlOptionsPage">
              <property name="enabled">
@@ -3496,7 +3496,7 @@ Run RAxML -&gt; Advanced</string>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_53">
                  <item>
-                  <widget class="QComboBox" name="comboBox_2"/>
+                  <widget class="QComboBox" name="reticulationSource0"/>
                  </item>
                  <item>
                   <widget class="QLabel" name="label_30">
@@ -3506,7 +3506,7 @@ Run RAxML -&gt; Advanced</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QComboBox" name="comboBox"/>
+                  <widget class="QComboBox" name="reticulationTarget0"/>
                  </item>
                  <item>
                   <spacer name="horizontalSpacer_36">
