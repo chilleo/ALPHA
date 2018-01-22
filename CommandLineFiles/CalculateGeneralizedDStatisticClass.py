@@ -56,7 +56,6 @@ class GeneralizedDStatistic(QtCore.QThread):
 
         return network
 
-
     ##### Generate all unique trees functions
 
 
@@ -85,7 +84,6 @@ class GeneralizedDStatistic(QtCore.QThread):
 
         return dp[-1]
 
-
     def generate_all_trees(self, taxa):
         """
         Create all trees given a set of taxa
@@ -99,7 +97,7 @@ class GeneralizedDStatistic(QtCore.QThread):
         pattern = "([\)][a-zA-Z0-9_.-])"
 
         # Generate all distinct binary trees
-        trees = self.genDistinct(len(taxa))
+        trees = genDistinct(len(taxa))
 
         # Get all possible permutations of the taxa
         taxa_orders = itertools.permutations(taxa)
@@ -136,7 +134,6 @@ class GeneralizedDStatistic(QtCore.QThread):
 
         return all_trees
 
-
     def generate_unique_trees(self, taxa, outgroup):
         """
         Generate the set of unique trees over a set of taxa with an outgroup
@@ -158,7 +155,7 @@ class GeneralizedDStatistic(QtCore.QThread):
 
         unique_newicks = set([])
 
-        all_trees = self.generate_all_trees(taxa)
+        all_trees = generate_all_trees(taxa)
 
         # Iterate over each tree in all_trees
         for tree in all_trees:
@@ -191,32 +188,14 @@ class GeneralizedDStatistic(QtCore.QThread):
             tree = (re.sub(pattern2, '', tree)).replace(":", "")
             tree = (re.sub(pattern3, ')', tree))
 
-            tree = self.outgroup_reformat(tree, outgroup)
+            tree = outgroup_reformat(tree, outgroup)
 
             # Add the newick strings to the set of unique newick strings
             unique_newicks.add(tree)
 
         return unique_newicks
 
-
     ###### Statistics Calculations Functions
-
-
-    def outgroup_removal(self, newick, outgroup):
-        """
-        Move the location of the outgroup in a newick string to be at the end of the string
-        Inputs:
-        newick --- a newick string to be reformatted
-        outgroup --- the outgroup
-        """
-
-        # Replace the outgroup and comma with an empty string
-        newick = newick.replace("," + outgroup, "")
-
-        newick = newick[1:-2] + ";"
-
-        return newick
-
 
     def calculate_pgtst(self, species_tree, gene_tree):
         """
@@ -237,10 +216,9 @@ class GeneralizedDStatistic(QtCore.QThread):
 
         return pgtst
 
-
-    def calculate_newicks_to_stats(self, species_tree, species_network, unique_trees, outgroup):
+    def calculate_newicks_to_stats(self, species_tree, species_network, unique_trees):
         """
-        Compute p(g|S) and p(g|N) for each g in unique_trees and
+        Compute p(g|S) and p(g|N) for each g in unique_trees and 
         map the tree newick string to those values
         Inputs:
         species_tree --- the species tree newick string for the taxa
@@ -248,66 +226,55 @@ class GeneralizedDStatistic(QtCore.QThread):
         unique_trees --- the set of all unique topologies over n taxa
         outgroup --- the outgroup
         Output:
-        trees_to_pgS--- a mapping of tree newick strings to their p(g|S) values
+        trees_to_pgS--- a mapping of tree newick strings to their p(g|S) values 
         trees_to_pgN--- a mapping of tree newick strings to their p(g|N) values
         """
 
         trees_to_pgS = {}
         trees_to_pgN = {}
-        trees_to_pgS_noO = {}
-        trees_to_pgN_noO = {}
 
-        species_tree_noO = self.outgroup_removal(species_tree, outgroup)
-        species_network_noO = self.outgroup_removal(species_network, outgroup)
+        if platform == 'darwin':
+            # IF YOU COMMENT THIS OUT AGAIN EVERYTHING WILL BREAK
+            # add quotes to the strings
+            species_tree = str(species_tree)
+            species_tree = "'" + species_tree + "'"
+            species_network = str(species_network)
+            species_network = "'" + species_network + "'"
 
         # Iterate over the trees
         for tree in unique_trees:
+            if platform == 'darwin':
+                # IF YOU COMMENT THIS OUT AGAIN EVERYTHING WILL BREAK
+                # add quotes to the strings
+                tree = "'" + tree + "'"
+
+            dir_path = os.path.dirname(os.path.realpath(__file__))
+            j = os.path.join(dir_path, "Unstable.jar")
+
             # Run PhyloNet p(g|S) jar file
-            p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_tree, tree), stdout=subprocess.PIPE,
+            p = subprocess.Popen("java -jar {0} {1} {2}".format(j, species_tree, tree), stdout=subprocess.PIPE,
                                  shell=True)
 
             # Read output and convert to float
             p_of_g_given_s = float(p.stdout.readline())
 
             # Run PhyloNet p(g|N) jar file
-            p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_network, tree), stdout=subprocess.PIPE,
+            p = subprocess.Popen("java -jar {0} {1} {2}".format(j, species_network, tree), stdout=subprocess.PIPE,
                                  shell=True)
 
             # Read output and convert to float
             p_of_g_given_n = float(p.stdout.readline())
 
-            # Calculate for trees without outgroup
-            tree_noO = self.outgroup_removal(tree, outgroup)
-
-            # Run PhyloNet p(g|S) jar file
-            p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_tree_noO, tree_noO),
-                                 stdout=subprocess.PIPE,
-                                 shell=True)
-
-            # Read output and convert to float
-            p_of_g_given_s_noO = float(p.stdout.readline())
-
-            # Run PhyloNet p(g|N) jar file
-            p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_network_noO, tree_noO),
-                                 stdout=subprocess.PIPE,
-                                 shell=True)
-
-            # Read output and convert to float
-            p_of_g_given_n_noO = float(p.stdout.readline())
-
             trees_to_pgS[tree] = p_of_g_given_s
             trees_to_pgN[tree] = p_of_g_given_n
-            trees_to_pgS_noO[tree] = p_of_g_given_s_noO
-            trees_to_pgN_noO[tree] = p_of_g_given_n_noO
 
-        return trees_to_pgS, trees_to_pgN, trees_to_pgS_noO, trees_to_pgN_noO
-
+        return trees_to_pgS, trees_to_pgN  # , trees_to_pgS_noO, trees_to_pgN_noO
 
     def determine_interesting_trees(self, trees_to_pgS, trees_to_pgN):
         """
         Get the subset of trees who are initially equal based on p(g|S) but unequal based on p(g|N)
         Input:
-        trees_to_pgS--- a mapping of tree newick strings to their p(g|S) values
+        trees_to_pgS--- a mapping of tree newick strings to their p(g|S) values 
         trees_to_pgN--- a mapping of tree newick strings to their p(g|N) values
         Output:
         interesting_trees --- the subset of tree topologies to look at for determining introgression
@@ -359,7 +326,6 @@ class GeneralizedDStatistic(QtCore.QThread):
 
         return interesting_trees
 
-
     ##### Site Pattern Functions
 
 
@@ -377,7 +343,6 @@ class GeneralizedDStatistic(QtCore.QThread):
         newick = newick[:-2] + "," + outgroup + ");"
 
         return newick
-
 
     def pattern_inverter(self, patterns):
         """
@@ -420,7 +385,6 @@ class GeneralizedDStatistic(QtCore.QThread):
 
         return inverted
 
-
     def pattern_string_generator(self, patterns):
         """
         Creates a list of viable pattern strings that are easier to read
@@ -453,7 +417,6 @@ class GeneralizedDStatistic(QtCore.QThread):
                 pattern_strings.append(pattern_str)
 
         return pattern_strings
-
 
     def site_pattern_generator(self, taxa_order, newick, outgroup):
         """
@@ -649,7 +612,7 @@ class GeneralizedDStatistic(QtCore.QThread):
         duplicates = finished_patterns
 
         # Invert all duplicate patterns
-        inverted_patterns = self.pattern_inverter(duplicates)
+        inverted_patterns = pattern_inverter(duplicates)
 
         # Iterate over the inverted patterns and add them to finished patterns
         for pattern in inverted_patterns:
@@ -657,10 +620,9 @@ class GeneralizedDStatistic(QtCore.QThread):
             if pattern not in finished_patterns:
                 finished_patterns.append(pattern)
 
-        finished_patterns = self.pattern_string_generator(finished_patterns)
+        finished_patterns = pattern_string_generator(finished_patterns)
 
         return finished_patterns
-
 
     def newicks_to_patterns_generator(self, taxa_order, newicks):
         """
@@ -679,21 +641,20 @@ class GeneralizedDStatistic(QtCore.QThread):
 
         # Iterate over the newick strings
         for newick in newicks:
-            newicks_to_patterns[newick] = self.site_pattern_generator(taxa_order, newick, outgroup)
+            newicks_to_patterns[newick] = site_pattern_generator(taxa_order, newick, outgroup)
 
         return newicks_to_patterns
-
 
     ##### Interesting sites functions
 
 
     def calculate_pattern_probabilities(self, newicks_to_patterns, newicks_to_pgS, newicks_to_pgN):
         """
-        Creates a mapping of site patterns to their total p(g|S) values across all gene trees and
+        Creates a mapping of site patterns to their total p(g|S) values across all gene trees and 
         a mapping of site patterns to their total p(g|N) values across all gene trees
         Inputs:
         newicks_to_patterns --- a mapping of tree newick strings to their site patterns
-        newicks_to_pgS--- a mapping of tree newick strings to their p(g|S) values
+        newicks_to_pgS--- a mapping of tree newick strings to their p(g|S) values 
         newicks_to_pgN--- a mapping of tree newick strings to their p(g|N) values
         Outputs:
         patterns_to_pgS --- a mapping of site patterns to their total p(g|S) value
@@ -719,7 +680,6 @@ class GeneralizedDStatistic(QtCore.QThread):
                     patterns_to_pgN[pattern] += newicks_to_pgN[newick]
 
         return patterns_to_pgS, patterns_to_pgN
-
 
     def determine_patterns(self, pattern_set, patterns_to_equality, patterns_to_pgN):
         """
@@ -754,16 +714,15 @@ class GeneralizedDStatistic(QtCore.QThread):
                         terms1.add(pattern2)
                         terms2.add(pattern1)
 
-        inverted1 = self.pattern_inverter(terms1)
+        inverted1 = pattern_inverter(terms1)
         for pattern in inverted1:
             terms1.add(''.join(pattern))
 
-        inverted2 = self.pattern_inverter(terms2)
+        inverted2 = pattern_inverter(terms2)
         for pattern in inverted2:
             terms2.add(''.join(pattern))
 
         return terms1, terms2
-
 
     def generate_statistic_string(self, patterns_of_interest):
         """
@@ -790,9 +749,33 @@ class GeneralizedDStatistic(QtCore.QThread):
 
         return L_statistic
 
-
     ##### Function for calculating statistic
 
+    def calculate_significance(self, left, right):
+        """
+        Determines statistical significance based on a chi-squared goodness of fit test
+        Input:
+        left --- the total count for site patterns in the left term of the statistic
+        right --- the total count for site patterns in the right term of the statistic
+        Output:
+        significant --- a boolean corresponding to whether or not the result is statistically significant
+        """
+
+        alpha = 0.05
+
+        # Calculate the test statistic
+        if left + right > 0:
+            chisq = (left - right) ** 2 / float(left + right)
+        else:
+            chisq = 0
+
+        # Calculate the p-value based on a chi square distribtion with df = 1
+        pval = 1 - stats.chi2.cdf(chisq, 1)
+
+        if pval < alpha:
+            return True
+        else:
+            return False
 
     def calculate_L(self, alignment, taxa_order, patterns_of_interest):
         """
@@ -801,9 +784,11 @@ class GeneralizedDStatistic(QtCore.QThread):
         alignment --- a sequence alignment in phylip format
         taxa_order --- the desired order of the taxa
         patterns_of_interest --- a tuple containing the sets of patterns used for determining a statistic
+        window_size --- the desired window size
+        windw_offset --- the desired offset between windows
         Output:
         l_stat --- the L statistic value
-        significant --- a boolean corresponding to the results of a chi-square goodness of fit test
+        significant --- a boolean denoting if the l_stat value is statistically significant
         """
 
         # Separate the patterns of interest into their two terms
@@ -853,7 +838,8 @@ class GeneralizedDStatistic(QtCore.QThread):
                 taxa_to_site[taxon] = base
                 bases.add(base)
 
-            if len(bases) == 2:
+            # Statistic can only be calculated where the nucleotides are known
+            if "-" not in bases and len(bases) == 2:
 
                 # Create the pattern that each site has
                 site_pattern = []
@@ -872,7 +858,7 @@ class GeneralizedDStatistic(QtCore.QThread):
                         site_pattern.append("B")
 
                 # Convert the site pattern to a string
-                site_string = self.pattern_string_generator([site_pattern])[0]
+                site_string = pattern_string_generator([site_pattern])[0]
 
                 # If the site string is a pattern of interest add to its count for one of the terms
                 if site_string in terms1:
@@ -887,7 +873,7 @@ class GeneralizedDStatistic(QtCore.QThread):
         numerator = terms1_total - terms2_total
         denominator = terms1_total + terms2_total
 
-        significant = self.calculate_significance(terms1_total, terms2_total)
+        significant = calculate_significance(terms1_total, terms2_total)
 
         if denominator != 0:
             l_stat = numerator / float(denominator)
@@ -974,7 +960,8 @@ class GeneralizedDStatistic(QtCore.QThread):
                     taxa_to_site[taxon] = base
                     bases.add(base)
 
-                if len(bases) == 2:
+                # Statistic can only be calculated where the nucleotides are known
+                if "-" not in bases and len(bases) == 2:
 
                     # Create the pattern that each site has
                     site_pattern = []
@@ -993,7 +980,7 @@ class GeneralizedDStatistic(QtCore.QThread):
                             site_pattern.append("B")
 
                     # Convert the site pattern to a string
-                    site_string = self.pattern_string_generator([site_pattern])[0]
+                    site_string = pattern_string_generator([site_pattern])[0]
 
                     # If the site string is a pattern of interest add to its count for one of the terms
                     if site_string in terms1:
@@ -1019,20 +1006,15 @@ class GeneralizedDStatistic(QtCore.QThread):
             # Map the window index to its D statistic
             windows_to_l[window] = l_stat
 
-            # Reset numerator and denominator
-            numerator = 0
-            denominator = 0
-
             # Account for overlapping windows
             site_idx += (window_offset - window_size)
 
         return windows_to_l
 
-
     ##### Functions for total ordering
 
 
-    def branch_adjust(self, species_tree):
+    def branch_adjust(elf, species_tree):
         """
         Create all possible combinations of branch lengths for the given species tree
         Input:
@@ -1053,18 +1035,14 @@ class GeneralizedDStatistic(QtCore.QThread):
             else:
                 taxa.append(leaf[0])
 
-        ############Adjust branch length stuff to account for all possible combinations
-
         for b in branch_lengths:
             new_t = species_tree
             for taxon in taxa:
                 new_t = new_t.replace(taxon, "{0}:{1}".format(taxon, b))
             new_t = new_t.replace("),", "):{0},".format(b))
-            # new_t = new_t.replace(",(", ",{0}:(".format(b))
             adjusted_trees.add(new_t)
 
         return adjusted_trees, taxa
-
 
     def network_branch_adjust(self, species_network):
         """
@@ -1074,9 +1052,8 @@ class GeneralizedDStatistic(QtCore.QThread):
         Output:
         adjusted_trees --- a set of trees with all combinations of branch lengths
         """
-        # branch_lengths = [.01, .1, .5, 1.0, 2.0, 4.0]
+
         branch_lengths = [.5, 1.0, 2.0, 4.0]
-        # branch_lengths = [.01]
         adjusted_trees = set([])
 
         pattern = "((?<!\:)(\:\d+\.\d+))"
@@ -1090,89 +1067,7 @@ class GeneralizedDStatistic(QtCore.QThread):
                 new_t = new_t.replace(l[0], ":" + str(b))
             adjusted_trees.add(new_t)
 
-        return adjusted_trees
-
-
-    def all_total_ordering(self, species_trees, taxa, network=False):
-        """
-        Create strings which represent the total ordering of p(gt|st)
-        Input:
-        species_tree --- a newick string containing the overall species tree without branch lengths
-        Output:
-        total_orders --- p(gt|st) total orderings to their adjusted species trees
-        """
-        output_str = "Tree"
-        st_to_gt_probs = {}
-        total_orders = {}
-
-        outgroup = taxa[-1]
-        gene_trees = self.generate_unique_trees(taxa, outgroup)
-
-        for st in species_trees:
-            gt_to_probs = {}
-            for gt in gene_trees:
-                gt_to_probs[gt] = self.calculate_pgtst(st, gt)
-            st_to_gt_probs[st] = sorted(gt_to_probs.items(), key=lambda tup: tup[1], reverse=True)
-
-        for st in sorted(st_to_gt_probs.keys()):
-
-            gt_probs = st_to_gt_probs[st]
-            order = []
-            gt1, prob1 = gt_probs[0]
-
-            for i in range(1, len(gene_trees)):
-                gt2, prob2 = gt_probs[i]
-                if prob1 > prob2:
-                    order.append(gt1)
-                    order.append(">")
-                elif prob1 == prob2:
-                    order.append(gt1)
-                    order.append("=")
-
-                gt1, prob1 = gt2, prob2
-
-            order.append(gt1)
-
-            if network == True:
-                output_str = "Network"
-
-            print "Species {0}: {1}, Total Order: {2}".format(output_str, st, order)
-            total_orders[tuple(order)] = st
-
-        print
-        return total_orders
-
-
-    def compute_total_order(self, all_orders, network=False):
-        """
-        Create strings which represent the total ordering of p(gt|st)
-        Input:
-        all_orders --- p(gt|st) total orderings to their adjusted species trees
-        Output:
-        total_order --- the total ordering for the species tree
-        """
-
-        total_order = list(all_orders.keys()[0])
-
-        output_str = "Tree"
-        if network == True:
-            output_str = "Network"
-
-        for order in all_orders:
-            for i in range(len(order)):
-
-                if i % 2 == 0:
-                    if order[i] != total_order[i]:
-                        print "ERROR: expected {0} but received {1} instead ".format(total_order[i], order[i])
-                        print "Species {0} for expected ordering: {1}".format(output_str, all_orders[all_orders.keys()[0]])
-                        print "Species {0} for received ordering: {1}".format(output_str, all_orders[order])
-                        print
-                else:
-                    if order[i] != total_order[i]:
-                        total_order[i] = ">="
-
-        return total_order
-
+        return list(adjusted_trees)
 
     def network_adjust(self, species_network):
         """
@@ -1182,9 +1077,7 @@ class GeneralizedDStatistic(QtCore.QThread):
         Output:
         adjusted_networks --- a set of networks with all combinations of branch lengths
         """
-        # inheritance_probs = [0.1, 0.5, 0.9]
-        inheritance_probs = [0.1, 0.3]  # can be used for deriving the D but also throws errors for 5 taxon tree
-        # inheritance_probs = [0.9] Throws errors with different branch lengths for 5 taxon tree
+        inheritance_probs = [0.1, 0.3]
         adjusted_networks = set([])
 
         pattern = "\:\:0\.\d+"
@@ -1201,30 +1094,10 @@ class GeneralizedDStatistic(QtCore.QThread):
                 else:
                     new_net = new_net.replace(r, "::{0}".format(str(1 - prob)))
                 count += 1
-            net_set = self.network_branch_adjust(new_net)
+            net_set = network_branch_adjust(new_net)
             adjusted_networks = adjusted_networks.union(net_set)
 
         return adjusted_networks
-
-
-    def display_total_orders(self, species_tree, reticulation):
-        """
-        Generate the total orders for both the species tree and species network
-        Inputs:
-        species_tree --- the desired species tree with arbitrary branch lengths
-        reticulation --- a mapping from one taxon to another representing the desired reticulation
-        """
-
-        network = self.generate_network_tree((0.03, 0.97), species_tree, reticulation)
-        st = re.sub("\:\d+\.\d+", "", species_tree)
-        trees, taxa = self.branch_adjust(st)
-        networks = self.network_adjust(network)
-        all_net_orders = self.all_total_ordering(networks, taxa, network=True)
-        print self.compute_total_order(all_net_orders, network=True)
-        print
-        all_st_orders = self.all_total_ordering(trees, taxa)
-        print self.compute_total_order(all_st_orders)
-
 
     def equality_sets(self, species_trees, network, taxa):
         """
@@ -1241,14 +1114,13 @@ class GeneralizedDStatistic(QtCore.QThread):
         trees_to_equality_N = {}
 
         outgroup = taxa[-1]
-        gene_trees = self.generate_unique_trees(taxa, outgroup)
-        newick_patterns = self.newicks_to_patterns_generator(taxa, gene_trees)
+        gene_trees = generate_unique_trees(taxa, outgroup)
+
+        newick_patterns = newicks_to_patterns_generator(taxa, gene_trees)
 
         for st in species_trees:
-            ts_to_pgS, ts_to_pgN, trees_to_pgS_noO, trees_to_pgN_noO = self.calculate_newicks_to_stats(st, network, gene_trees,
-                                                                                                  outgroup)
-            patterns_pgS, patterns_pgN = self.calculate_pattern_probabilities(newick_patterns, trees_to_pgS_noO,
-                                                                         trees_to_pgN_noO)
+            ts_to_pgS, ts_to_pgN = calculate_newicks_to_stats(st, network, gene_trees)
+            patterns_pgS, patterns_pgN = calculate_pattern_probabilities(newick_patterns, ts_to_pgS, ts_to_pgN)
             st_to_pattern_probs[st] = sorted(patterns_pgS.items(), key=lambda tup: tup[1], reverse=True)
             st_to_pattern_probs_N[st] = sorted(patterns_pgN.items(), key=lambda tup: tup[1], reverse=True)
 
@@ -1270,16 +1142,6 @@ class GeneralizedDStatistic(QtCore.QThread):
                     if prob1 == prob2 and gt1 != gt2 and gt2 not in seen_trees:
                         equal_trees.add(gt2)
                         seen.add(gt2)
-
-                # Debugging case
-                # if gt1 in trees_to_equality:
-                #     if trees_to_equality[gt1] != equal_trees:
-                #         print
-                #         print "CHECK THIS OUT"
-                #         print "Equality Set for ", gt1, " with ST ", st, ": ", trees_to_equality[gt1]
-                #         print "Equality Set for ", gt1, " with ST ", \
-                #             sorted(st_to_pattern_probs.keys())[sorted(st_to_pattern_probs.keys()).index(st) - 1], ": ", equal_trees
-                #         print
 
                 # Add the equality set to the mapping if tbe pattern is not already in the mapping and set is non empty
                 if len(equal_trees) != 0 and gt1 not in seen_trees:
@@ -1315,17 +1177,6 @@ class GeneralizedDStatistic(QtCore.QThread):
                             equal_trees.add(gt2)
                             seen.add(gt2)
 
-                    # Debugging case
-                    # if gt1 in trees_to_equality_N:
-                    #     if trees_to_equality_N[gt1] != equal_trees:
-                    #         print
-                    #         print "CHECK THIS OUT"
-                    #         print "Equality Set for ", gt1, " with N ", st, ": ", trees_to_equality[gt1]
-                    #         print "Equality Set for ", gt1, " with N ", \
-                    #             sorted(st_to_pattern_probs_N.keys())[
-                    #                 sorted(st_to_pattern_probs_N.keys()).index(st) - 1], ": ", equal_trees
-                    #         print
-
                     # Add the equality set to the mapping if tbe pattern is not already in the mapping and set is non empty
                     if len(equal_trees) != 0 and gt1 not in seen_trees:
                         if gt1 in trees_to_equality_N:
@@ -1342,7 +1193,6 @@ class GeneralizedDStatistic(QtCore.QThread):
                             seen_trees = seen_trees.union(seen)
 
         return trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN
-
 
     def set_of_interest(self, trees_to_equality, trees_to_equality_N):
         """
@@ -1368,35 +1218,7 @@ class GeneralizedDStatistic(QtCore.QThread):
 
         return trees_of_interest
 
-
-    def calculate_significance(self, left, right):
-        """
-        Determines statistical significance based on a chi-squared goodness of fit test
-        Input:
-        left --- the total count for site patterns in the left term of the statistic
-        right --- the total count for site patterns in the right term of the statistic
-        Output:
-        significant --- a boolean corresponding to whether or not the result is statistically significant
-        """
-
-        alpha = 0.05
-
-        # Calculate the test statistic
-        if left + right > 0:
-            chisq = (left - right)**2 / (left + right)
-        else:
-            chisq = 0
-
-        # Calulate the p-value based on a chi square distribtion with df = 1
-        pval = stats.chi2.cdf(chisq, 1)
-
-        if pval < alpha:
-            return False
-        else:
-            return True
-
-
-    def calculate_generalized(self, alignment, species_tree, window_size, window_offset, reticulations, verbose=False):
+    def calculate_generalized(self, alignment, species_tree, reticulations, window_size, window_offset, verbose=False):
         """
         Calculates the L statistic for the given alignment
         Input:
@@ -1404,21 +1226,23 @@ class GeneralizedDStatistic(QtCore.QThread):
         taxa --- a list of the taxa in the desired order
         species_tree --- the inputted species tree over the given taxa
         reticulations --- a tuple containing two dictionaries mapping the start leaves to end leaves
+        window_size --- the desired window size
+        window_offset --- the desired offset between windows
         verbose --- a boolean for determining if extra information will be printed
         Output:
         l_stat --- the L statistic value
         """
 
         st = re.sub("\:\d+\.\d+", "", species_tree)
-        trees, taxa = self.branch_adjust(st)
-        newick_patterns = self.newicks_to_patterns_generator(taxa, trees)
-        network = self.generate_network_tree((0.03, 0.97), list(trees)[0], reticulations)
-        trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = self.equality_sets(trees, network, taxa)
-        trees_of_interest = self.set_of_interest(trees_to_equality, trees_to_equality_N)
-        increase, decrease = self.determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
+        trees, taxa = branch_adjust(st)
+        newick_patterns = newicks_to_patterns_generator(taxa, trees)
+        network = generate_network_tree((0.03, 0.97), list(trees)[0], reticulations)
+        trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
+        trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
+        increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
 
-        l_stat, significant = self.calculate_L(alignment, taxa, (increase, decrease))
-        windows_to_l = self.calculate_windows_to_L(alignment, taxa, (increase, decrease), window_size, window_offset)
+        l_stat, significant = calculate_L(alignment, taxa, (increase, decrease))
+        windows_to_l = calculate_windows_to_L(alignment, taxa, (increase, decrease), window_size, window_offset)
 
         if verbose:
             print
@@ -1433,11 +1257,10 @@ class GeneralizedDStatistic(QtCore.QThread):
             print
             print "Patterns of interest: ", increase, decrease
             print
-            print "Statistic: ", self.generate_statistic_string((increase, decrease))
+            print "Statistic: ", generate_statistic_string((increase, decrease))
             print
 
         return l_stat, significant, windows_to_l
-
 
 
 if __name__ == '__main__':

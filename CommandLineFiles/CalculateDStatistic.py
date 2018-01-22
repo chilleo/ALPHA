@@ -232,8 +232,8 @@ def plot_d(alignment, window_size, window_offset, taxon1, taxon2, taxon3, taxon4
 
 
 # species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1'),('P3', 'P2')]
-alignment = "C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\Example.phylip"
-filename = "C:\\Users\\travi\\Desktop\\test.png"
+# alignment = "C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\Example.phylip"
+# filename = "C:\\Users\\travi\\Desktop\\test.png"
 # print plot_d(alignment, 50000, 50000, "P1", "P2", "P3", "O", filename)
 
 # python -c "from CalculateDStatistic import *; print calculate_d('AlignmentPhylipFile', WindowSize, WIndowOffset,'taxon1', 'taxon2', 'taxon3', 'outgroup')"
