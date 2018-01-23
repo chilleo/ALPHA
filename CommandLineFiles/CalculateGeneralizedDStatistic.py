@@ -768,7 +768,7 @@ def generate_statistic_string(patterns_of_interest):
 ##### Function for calculating statistic
 
 
-def calculate_significance(left, right):
+def calculate_significance(left, right, verbose= False):
     """
     Determines statistical significance based on a chi-squared goodness of fit test
     Input:
@@ -790,12 +790,15 @@ def calculate_significance(left, right):
     pval = 1 - stats.chi2.cdf(chisq, 1)
 
     if pval < alpha:
-        return True
+        signif = True
     else:
-        return False
+        signif = False
+
+    if verbose:
+        return signif, left, right, chisq, pval
 
 
-def calculate_L(alignment, taxa_order, patterns_of_interest):
+def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -803,7 +806,7 @@ def calculate_L(alignment, taxa_order, patterns_of_interest):
     taxa_order --- the desired order of the taxa
     patterns_of_interest --- a tuple containing the sets of patterns used for determining a statistic
     window_size --- the desired window size
-    windw_offset --- the desired offset between windows
+    window_offset --- the desired offset between windows
     Output:
     l_stat --- the L statistic value
     significant --- a boolean denoting if the l_stat value is statistically significant
@@ -891,17 +894,23 @@ def calculate_L(alignment, taxa_order, patterns_of_interest):
     numerator = terms1_total - terms2_total
     denominator = terms1_total + terms2_total
 
-    significant = calculate_significance(terms1_total, terms2_total)
-
     if denominator != 0:
         l_stat = numerator / float(denominator)
     else:
         l_stat = 0
 
-    return l_stat, significant
+    # Verbose output
+    if verbose:
+        significant, left_counts, right_counts, chisq, pval = calculate_significance(terms1_total, terms2_total, verbose)
+        return l_stat, significant, left_counts, right_counts, chisq, pval
+
+    # Standard output
+    else:
+        significant = calculate_significance(terms1_total, terms2_total)
+        return l_stat, significant
 
 
-def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_size, window_offset):
+def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_size, window_offset, verbose= False):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1022,10 +1031,16 @@ def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_s
         else:
             l_stat = 0
 
-        signif = calculate_significance(terms1_total, terms2_total)
+        # Verbose output
+        if verbose:
+            signif, left_counts, right_counts, chisq, pval = calculate_significance(terms1_total, terms2_total, verbose)
+            # The line below can be changed to add more information to the windows to L mapping
+            windows_to_l[window] = (l_stat, signif, chisq, pval)
 
-        # Map the window index to its D statistic
-        windows_to_l[window] = (l_stat, signif)
+        # Standard output
+        else:
+            signif = calculate_significance(terms1_total, terms2_total)
+            windows_to_l[window] = (l_stat, signif)
 
         # Account for overlapping windows
         site_idx += (window_offset - window_size)
@@ -1105,8 +1120,6 @@ def network_adjust(species_network):
 
     pattern = "\:\:0\.\d+"
     reticulations = re.findall(pattern, species_network)
-
-    ###########Adjust reticulation stuff
 
     for prob in inheritance_probs:
         new_net = species_network
@@ -1333,8 +1346,12 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
     if useDir:
         alignment = concat_directory(directory);
 
-    l_stat, significant = calculate_L(alignment, taxa, (increase, decrease))
-    windows_to_l = calculate_windows_to_L(alignment, taxa, (increase, decrease), window_size, window_offset)
+    if verbose:
+        l_stat, significant, left_counts, right_counts, chisq, pval = calculate_L(alignment, taxa, (increase, decrease), verbose)
+    else:
+        l_stat, significant = calculate_L(alignment, taxa, (increase, decrease), verbose)
+
+    windows_to_l = calculate_windows_to_L(alignment, taxa, (increase, decrease), window_size, window_offset, verbose)
 
     if verbose:
         print
@@ -1351,6 +1368,11 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
         print
         print "Statistic: ", generate_statistic_string((increase, decrease))
         print
+        print "Overall Chi-Squared statistic: ", chisq
+        print "Overall p value: ", pval
+        print "Left term counts: ", left_counts
+        print "Right term counts: ", right_counts
+        print
 
     return l_stat, significant, windows_to_l
 
@@ -1361,7 +1383,9 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
         windows_to_l --- a dictionary mapping window indices to generalized d statistic values
         """
 
-        print
+        for idx in windows_to_l:
+            info = windows_to_l[idx]
+
 
 if __name__ == '__main__':  # if we're running file directly and not importing it
     # file = 'C:\\Users\\travi\\Desktop\\clphylipseq.txt'
