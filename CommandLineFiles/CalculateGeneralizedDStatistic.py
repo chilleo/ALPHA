@@ -1446,6 +1446,4 @@ if __name__ == '__main__':
 
     # print calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
 
-    # python -c "from CalculateGeneralizedDStatistic import *; print calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),P5);', [('P1', 'P3')], 50000, 50000, True)"
-
-# python -c"from CalculateGeneralizedDStatistic import *; plot_formatting(calculate_generalized('/Users/leo/rice/res/data/mosquitoDing/gene/3L/3L.10010994.374.fa', '((C,G),(((A,Q),L),R));', [('L', 'R')], 100000, 100000, True, 0.01), True)"
+# python -c"from CalculateGeneralizedDStatistic import *; plot_formatting(calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 100000, 100000, True, 0.01), True)"
