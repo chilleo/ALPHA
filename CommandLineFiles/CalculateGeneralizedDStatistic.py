@@ -796,6 +796,8 @@ def calculate_significance(left, right, verbose= False):
 
     if verbose:
         return signif, left, right, chisq, pval
+    else:
+        return signif
 
 
 def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False):
@@ -1401,7 +1403,7 @@ if __name__ == '__main__':  # if we're running file directly and not importing i
     species_tree = '(((P1,P2),(P3,P4)),O);'
     alignment = "C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"
     alignment = "C:\\Users\\travi\\Desktop\\seqfileNamed"
-    print calculate_generalized(alignment, species_tree, r, 50000, 50000, True)
+    print calculate_generalized(alignment, species_tree, r, 50000, 50000, False)
 
 
     # print calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
