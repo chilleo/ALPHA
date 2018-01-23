@@ -1378,15 +1378,25 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
 
     return l_stat, significant, windows_to_l
 
-    def plot_formatting(windows_to_l):
-        """
-        Reformats and prints the dictionary output to make plotting it in Excel easy
-        Input:
-        windows_to_l --- a dictionary mapping window indices to generalized d statistic values
-        """
+def plot_formatting(l_stat, significance, windows_to_l):
+    """
+    Reformats and writes the dictionary output to a text file to make plotting it in Excel easy
+    Input:
+    l_stat --- the value of the overall generalized d statistic
+    significance --- a boolean corresponding to if l_stat is statistically significant
+    windows_to_l --- a dictionary mapping window indices to generalized d statistic values
+    """
 
+    with open("GeneralizedDResults.txt", "w") as text_file:
+        output_str = "Overall, {0}, {1} \n".format(lstat, signif)
+        text_file.write(output_str)
         for idx in windows_to_l:
             info = windows_to_l[idx]
+            l_stat = info[0]
+            significant = info[1]
+            output_str = "{0}, {1}, {2} \n".format(idx, l_stat, significant)
+            text_file.write(output_str)
+
 
 
 if __name__ == '__main__':  # if we're running file directly and not importing it
@@ -1403,7 +1413,8 @@ if __name__ == '__main__':  # if we're running file directly and not importing i
     species_tree = '(((P1,P2),(P3,P4)),O);'
     alignment = "C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"
     alignment = "C:\\Users\\travi\\Desktop\\seqfileNamed"
-    print calculate_generalized(alignment, species_tree, r, 50000, 50000, False)
+    lstat, signif, windows_to_l = calculate_generalized(alignment, species_tree, r, 1000, 1000, False)
+    plot_formatting(lstat, signif, windows_to_l)
 
 
     # print calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
