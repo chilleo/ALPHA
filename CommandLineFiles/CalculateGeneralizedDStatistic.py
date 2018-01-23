@@ -1022,8 +1022,10 @@ def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_s
         else:
             l_stat = 0
 
+        signif = calculate_significance(terms1_total, terms2_total)
+
         # Map the window index to its D statistic
-        windows_to_l[window] = l_stat
+        windows_to_l[window] = (l_stat, signif)
 
         # Account for overlapping windows
         site_idx += (window_offset - window_size)
@@ -1351,6 +1353,15 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
         print
 
     return l_stat, significant, windows_to_l
+
+    def plot_formatting(windows_to_l):
+        """
+        Reformats and prints the dictionary output to make plotting it in Excel easy
+        Input:
+        windows_to_l --- a dictionary mapping window indices to generalized d statistic values
+        """
+
+        print
 
 if __name__ == '__main__':  # if we're running file directly and not importing it
     # file = 'C:\\Users\\travi\\Desktop\\clphylipseq.txt'

@@ -1003,8 +1003,10 @@ class GeneralizedDStatistic(QtCore.QThread):
             else:
                 l_stat = 0
 
+            signif = calculate_significance(terms1_total, terms2_total)
+
             # Map the window index to its D statistic
-            windows_to_l[window] = l_stat
+            windows_to_l[window] = (l_stat, signif)
 
             # Account for overlapping windows
             site_idx += (window_offset - window_size)
