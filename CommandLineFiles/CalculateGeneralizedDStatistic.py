@@ -782,7 +782,7 @@ def generate_statistic_string(patterns_of_interest):
 ##### Function for calculating statistic
 
 
-def calculate_significance(left, right, verbose= False, alpha= 0.05):
+def calculate_significance(left, right, verbose= False, alpha= 0.01):
     """
     Determines statistical significance based on a chi-squared goodness of fit test
     Input:
@@ -812,7 +812,7 @@ def calculate_significance(left, right, verbose= False, alpha= 0.05):
         return signif
 
 
-def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alpha=0.05):
+def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alpha=0.01):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -877,6 +877,8 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
         # Iterate over each sequence in the alignment
         for sequence, taxon in zip(sequence_list, taxon_list):
             # Map each taxon to the corresponding base at the site
+            print site_idx
+            print sequence
             base = sequence[site_idx]
             taxa_to_site[taxon] = base
             bases.add(base)
@@ -916,7 +918,7 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
                 elif site_string in terms2:
                     terms2_counts[site_string] += 1
 
-        else:
+        else if "-" in bases or "N" in bases:
             num_ignored += 1
 
     terms1_total = sum(terms1_counts.values())
@@ -941,7 +943,7 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
         return l_stat, significant
 
 
-def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_size, window_offset, verbose= False, alpha=0.05):
+def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_size, window_offset, verbose= False, alpha=0.01):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1052,7 +1054,8 @@ def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_s
                 elif site_string in terms2:
                     terms2_counts[site_string] += 1
 
-            else:
+
+            else if "-" in bases or "N" in bases:
                 num_ignored += 1
 
             # Increment the site index
@@ -1361,7 +1364,7 @@ def concat_directory(directory_path):
     return os.path.abspath(directory_path) + "/concatFile.phylip.txt"
 
 
-def calculate_generalized(alignment, species_tree, reticulations, window_size, window_offset, verbose=False, alpha= 0.05, useDir=False, directory=""):
+def calculate_generalized(alignment, species_tree, reticulations, window_size, window_offset, verbose=False, alpha= 0.01, useDir=False, directory=""):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1462,26 +1465,26 @@ if __name__ == '__main__':
     # print pattern_string_generator(['A', 'A', 'A', 'A', 'A'])
 
     # Inputs for paper
-    # file = "/Users/Peter/PycharmProjects/ALPHA/travy_test/concatFile.phylip.txt"
-    # species_tree = '((G,(((A,Q),L),R)));'
-    #
-    # window_size, window_offset = 10000, 1000
-    # r = [('L', 'R')]
-    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-    # window_size, window_offset = 100000, 10000
-    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-    #
-    # window_size, window_offset = 10000, 1000
-    # r = [('Q', 'R')]
-    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-    # window_size, window_offset = 100000, 10000
-    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-    #
-    # window_size, window_offset = 10000, 1000
-    # r = [('Q', 'G')]
-    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-    # window_size, window_offset = 100000, 10000
-    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    file = "C:\\Users\\travi\\Desktop\\concatFile.phylip.txt"
+    species_tree = '((G,(((A,Q),L),R)));'
+
+    window_size, window_offset = 10000, 1000
+    r = [('L', 'R')]
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    window_size, window_offset = 100000, 10000
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+
+    window_size, window_offset = 10000, 1000
+    r = [('Q', 'R')]
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    window_size, window_offset = 100000, 10000
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+
+    window_size, window_offset = 10000, 1000
+    r = [('Q', 'G')]
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    window_size, window_offset = 100000, 10000
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
 
     # concat_directory("/Users/Peter/PycharmProjects/ALPHA/test_phylip_dir")
     # print calculate_generalized('/Users/Peter/PycharmProjects/ALPHA/CLFILE', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
@@ -1496,13 +1499,13 @@ if __name__ == '__main__':
     # concat_directory("/Users/Peter/PycharmProjects/ALPHA/travy_test")
     # print calculate_generalized('/Users/Peter/PycharmProjects/ALPHA/CLFILE', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
 
-    species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
-    species_tree = '(((P1,P2),(P3,P4)),O);'
-    alignment = "C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"
-    alignment = "C:\\Users\\travi\\Desktop\\seqfileNamed"
-    # lstat, signif, windows_to_l = calculate_generalized(alignment, species_tree, r, 1000, 1000, True, 0.05)
-    # plot_formatting((lstat, signif, windows_to_l))
-    plot_formatting(calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P3', 'P1')], 1000, 1000, False, 0.99), False)
+    # species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
+    # species_tree = '(((P1,P2),(P3,P4)),O);'
+    # alignment = "C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"
+    # alignment = "C:\\Users\\travi\\Desktop\\seqfileNamed"
+    # # lstat, signif, windows_to_l = calculate_generalized(alignment, species_tree, r, 1000, 1000, True, 0.05)
+    # # plot_formatting((lstat, signif, windows_to_l))
+    # plot_formatting(calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P3', 'P1')], 1000, 1000, False, 0.99), False)
 
     # print calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
 
