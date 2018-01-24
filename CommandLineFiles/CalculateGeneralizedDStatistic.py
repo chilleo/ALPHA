@@ -1418,16 +1418,28 @@ if __name__ == '__main__':
     # if we're running file directly and not importing it
 
     # Inputs for paper
-    # file = concantenatedMosquitos
-    # species_tree = '((C,G),(((A,Q),L),R));'
-    # window_size, window_offset = 10000, 1000
-    # window_size, window_offset = 100000, 10000
-    # r = [('L', 'R')]
-    # r = [('Q', 'R')]
-    # # r = [('Q', 'G')]
-    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    file = "C:\\Users\\travi\\Desktop\\concatFile.phylip.txt"
+    species_tree = '((C,G),(((A,Q),L),R));'
 
-    file = 'C:\\Users\\travi\\Desktop\\clphylipseq.txt'
+    window_size, window_offset = 10000, 1000
+    r = [('L', 'R')]
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    window_size, window_offset = 100000, 10000
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+
+    window_size, window_offset = 10000, 1000
+    r = [('Q', 'R')]
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    window_size, window_offset = 100000, 10000
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+
+    window_size, window_offset = 10000, 1000
+    r = [('Q', 'G')]
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    window_size, window_offset = 100000, 10000
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+
+    # file = 'C:\\Users\\travi\\Desktop\\clphylipseq.txt'
     # # r = [('L', 'R')]
     # r = [('Q', 'R')]
     # # r = [('Q', 'G')]
