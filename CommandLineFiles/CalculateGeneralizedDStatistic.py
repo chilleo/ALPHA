@@ -1071,7 +1071,7 @@ def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_s
 
         # Verbose output
         if verbose:
-            signif, left_counts, right_counts, chisq, pval = calculate_significance(terms1_total, terms2_total, verbose, alpha)
+            signif, left_counts, right_counts, num_ignored, chisq, pval = calculate_significance(terms1_total, terms2_total, verbose, alpha)
             # The line below can be changed to add more information to the windows to L mapping
             windows_to_l[window] = (l_stat, signif, num_ignored, chisq, pval)
 
