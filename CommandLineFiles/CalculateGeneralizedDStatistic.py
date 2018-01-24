@@ -918,7 +918,7 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
                 elif site_string in terms2:
                     terms2_counts[site_string] += 1
 
-        else if "-" in bases or "N" in bases:
+        elif "-" in bases or "N" in bases:
             num_ignored += 1
 
     terms1_total = sum(terms1_counts.values())
@@ -1055,7 +1055,7 @@ def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_s
                     terms2_counts[site_string] += 1
 
 
-            else if "-" in bases or "N" in bases:
+            elif "-" in bases or "N" in bases:
                 num_ignored += 1
 
             # Increment the site index
@@ -1463,28 +1463,29 @@ if __name__ == '__main__':
     # if we're running file directly and not importing it
 
     # print pattern_string_generator(['A', 'A', 'A', 'A', 'A'])
+    concat_directory("C:\\Users\\travi\\Desktop\\TestFolder")
 
     # Inputs for paper
-    file = "C:\\Users\\travi\\Desktop\\concatFile.phylip.txt"
-    species_tree = '((G,(((A,Q),L),R)));'
-
-    window_size, window_offset = 10000, 1000
-    r = [('L', 'R')]
-    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-    window_size, window_offset = 100000, 10000
-    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-
-    window_size, window_offset = 10000, 1000
-    r = [('Q', 'R')]
-    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-    window_size, window_offset = 100000, 10000
-    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-
-    window_size, window_offset = 10000, 1000
-    r = [('Q', 'G')]
-    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-    window_size, window_offset = 100000, 10000
-    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    # file = "C:\\Users\\travi\\Desktop\\concatFile.phylip.txt"
+    # species_tree = '((C,G),(((A,Q),L),R));'
+    #
+    # window_size, window_offset = 10000, 1000
+    # r = [('L', 'R')]
+    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    # window_size, window_offset = 100000, 10000
+    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    #
+    # window_size, window_offset = 10000, 1000
+    # r = [('Q', 'R')]
+    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    # window_size, window_offset = 100000, 10000
+    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    #
+    # window_size, window_offset = 10000, 1000
+    # r = [('Q', 'G')]
+    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    # window_size, window_offset = 100000, 10000
+    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
 
     # concat_directory("/Users/Peter/PycharmProjects/ALPHA/test_phylip_dir")
     # print calculate_generalized('/Users/Peter/PycharmProjects/ALPHA/CLFILE', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
