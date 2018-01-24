@@ -404,10 +404,11 @@ def pattern_inverter(patterns):
 def pattern_string_generator(patterns):
     """
     Creates a list of viable pattern strings that are easier to read
+
     Input:
-    patterns --- a list of lists of individual characters e.g. [["A","B","B","A"],["B","A","B","A"]]
+        patterns --- a list of lists of individual characters e.g. [["A","B","B","A"],["B","A","B","A"]]
     Output:
-    pattern_strings --- a list of lists of strings e.g. [["ABBA"],["BABA"]]
+        pattern_strings --- a list of lists of strings e.g. [["ABBA"],["BABA"]]
     """
 
     # Convert the site pattern lists to strings
@@ -835,6 +836,8 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
     sequence_list = []
     taxon_list = []
 
+    print "alignment: ", alignment
+
     with open(alignment) as f:
 
         # Create a list of each line in the file
@@ -844,8 +847,14 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
         first_line = lines[0].split()
         length_of_sequences = int(first_line[1])
 
+    # print lines
+    # for line in lines[1:]:
+    #     print "new line", line
+
     for line in lines[1:]:
         # Add each sequence to a list
+        # print line.split()
+        # print line
         sequence = line.split()[1]
         sequence_list.append(sequence)
 
@@ -873,7 +882,7 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
             bases.add(base)
 
         # Statistic can only be calculated where the nucleotides are known
-        if "-" not in bases and len(bases) == 2:
+        if "-" not in bases and "N" not in bases and len(bases) == 2:
 
             # Create the pattern that each site has
             site_pattern = []
@@ -892,6 +901,8 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
                     site_pattern.append("B")
 
             # Convert the site pattern to a string
+            print "site pattern", site_pattern
+            print "generator", pattern_string_generator([site_pattern])
             site_string = pattern_string_generator([site_pattern])[0]
 
             # If the site string is a pattern of interest add to its count for one of the terms
@@ -1432,6 +1443,8 @@ def plot_formatting(info_tuple, verbose=False):
 
 if __name__ == '__main__':
     # if we're running file directly and not importing it
+
+    print pattern_string_generator(['A', 'A', 'A', 'A', 'A'])
 
     # Inputs for paper
     file = "/Users/Peter/PycharmProjects/ALPHA/concatFile.phylip.txt"
