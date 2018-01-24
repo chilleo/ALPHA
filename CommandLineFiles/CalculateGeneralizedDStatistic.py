@@ -836,8 +836,6 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
     sequence_list = []
     taxon_list = []
 
-    print "alignment: ", alignment
-
     with open(alignment) as f:
 
         # Create a list of each line in the file
@@ -904,8 +902,8 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
                     site_pattern.append("B")
 
             # Convert the site pattern to a string
-            print "site pattern", site_pattern
-            print "generator", pattern_string_generator([site_pattern])
+            # print "site pattern", site_pattern
+            # print "generator", pattern_string_generator([site_pattern])
 
             sites = pattern_string_generator([site_pattern])
             if sites != []:
@@ -1046,7 +1044,9 @@ def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_s
                 num_ignored += 1
 
                 # Convert the site pattern to a string
-                site_string = pattern_string_generator([site_pattern])[0]
+                sites = pattern_string_generator([site_pattern])
+                if sites != []:
+                    site_string = sites[0]
 
                 # If the site string is a pattern of interest add to its count for one of the terms
                 if site_string in terms1:
@@ -1378,8 +1378,6 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
         l_stat --- the L statistic value
     """
 
-    print alignment
-
     st = re.sub("\:\d+\.\d+", "", species_tree)
     trees, taxa = branch_adjust(st)
     newick_patterns = newicks_to_patterns_generator(taxa, trees)
@@ -1461,10 +1459,10 @@ def plot_formatting(info_tuple, verbose=False):
 if __name__ == '__main__':
     # if we're running file directly and not importing it
 
-    print pattern_string_generator(['A', 'A', 'A', 'A', 'A'])
+    # print pattern_string_generator(['A', 'A', 'A', 'A', 'A'])
 
     # Inputs for paper
-    file = "/Users/Peter/PycharmProjects/ALPHA/concatFile.phylip.txt"
+    file = "/Users/Peter/PycharmProjects/ALPHA/travy_test/concatFile.phylip.txt"
     species_tree = '((G,(((A,Q),L),R)));'
 
     window_size, window_offset = 10000, 1000
@@ -1495,7 +1493,7 @@ if __name__ == '__main__':
     # # r = [('Q', 'G')]
     # print calculate_generalized(file , '((C,G),(((A,Q),L),R));', r, 100000, 100000, True)
 
-    # concat_directory("/Users/Peter/PycharmProjects/ALPHA/test_fasta_dir")
+    # concat_directory("/Users/Peter/PycharmProjects/ALPHA/travy_test")
     # print calculate_generalized('/Users/Peter/PycharmProjects/ALPHA/CLFILE', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
 
     # species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
