@@ -1293,13 +1293,15 @@ def concat_directory(directory_path):
                     total_bp = int(output_file_list[j].split(" ")[2]) + num_bp
                     output_file_list[j] = " " + str(n - 1) + " " + str(total_bp)
                 else:
-                    output_file_list[j] += input_file_list[j]
+                    output_file_list[j] += input_file_list[j].split(" ")[-1]
 
 
     # write the contents of the output file list to a text file
     with open(os.path.abspath(directory_path) + "/concatFile.phylip.txt", "w") as o:
         for line in output_file_list:
             print >> o, line
+
+    return os.path.abspath(directory_path) + "/concatFile.phylip.txt"
 
 
 def calculate_generalized(alignment, species_tree, reticulations, window_size, window_offset, verbose=False, useDir=False, directory=""):
@@ -1360,7 +1362,7 @@ if __name__ == '__main__':  # if we're running file directly and not importing i
     # # r = [('Q', 'G')]
     # print calculate_generalized(file , '((C,G),(((A,Q),L),R));', r, 100000, 100000, True)
 
-    concat_directory("/Users/Peter/PycharmProjects/ALPHA/test_fasta_dir")
+    concat_directory("/Users/Peter/PycharmProjects/ALPHA/test_phylip_dir")
     # print calculate_generalized('/Users/Peter/PycharmProjects/ALPHA/CLFILE', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
 
     # species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
