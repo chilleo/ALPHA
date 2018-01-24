@@ -9,7 +9,7 @@ from sys import platform
 from scipy import stats
 from ete3 import Tree
 from natsort import natsorted
-from module import fileConverterController
+from Bio import AlignIO
 
 """
 Functions:
@@ -768,7 +768,7 @@ def generate_statistic_string(patterns_of_interest):
 ##### Function for calculating statistic
 
 
-def calculate_significance(left, right):
+def calculate_significance(left, right, verbose= False, alpha= 0.05):
     """
     Determines statistical significance based on a chi-squared goodness of fit test
     Input:
@@ -778,11 +778,9 @@ def calculate_significance(left, right):
     significant --- a boolean corresponding to whether or not the result is statistically significant
     """
 
-    alpha = 0.05
-
     # Calculate the test statistic
     if left + right > 0:
-        chisq = (left - right)**2 / float(left + right)
+        chisq = abs((left - right)**2 / float(left + right))
     else:
         chisq = 0
 
@@ -790,12 +788,17 @@ def calculate_significance(left, right):
     pval = 1 - stats.chi2.cdf(chisq, 1)
 
     if pval < alpha:
-        return True
+        signif = True
     else:
-        return False
+        signif = False
+
+    if verbose:
+        return signif, left, right, chisq, pval
+    else:
+        return signif
 
 
-def calculate_L(alignment, taxa_order, patterns_of_interest):
+def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alpha=0.05):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -803,7 +806,7 @@ def calculate_L(alignment, taxa_order, patterns_of_interest):
     taxa_order --- the desired order of the taxa
     patterns_of_interest --- a tuple containing the sets of patterns used for determining a statistic
     window_size --- the desired window size
-    windw_offset --- the desired offset between windows
+    window_offset --- the desired offset between windows
     Output:
     l_stat --- the L statistic value
     significant --- a boolean denoting if the l_stat value is statistically significant
@@ -891,17 +894,23 @@ def calculate_L(alignment, taxa_order, patterns_of_interest):
     numerator = terms1_total - terms2_total
     denominator = terms1_total + terms2_total
 
-    significant = calculate_significance(terms1_total, terms2_total)
-
     if denominator != 0:
         l_stat = numerator / float(denominator)
     else:
         l_stat = 0
 
-    return l_stat, significant
+    # Verbose output
+    if verbose:
+        significant, left_counts, right_counts, chisq, pval = calculate_significance(terms1_total, terms2_total, verbose, alpha)
+        return l_stat, significant, left_counts, right_counts, chisq, pval
+
+    # Standard output
+    else:
+        significant = calculate_significance(terms1_total, terms2_total, alpha)
+        return l_stat, significant
 
 
-def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_size, window_offset):
+def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_size, window_offset, verbose= False, alpha=0.05):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1022,8 +1031,16 @@ def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_s
         else:
             l_stat = 0
 
-        # Map the window index to its D statistic
-        windows_to_l[window] = l_stat
+        # Verbose output
+        if verbose:
+            signif, left_counts, right_counts, chisq, pval = calculate_significance(terms1_total, terms2_total, verbose, alpha)
+            # The line below can be changed to add more information to the windows to L mapping
+            windows_to_l[window] = (l_stat, signif, chisq, pval)
+
+        # Standard output
+        else:
+            signif = calculate_significance(terms1_total, terms2_total)
+            windows_to_l[window] = (l_stat, signif)
 
         # Account for overlapping windows
         site_idx += (window_offset - window_size)
@@ -1042,7 +1059,6 @@ def branch_adjust(species_tree):
     Output:
     adjusted_trees --- a set of trees with all combinations of branch lengths
     """
-    # branch_lengths = [.01, .1, .5, 1.0, 2.0, 4.0]
     branch_lengths = [.5, 1.0, 2.0, 4.0]
     adjusted_trees = set([])
 
@@ -1104,8 +1120,6 @@ def network_adjust(species_network):
 
     pattern = "\:\:0\.\d+"
     reticulations = re.findall(pattern, species_network)
-
-    ###########Adjust reticulation stuff
 
     for prob in inheritance_probs:
         new_net = species_network
@@ -1253,9 +1267,6 @@ def concat_directory(directory_path):
             file_path --- a string path to the file that was created as a result of the concatenation.
     """
 
-    # create new instance of file converter controller
-    fc = fileConverterController.FileConverter()
-
     # filter out hidden files
     filenames = filter(lambda n: not n.startswith(".") , natsorted(os.listdir(directory_path)))
 
@@ -1274,14 +1285,22 @@ def concat_directory(directory_path):
 
         # if its a fasta file -> convert to phylip
         if filenames[i].endswith(".fa") or filenames[i].endswith(".fasta"):
-            fc.fileConverter(input_file, "fasta", "phylip-sequential", input_file + ".phylip")
+
+            input_handle = open(input_file, "rU")
+            output_handle = open(input_file + ".phylip", "w")
+
+            alignments = AlignIO.parse(input_handle, "fasta")
+            AlignIO.write(alignments, output_handle, "phylip-sequential")
+
+            output_handle.close()
+            input_handle.close()
             input_file = input_file + ".phylip"
 
         # create a list of the input files lines
         with open(input_file, 'r') as f:
             input_file_list = [l.rstrip() for l in list(f)]
 
-        print input_file_list
+        # print input_file_list
 
         for j in range(len(input_file_list)):
             # if this is the first file
@@ -1304,7 +1323,7 @@ def concat_directory(directory_path):
     return os.path.abspath(directory_path) + "/concatFile.phylip.txt"
 
 
-def calculate_generalized(alignment, species_tree, reticulations, window_size, window_offset, verbose=False, useDir=False, directory=""):
+def calculate_generalized(alignment, species_tree, reticulations, window_size, window_offset, verbose=False, alpha= 0.05, useDir=False, directory=""):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1326,7 +1345,7 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
     st = re.sub("\:\d+\.\d+", "", species_tree)
     trees, taxa = branch_adjust(st)
     newick_patterns = newicks_to_patterns_generator(taxa, trees)
-    network = generate_network_tree((0.03, 0.97), list(trees)[0], reticulations)
+    network = generate_network_tree((0.1, 0.9), list(trees)[0], reticulations)
     trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
     trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
     increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
@@ -1334,8 +1353,12 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
     if useDir:
         alignment = concat_directory(directory);
 
-    l_stat, significant = calculate_L(alignment, taxa, (increase, decrease))
-    windows_to_l = calculate_windows_to_L(alignment, taxa, (increase, decrease), window_size, window_offset)
+    if verbose:
+        l_stat, significant, left_counts, right_counts, chisq, pval = calculate_L(alignment, taxa, (increase, decrease), verbose, alpha)
+    else:
+        l_stat, significant = calculate_L(alignment, taxa, (increase, decrease), verbose, alpha)
+
+    windows_to_l = calculate_windows_to_L(alignment, taxa, (increase, decrease), window_size, window_offset, verbose, alpha)
 
     if verbose:
         print
@@ -1352,56 +1375,94 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
         print
         print "Statistic: ", generate_statistic_string((increase, decrease))
         print
+        print "Overall Chi-Squared statistic: ", chisq
+        print "Overall p value: ", pval
+        print "Left term counts: ", left_counts
+        print "Right term counts: ", right_counts
+        print
 
     return l_stat, significant, windows_to_l
 
-if __name__ == '__main__':  # if we're running file directly and not importing it
-    # file = 'C:\\Users\\travi\\Desktop\\clphylipseq.txt'
+
+def plot_formatting(info_tuple, verbose=False):
+    """
+    Reformats and writes the dictionary output to a text file to make plotting it in Excel easy
+    Input:
+    info_tuple --- a triplet from the calculate_generalized output
+    """
+
+    l_stat, significance, windows_to_l = info_tuple
+
+    num = 0
+    file_name = "GeneralizedDResults{0}.txt".format(num)
+    while os.path.exists(file_name):
+        num += 1
+        file_name ="GeneralizedDResults{0}.txt".format(num)
+
+    with open(file_name, "w") as text_file:
+        output_str = "Overall, {0}, {1} \n".format(l_stat, significance)
+        text_file.write(output_str)
+        for idx in windows_to_l:
+            info = windows_to_l[idx]
+            l_stat = info[0]
+            significant = info[1]
+            output_str = "{0}, {1}, {2} \n".format(idx, l_stat, significant)
+
+            if verbose:
+                chisq = info[2]
+                pval = info[3]
+                output_str = "{0}, {1}, {2}, {3}, {4} \n".format(idx, l_stat, significant, chisq, pval)
+
+            text_file.write(output_str)
+
+
+
+if __name__ == '__main__':
+    # if we're running file directly and not importing it
+
+    # Inputs for paper
+    file = "C:\\Users\\travi\\Desktop\\concatFile.phylip.txt"
+    species_tree = '((C,G),(((A,Q),L),R));'
+
+    window_size, window_offset = 10000, 1000
+    r = [('L', 'R')]
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    window_size, window_offset = 100000, 10000
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+
+    window_size, window_offset = 10000, 1000
+    r = [('Q', 'R')]
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    window_size, window_offset = 100000, 10000
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+
+    window_size, window_offset = 10000, 1000
+    r = [('Q', 'G')]
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+    window_size, window_offset = 100000, 10000
+    plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
+
+    # concat_directory("/Users/Peter/PycharmProjects/ALPHA/test_phylip_dir")
+    # print calculate_generalized('/Users/Peter/PycharmProjects/ALPHA/CLFILE', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
+
+
+        # file = 'C:\\Users\\travi\\Desktop\\clphylipseq.txt'
     # # r = [('L', 'R')]
     # r = [('Q', 'R')]
     # # r = [('Q', 'G')]
     # print calculate_generalized(file , '((C,G),(((A,Q),L),R));', r, 100000, 100000, True)
 
-    concat_directory("/Users/Peter/PycharmProjects/ALPHA/test_phylip_dir")
+    # concat_directory("/Users/Peter/PycharmProjects/ALPHA/test_fasta_dir")
     # print calculate_generalized('/Users/Peter/PycharmProjects/ALPHA/CLFILE', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
 
     # species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
     # species_tree = '(((P1,P2),(P3,P4)),O);'
     # alignment = "C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"
     # alignment = "C:\\Users\\travi\\Desktop\\seqfileNamed"
-    # print calculate_generalized(alignment, species_tree, r, 50000, 50000, True)
-
+    # # lstat, signif, windows_to_l = calculate_generalized(alignment, species_tree, r, 1000, 1000, True, 0.05)
+    # # plot_formatting((lstat, signif, windows_to_l))
+    # plot_formatting(calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P3', 'P1')], 1000, 1000, True, 0.99), True)
 
     # print calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
 
-    # python -c "from CalculateGeneralizedDStatistic import *; print calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),P5);', [('P1', 'P3')], 50000, 50000, True)"
-
-
-    # calculate_generalized('C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip', '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1'),('P3', 'P2')], 50000, 50000, True)
-    #
-    # python -c "from CalculateGeneralizedDStatistic import *; print calculate_generalized('C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip', '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1'),('P3', 'P2')], 50000, 50000, True)"
-    #
-    # python -c "from CalculateGeneralizedDStatistic import *; print calculate_generalized('PhylipFile', 'SpeciesTree', [('FlowSource', 'FlowSink')], WindowSize, WindowOffset, True/FalseForVerbose)"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# python -c"from CalculateGeneralizedDStatistic import *; plot_formatting(calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 100000, 100000, True, 0.01), True)"

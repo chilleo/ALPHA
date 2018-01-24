@@ -1003,8 +1003,10 @@ class GeneralizedDStatistic(QtCore.QThread):
             else:
                 l_stat = 0
 
+            signif = calculate_significance(terms1_total, terms2_total)
+
             # Map the window index to its D statistic
-            windows_to_l[window] = l_stat
+            windows_to_l[window] = (l_stat, signif)
 
             # Account for overlapping windows
             site_idx += (window_offset - window_size)
@@ -1236,7 +1238,7 @@ class GeneralizedDStatistic(QtCore.QThread):
         st = re.sub("\:\d+\.\d+", "", species_tree)
         trees, taxa = branch_adjust(st)
         newick_patterns = newicks_to_patterns_generator(taxa, trees)
-        network = generate_network_tree((0.03, 0.97), list(trees)[0], reticulations)
+        network = generate_network_tree((0.1, 0.9), list(trees)[0], reticulations)
         trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
         trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
         increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
