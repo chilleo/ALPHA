@@ -903,14 +903,17 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
             # Convert the site pattern to a string
             print "site pattern", site_pattern
             print "generator", pattern_string_generator([site_pattern])
-            site_string = pattern_string_generator([site_pattern])[0]
 
-            # If the site string is a pattern of interest add to its count for one of the terms
-            if site_string in terms1:
-                terms1_counts[site_string] += 1
+            site_string = pattern_string_generator([site_pattern])
+            if site_string != []:
+                site_string = site_string[0]
 
-            elif site_string in terms2:
-                terms2_counts[site_string] += 1
+                # If the site string is a pattern of interest add to its count for one of the terms
+                if site_string in terms1:
+                    terms1_counts[site_string] += 1
+
+                elif site_string in terms2:
+                    terms2_counts[site_string] += 1
 
     terms1_total = sum(terms1_counts.values())
     terms2_total = sum(terms2_counts.values())
