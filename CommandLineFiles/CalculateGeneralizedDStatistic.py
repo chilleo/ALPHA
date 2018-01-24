@@ -272,10 +272,16 @@ def calculate_newicks_to_stats(species_tree, species_network, unique_trees):
         # Read output and convert to float
         p_of_g_given_n = float(p.stdout.readline())
 
+        if platform == 'darwin':
+            # IF YOU COMMENT THIS OUT AGAIN EVERYTHING WILL BREAK
+            # remove the quotes from the tree before we add it to the mapping
+            tree = tree[1:-1]
+
         trees_to_pgS[tree] = p_of_g_given_s
         trees_to_pgN[tree] = p_of_g_given_n
 
     return trees_to_pgS, trees_to_pgN#, trees_to_pgS_noO, trees_to_pgN_noO
+
 
 def determine_interesting_trees(trees_to_pgS, trees_to_pgN):
     """
@@ -684,6 +690,13 @@ def calculate_pattern_probabilities(newicks_to_patterns, newicks_to_pgS, newicks
 
             # Initialize a probability for each pattern if it does not have one
             if pattern not in patterns_to_pgS:
+                # print "newicks to pgs", newicks_to_pgS
+                # print "newick", newick
+
+                # on mac all the newicks need to be wrapped in single quotes to run with the JAR
+                # so all the keys are wrapped in single quotes
+                # if platform == "darwin":
+
                 patterns_to_pgS[pattern] = newicks_to_pgS[newick]
                 patterns_to_pgN[pattern] = newicks_to_pgN[newick]
 
@@ -1421,8 +1434,8 @@ if __name__ == '__main__':
     # if we're running file directly and not importing it
 
     # Inputs for paper
-    file = "C:\\Users\\travi\\Desktop\\concatFile.phylip.txt"
-    species_tree = '((C,G),(((A,Q),L),R));'
+    file = "/Users/Peter/PycharmProjects/ALPHA/concatFile.phylip.txt"
+    species_tree = '((G,(((A,Q),L),R)));'
 
     window_size, window_offset = 10000, 1000
     r = [('L', 'R')]
