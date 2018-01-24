@@ -902,9 +902,9 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
             # print "site pattern", site_pattern
             # print "generator", pattern_string_generator([site_pattern])
 
-            site_string = pattern_string_generator([site_pattern])
-            if site_string != []:
-                site_string = site_string[0]
+            sites = pattern_string_generator([site_pattern])
+            if sites != []:
+                site_string = sites[0]
 
                 # If the site string is a pattern of interest add to its count for one of the terms
                 if site_string in terms1:
@@ -1033,9 +1033,9 @@ def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_s
                         site_pattern.append("B")
 
                 # Convert the site pattern to a string
-                site_string = pattern_string_generator([site_pattern])
-                if site_string != []:
-                    site_string = site_string[0]
+                sites = pattern_string_generator([site_pattern])
+                if sites != []:
+                    site_string = sites[0]
 
                 # If the site string is a pattern of interest add to its count for one of the terms
                 if site_string in terms1:
