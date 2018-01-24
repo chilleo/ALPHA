@@ -865,6 +865,8 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
     # The outgroup is the last taxa in taxa order
     outgroup = taxa_order[-1]
 
+    num_ignored = 0
+
     # Iterate over the site indices
     for site_idx in range(length_of_sequences):
 
@@ -880,6 +882,7 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
             base = sequence[site_idx]
             taxa_to_site[taxon] = base
             bases.add(base)
+
 
         # Statistic can only be calculated where the nucleotides are known
         if "-" not in bases and "N" not in bases and len(bases) == 2:
@@ -904,9 +907,9 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
             print "site pattern", site_pattern
             print "generator", pattern_string_generator([site_pattern])
 
-            site_string = pattern_string_generator([site_pattern])
-            if site_string != []:
-                site_string = site_string[0]
+            sites = pattern_string_generator([site_pattern])
+            if sites != []:
+                site_string = sites[0]
 
                 # If the site string is a pattern of interest add to its count for one of the terms
                 if site_string in terms1:
@@ -914,6 +917,9 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
 
                 elif site_string in terms2:
                     terms2_counts[site_string] += 1
+
+        else:
+            num_ignored += 1
 
     terms1_total = sum(terms1_counts.values())
     terms2_total = sum(terms2_counts.values())
@@ -929,7 +935,7 @@ def calculate_L(alignment, taxa_order, patterns_of_interest, verbose=False, alph
     # Verbose output
     if verbose:
         significant, left_counts, right_counts, chisq, pval = calculate_significance(terms1_total, terms2_total, verbose, alpha)
-        return l_stat, significant, left_counts, right_counts, chisq, pval
+        return l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval,
 
     # Standard output
     else:
@@ -999,6 +1005,8 @@ def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_s
         terms1_counts = defaultdict(int)
         terms2_counts = defaultdict(int)
 
+        num_ignored = 0
+
         # Iterate over the indices in each window
         for window_idx in range(window_size):
 
@@ -1034,6 +1042,9 @@ def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_s
                     else:
                         site_pattern.append("B")
 
+            else:
+                num_ignored += 1
+
                 # Convert the site pattern to a string
                 site_string = pattern_string_generator([site_pattern])[0]
 
@@ -1062,7 +1073,7 @@ def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_s
         if verbose:
             signif, left_counts, right_counts, chisq, pval = calculate_significance(terms1_total, terms2_total, verbose, alpha)
             # The line below can be changed to add more information to the windows to L mapping
-            windows_to_l[window] = (l_stat, signif, chisq, pval)
+            windows_to_l[window] = (l_stat, signif, num_ignored, chisq, pval)
 
         # Standard output
         else:
@@ -1381,7 +1392,7 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
         alignment = concat_directory(directory);
 
     if verbose:
-        l_stat, significant, left_counts, right_counts, chisq, pval = calculate_L(alignment, taxa, (increase, decrease), verbose, alpha)
+        l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = calculate_L(alignment, taxa, (increase, decrease), verbose, alpha)
     else:
         l_stat, significant = calculate_L(alignment, taxa, (increase, decrease), verbose, alpha)
 
@@ -1406,7 +1417,10 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
         print "Overall p value: ", pval
         print "Left term counts: ", left_counts
         print "Right term counts: ", right_counts
+        print "Number of site ignored due to \"N\" or \"-\""
         print
+
+        # Write explanations for the outputs
 
     return l_stat, significant, windows_to_l
 
