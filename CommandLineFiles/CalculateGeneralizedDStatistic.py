@@ -1456,12 +1456,14 @@ def calculate_generalized(alignments, species_tree, reticulations, window_size, 
     return alignments_to_d, alignments_to_windows_to_d
 
 
-def plot_formatting(alignments_to_d, alignments_to_windows_to_d, verbose=False):
+def plot_formatting(info_tuple, verbose=False):
     """
     Reformats and writes the dictionary output to a text file to make plotting it in Excel easy
     Input:
     info_tuple --- a triplet from the calculate_generalized output
     """
+
+    alignments_to_d, alignments_to_windows_to_d = info_tuple
 
     for alignment in alignments_to_d:
 
@@ -1469,13 +1471,13 @@ def plot_formatting(alignments_to_d, alignments_to_windows_to_d, verbose=False):
         windows_to_l = alignments_to_windows_to_d[alignment]
 
         num = 0
-        file_name = "DGenResults_{0}{1}.txt".format(alignment,num)
+        file_name = "DGenResults_{0}.txt".format(num)
         while os.path.exists(file_name):
             num += 1
-            file_name = "DGenResults_{0}{1}.txt".format(alignment,num)
+            file_name = "DGenResults_{0}.txt".format(num)
 
         with open(file_name, "w") as text_file:
-            output_str = "Overall, {0}, {1} \n".format(l_stat, significance)
+            output_str = "Overall, {0}, {1} \n".format(l_stat, significant)
             text_file.write(output_str)
             for idx in windows_to_l:
                 info = windows_to_l[idx]
@@ -1536,7 +1538,9 @@ if __name__ == '__main__':
     species_tree = '(((P1,P2),(P3,P4)),O);'
     alignments = ["C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"]
     # alignment = "C:\\Users\\travi\\Desktop\\seqfileNamed"
-    print calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
+    # print calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
+
+    plot_formatting(calculate_generalized(alignments, species_tree, r, 1000, 1000, True))
     # # lstat, signif, windows_to_l = calculate_generalized(alignment, species_tree, r, 1000, 1000, True, 0.05)
     # # plot_formatting((lstat, signif, windows_to_l))
     # plot_formatting(calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P3', 'P1')], 1000, 1000, False, 0.99), False)
