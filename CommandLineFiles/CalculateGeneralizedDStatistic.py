@@ -836,108 +836,113 @@ def calculate_L(alignments, taxa_order, patterns_of_interest, verbose=False, alp
     sequence_list = []
     taxon_list = []
 
-    with open(alignment) as f:
+    alignments_to_d = {}
 
-        # Create a list of each line in the file
-        lines = f.readlines()
+    for alignment in alignments:
+        with open(alignment) as f:
 
-        # First line contains the number and length of the sequences
-        first_line = lines[0].split()
-        length_of_sequences = int(first_line[1])
+            # Create a list of each line in the file
+            lines = f.readlines()
 
-    for line in lines[1:]:
-        # Add each sequence to a list
-        # print line.split()
-        # print line
-        sequence = line.split()[1]
-        sequence_list.append(sequence)
+            # First line contains the number and length of the sequences
+            first_line = lines[0].split()
+            length_of_sequences = int(first_line[1])
 
-        # Add each taxon to a list
-        taxon = line.split()[0]
-        taxon_list.append(taxon)
+        for line in lines[1:]:
+            # Add each sequence to a list
+            # print line.split()
+            # print line
+            sequence = line.split()[1]
+            sequence_list.append(sequence)
 
-    # The outgroup is the last taxa in taxa order
-    outgroup = taxa_order[-1]
+            # Add each taxon to a list
+            taxon = line.split()[0]
+            taxon_list.append(taxon)
 
-    num_ignored = 0
+        # The outgroup is the last taxa in taxa order
+        outgroup = taxa_order[-1]
 
-    # Iterate over the site indices
-    for site_idx in range(length_of_sequences):
+        num_ignored = 0
 
-        # Map each taxa to the base at a given site
-        taxa_to_site = {}
+        # Iterate over the site indices
+        for site_idx in range(length_of_sequences):
 
-        # Create a set of the bases at a given site to determine if the site is biallelic
-        bases = set([])
+            # Map each taxa to the base at a given site
+            taxa_to_site = {}
 
-        # Iterate over each sequence in the alignment
-        for sequence, taxon in zip(sequence_list, taxon_list):
-            # Map each taxon to the corresponding base at the site
-            base = sequence[site_idx]
-            taxa_to_site[taxon] = base
-            bases.add(base)
+            # Create a set of the bases at a given site to determine if the site is biallelic
+            bases = set([])
 
-
-        # Statistic can only be calculated where the nucleotides are known
-        if "-" not in bases and "N" not in bases and len(bases) == 2:
-
-            # Create the pattern that each site has
-            site_pattern = []
-
-            # The ancestral gene is always the same as the outgroup
-            ancestral = taxa_to_site[outgroup]
-
-            # Iterate over each taxon
-            for taxon in taxa_order:
-                nucleotide = taxa_to_site[taxon]
-
-                # Determine if the correct derived/ancestral status of each nucleotide
-                if nucleotide == ancestral:
-                    site_pattern.append("A")
-                else:
-                    site_pattern.append("B")
-
-            # Convert the site pattern to a string
-            # print "site pattern", site_pattern
-            # print "generator", pattern_string_generator([site_pattern])
-
-            sites = pattern_string_generator([site_pattern])
-            if sites != []:
-                site_string = sites[0]
-
-                # If the site string is a pattern of interest add to its count for one of the terms
-                if site_string in terms1:
-                    terms1_counts[site_string] += 1
-
-                elif site_string in terms2:
-                    terms2_counts[site_string] += 1
-
-        elif "-" in bases or "N" in bases:
-            num_ignored += 1
-
-    terms1_total = sum(terms1_counts.values())
-    terms2_total = sum(terms2_counts.values())
-
-    numerator = terms1_total - terms2_total
-    denominator = terms1_total + terms2_total
-
-    if denominator != 0:
-        l_stat = numerator / float(denominator)
-    else:
-        l_stat = 0
-
-    # Verbose output
-    if verbose:
-        significant, chisq, pval = calculate_significance(terms1_total, terms2_total, verbose, alpha)
-        return l_stat, significant, terms1_counts, terms2_counts, num_ignored, chisq, pval,
-
-    # Standard output
-    else:
-        significant = calculate_significance(terms1_total, terms2_total, alpha)
-        return l_stat, significant
+            # Iterate over each sequence in the alignment
+            for sequence, taxon in zip(sequence_list, taxon_list):
+                # Map each taxon to the corresponding base at the site
+                base = sequence[site_idx]
+                taxa_to_site[taxon] = base
+                bases.add(base)
 
 
-def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_size, window_offset, verbose= False, alpha=0.01):
+            # Statistic can only be calculated where the nucleotides are known
+            if "-" not in bases and "N" not in bases and len(bases) == 2:
+
+                # Create the pattern that each site has
+                site_pattern = []
+
+                # The ancestral gene is always the same as the outgroup
+                ancestral = taxa_to_site[outgroup]
+
+                # Iterate over each taxon
+                for taxon in taxa_order:
+                    nucleotide = taxa_to_site[taxon]
+
+                    # Determine if the correct derived/ancestral status of each nucleotide
+                    if nucleotide == ancestral:
+                        site_pattern.append("A")
+                    else:
+                        site_pattern.append("B")
+
+                # Convert the site pattern to a string
+                # print "site pattern", site_pattern
+                # print "generator", pattern_string_generator([site_pattern])
+
+                sites = pattern_string_generator([site_pattern])
+                if sites != []:
+                    site_string = sites[0]
+
+                    # If the site string is a pattern of interest add to its count for one of the terms
+                    if site_string in terms1:
+                        terms1_counts[site_string] += 1
+
+                    elif site_string in terms2:
+                        terms2_counts[site_string] += 1
+
+            elif "-" in bases or "N" in bases:
+                num_ignored += 1
+
+        terms1_total = sum(terms1_counts.values())
+        terms2_total = sum(terms2_counts.values())
+
+        numerator = terms1_total - terms2_total
+        denominator = terms1_total + terms2_total
+
+        if denominator != 0:
+            l_stat = numerator / float(denominator)
+        else:
+            l_stat = 0
+
+        # Verbose output
+        if verbose:
+            significant, chisq, pval = calculate_significance(terms1_total, terms2_total, verbose, alpha)
+            alignments_to_d[alignment] = l_stat, significant, terms1_counts, terms2_counts, num_ignored, chisq, pval,
+
+        # Standard output
+        else:
+            significant = calculate_significance(terms1_total, terms2_total, alpha)
+            alignments_to_d[alignment] = l_stat, significant
+
+    return alignments_to_d
+
+
+def calculate_windows_to_L(alignments, taxa_order, patterns_of_interest, window_size, window_offset, verbose= False, alpha=0.01):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -958,129 +963,134 @@ def calculate_windows_to_L(alignment, taxa_order, patterns_of_interest, window_s
     sequence_list = []
     taxon_list = []
 
-    with open(alignment) as f:
+    alignments_to_windows_to_d = {}
+    for alignment in alignments:
 
-        # Create a list of each line in the file
-        lines = f.readlines()
+        with open(alignment) as f:
 
-        # First line contains the number and length of the sequences
-        first_line = lines[0].split()
-        length_of_sequences = int(first_line[1])
+            # Create a list of each line in the file
+            lines = f.readlines()
 
-    for line in lines[1:]:
-        # Add each sequence to a list
-        sequence = line.split()[1]
-        sequence_list.append(sequence)
+            # First line contains the number and length of the sequences
+            first_line = lines[0].split()
+            length_of_sequences = int(first_line[1])
 
-        # Add each taxon to a list
-        taxon = line.split()[0]
-        taxon_list.append(taxon)
+        for line in lines[1:]:
+            # Add each sequence to a list
+            sequence = line.split()[1]
+            sequence_list.append(sequence)
 
-    # The outgroup is the last taxa in taxa order
-    outgroup = taxa_order[-1]
+            # Add each taxon to a list
+            taxon = line.split()[0]
+            taxon_list.append(taxon)
 
-    i = 0
-    num_windows = 0
-    if window_size > length_of_sequences:
-        num_windows = 1
-        window_size = length_of_sequences
-    else:
-        # Determine the total number of windows needed
-        while (i + window_size - 1 < length_of_sequences):
-            i += window_offset
-            num_windows += 1
+        # The outgroup is the last taxa in taxa order
+        outgroup = taxa_order[-1]
 
-    site_idx = 0
-    windows_to_l = {}
-
-    # Iterate over each window
-    for window in range(num_windows):
-
-        terms1_counts = defaultdict(int)
-        terms2_counts = defaultdict(int)
-
-        num_ignored = 0
-
-        # Iterate over the indices in each window
-        for window_idx in range(window_size):
-
-            # Map each taxa to the base at a given site
-            taxa_to_site = {}
-
-            # Create a set of the bases at a given site to determine if the site is biallelic
-            bases = set([])
-
-            # Iterate over each sequence in the alignment
-            for sequence, taxon in zip(sequence_list, taxon_list):
-                # Map each taxon to the corresponding base at the site
-                base = sequence[site_idx]
-                taxa_to_site[taxon] = base
-                bases.add(base)
-
-            # Statistic can only be calculated where the nucleotides are known
-            if "-" not in bases and len(bases) == 2:
-
-                # Create the pattern that each site has
-                site_pattern = []
-
-                # The ancestral gene is always the same as the outgroup
-                ancestral = taxa_to_site[outgroup]
-
-                # Iterate over each taxon
-                for taxon in taxa_order:
-                    nucleotide = taxa_to_site[taxon]
-
-                    # Determine if the correct derived/ancestral status of each nucleotide
-                    if nucleotide == ancestral:
-                        site_pattern.append("A")
-                    else:
-                        site_pattern.append("B")
-
-                # Convert the site pattern to a string
-                sites = pattern_string_generator([site_pattern])
-                if sites != []:
-                    site_string = sites[0]
-
-                    # If the site string is a pattern of interest add to its count for one of the terms
-                    if site_string in terms1:
-                        terms1_counts[site_string] += 1
-
-                    elif site_string in terms2:
-                        terms2_counts[site_string] += 1
-
-
-            elif "-" in bases or "N" in bases:
-                num_ignored += 1
-
-            # Increment the site index
-            site_idx += 1
-
-        terms1_total = sum(terms1_counts.values())
-        terms2_total = sum(terms2_counts.values())
-
-        numerator = terms1_total - terms2_total
-        denominator = terms1_total + terms2_total
-
-        if denominator != 0:
-            l_stat = numerator / float(denominator)
+        i = 0
+        num_windows = 0
+        if window_size > length_of_sequences:
+            num_windows = 1
+            window_size = length_of_sequences
         else:
-            l_stat = 0
+            # Determine the total number of windows needed
+            while (i + window_size - 1 < length_of_sequences):
+                i += window_offset
+                num_windows += 1
 
-        # Verbose output
-        if verbose:
-            signif, chisq, pval = calculate_significance(terms1_total, terms2_total, verbose, alpha)
-            # The line below can be changed to add more information to the windows to L mapping
-            windows_to_l[window] = (l_stat, signif, num_ignored, chisq, pval)
+        site_idx = 0
+        windows_to_l = {}
 
-        # Standard output
-        else:
-            signif = calculate_significance(terms1_total, terms2_total)
-            windows_to_l[window] = (l_stat, signif)
+        # Iterate over each window
+        for window in range(num_windows):
 
-        # Account for overlapping windows
-        site_idx += (window_offset - window_size)
+            terms1_counts = defaultdict(int)
+            terms2_counts = defaultdict(int)
 
-    return windows_to_l
+            num_ignored = 0
+
+            # Iterate over the indices in each window
+            for window_idx in range(window_size):
+
+                # Map each taxa to the base at a given site
+                taxa_to_site = {}
+
+                # Create a set of the bases at a given site to determine if the site is biallelic
+                bases = set([])
+
+                # Iterate over each sequence in the alignment
+                for sequence, taxon in zip(sequence_list, taxon_list):
+                    # Map each taxon to the corresponding base at the site
+                    base = sequence[site_idx]
+                    taxa_to_site[taxon] = base
+                    bases.add(base)
+
+                # Statistic can only be calculated where the nucleotides are known
+                if "-" not in bases and len(bases) == 2:
+
+                    # Create the pattern that each site has
+                    site_pattern = []
+
+                    # The ancestral gene is always the same as the outgroup
+                    ancestral = taxa_to_site[outgroup]
+
+                    # Iterate over each taxon
+                    for taxon in taxa_order:
+                        nucleotide = taxa_to_site[taxon]
+
+                        # Determine if the correct derived/ancestral status of each nucleotide
+                        if nucleotide == ancestral:
+                            site_pattern.append("A")
+                        else:
+                            site_pattern.append("B")
+
+                    # Convert the site pattern to a string
+                    sites = pattern_string_generator([site_pattern])
+                    if sites != []:
+                        site_string = sites[0]
+
+                        # If the site string is a pattern of interest add to its count for one of the terms
+                        if site_string in terms1:
+                            terms1_counts[site_string] += 1
+
+                        elif site_string in terms2:
+                            terms2_counts[site_string] += 1
+
+
+                elif "-" in bases or "N" in bases:
+                    num_ignored += 1
+
+                # Increment the site index
+                site_idx += 1
+
+            terms1_total = sum(terms1_counts.values())
+            terms2_total = sum(terms2_counts.values())
+
+            numerator = terms1_total - terms2_total
+            denominator = terms1_total + terms2_total
+
+            if denominator != 0:
+                l_stat = numerator / float(denominator)
+            else:
+                l_stat = 0
+
+            # Verbose output
+            if verbose:
+                signif, chisq, pval = calculate_significance(terms1_total, terms2_total, verbose, alpha)
+                # The line below can be changed to add more information to the windows to L mapping
+                windows_to_l[window] = (l_stat, signif, num_ignored, chisq, pval)
+
+            # Standard output
+            else:
+                signif = calculate_significance(terms1_total, terms2_total)
+                windows_to_l[window] = (l_stat, signif)
+
+            # Account for overlapping windows
+            site_idx += (window_offset - window_size)
+
+        alignments_to_windows_to_d[alignment] = windows_to_l
+
+    return alignments_to_windows_to_d
 
 
 ##### Functions for total ordering
@@ -1358,7 +1368,7 @@ def concat_directory(directory_path):
     return os.path.abspath(directory_path) + "/concatFile.phylip.txt"
 
 
-def calculate_generalized(alignment, species_tree, reticulations, window_size, window_offset, verbose=False, alpha= 0.01, useDir=False, directory=""):
+def calculate_generalized(alignments, species_tree, reticulations, window_size, window_offset, verbose=False, alpha= 0.01, useDir=False, directory=""):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1386,12 +1396,15 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
     if useDir:
         alignment = concat_directory(directory);
 
-    if verbose:
-        l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = calculate_L(alignment, taxa, (increase, decrease), verbose, alpha)
-    else:
-        l_stat, significant = calculate_L(alignment, taxa, (increase, decrease), verbose, alpha)
-
-    windows_to_l = calculate_windows_to_L(alignment, taxa, (increase, decrease), window_size, window_offset, verbose, alpha)
+    alignments_to_d = calculate_L(alignments, taxa, (increase, decrease), verbose, alpha)
+    alignments_to_windows_to_d = calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size,
+                                                        window_offset, verbose, alpha)
+    # if verbose:
+    #     l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = calculate_L(alignments, taxa, (increase, decrease), verbose, alpha)
+    # else:
+    #     l_stat, significant = calculate_L(alignment, taxa, (increase, decrease), verbose, alpha)
+    #
+    # alignments_to_windows_to_d = calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size, window_offset, verbose, alpha)
 
     if verbose:
         print
@@ -1408,54 +1421,74 @@ def calculate_generalized(alignment, species_tree, reticulations, window_size, w
         print
         print "Statistic: ", generate_statistic_string((increase, decrease))
         print
-        print "Overall Chi-Squared statistic: ", chisq
-        print "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored)
-        print "Overall p value: ", pval
-        print
-        print "Left term counts: "
-        for pattern in left_counts:
-            print pattern + ": {0}".format(left_counts[pattern])
-        print
-        print "Right term counts: "
-        for pattern in right_counts:
-            print pattern + ": {0}".format(right_counts[pattern])
-        print
-        print "Final Overall D value {0}".format(l_stat)
-        print "Significant deviation from 0: {0}".format(significant)
+        print "Information for each file: "
+        for alignment in alignments_to_d:
+            l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d[alignment]
+            print alignment + ": "
+            print
+            print "Overall Chi-Squared statistic: ", chisq
+            print "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored)
+            print "Overall p value: ", pval
+            print
+            print "Left term counts: "
+            for pattern in left_counts:
+                print pattern + ": {0}".format(left_counts[pattern])
+            print
+            print "Right term counts: "
+            for pattern in right_counts:
+                print pattern + ": {0}".format(right_counts[pattern])
+            print
+            print "Windows to D value: ", alignments_to_windows_to_d[alignment]
+            print
+            print "Final Overall D value {0}".format(l_stat)
+            print "Significant deviation from 0: {0}".format(significant)
 
-    return l_stat, significant, windows_to_l
+    else:
+        for alignment in alignments_to_d:
+            l_stat, significant = alignments_to_d[alignment]
+            print alignment + ": "
+            print
+            print "Windows to D value: ", alignments_to_windows_to_d[alignment]
+            print
+            print "Final Overall D value {0}".format(l_stat)
+            print "Significant deviation from 0: {0}".format(significant)
+
+    return alignments_to_d, alignments_to_windows_to_d
 
 
-def plot_formatting(info_tuple, verbose=False):
+def plot_formatting(alignments_to_d, alignments_to_windows_to_d, verbose=False):
     """
     Reformats and writes the dictionary output to a text file to make plotting it in Excel easy
     Input:
     info_tuple --- a triplet from the calculate_generalized output
     """
 
-    l_stat, significance, windows_to_l = info_tuple
+    for alignment in alignments_to_d:
 
-    num = 0
-    file_name = "GeneralizedDResults{0}.txt".format(num)
-    while os.path.exists(file_name):
-        num += 1
-        file_name ="GeneralizedDResults{0}.txt".format(num)
+        l_stat, significant = alignments_to_d[alignment][0], alignments_to_d[alignment][1]
+        windows_to_l = alignments_to_windows_to_d[alignment]
 
-    with open(file_name, "w") as text_file:
-        output_str = "Overall, {0}, {1} \n".format(l_stat, significance)
-        text_file.write(output_str)
-        for idx in windows_to_l:
-            info = windows_to_l[idx]
-            l_stat = info[0]
-            significant = info[1]
-            output_str = "{0}, {1}, {2} \n".format(idx, l_stat, significant)
+        num = 0
+        file_name = "DGenResults_{0}{1}.txt".format(alignment,num)
+        while os.path.exists(file_name):
+            num += 1
+            file_name = "DGenResults_{0}{1}.txt".format(alignment,num)
 
-            if verbose:
-                chisq = info[2]
-                pval = info[3]
-                output_str = "{0}, {1}, {2}, {3}, {4} \n".format(idx, l_stat, significant, chisq, pval)
-
+        with open(file_name, "w") as text_file:
+            output_str = "Overall, {0}, {1} \n".format(l_stat, significance)
             text_file.write(output_str)
+            for idx in windows_to_l:
+                info = windows_to_l[idx]
+                l_stat = info[0]
+                significant = info[1]
+                output_str = "{0}, {1}, {2} \n".format(idx, l_stat, significant)
+
+                if verbose:
+                    chisq = info[2]
+                    pval = info[3]
+                    output_str = "{0}, {1}, {2}, {3}, {4} \n".format(idx, l_stat, significant, chisq, pval)
+
+                text_file.write(output_str)
 
 
 
