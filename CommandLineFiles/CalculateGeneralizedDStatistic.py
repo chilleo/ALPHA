@@ -1504,20 +1504,9 @@ if __name__ == '__main__':
     # if we're running file directly and not importing it
 
     species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
-    species_tree = '((((P1,P2),(P3,P4)),P5),O);'
+    species_tree = '(((P1,P2),(P3,P4)),P5);'
     alignments = ["C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"]
     stat = calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
-
-    for i in range(10):
-        s = calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
-        if stat != s:
-            print
-            print
-            print "WHAT THE FUCK"
-            print
-            print "Initial: ", stat
-            print "Final:   ", s
-            break
 
 
     # print pattern_string_generator(['A', 'A', 'A', 'A', 'A'])
