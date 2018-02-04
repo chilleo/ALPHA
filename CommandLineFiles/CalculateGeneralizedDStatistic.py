@@ -769,7 +769,7 @@ def generate_statistic_string(patterns_of_interest):
         term = "("
 
         # Combine each term with a "+"
-        for pattern in pattern_set:
+        for pattern in sorted(pattern_set):
             term = term + pattern + " + "
         term = term[:-3] + ")"
         calculation.append(term)
@@ -1180,6 +1180,16 @@ def network_adjust(species_network):
 
     return adjusted_networks
 
+def approximately_equal(x, y, tol=0.00000000001):
+    """
+    Determines if floats x and y are equal within a degree of uncertainty
+    Inputs:
+    x --- a float
+    y --- a float
+    tol --- an error tolerance
+    """
+
+    return abs(x - y) <= tol
 
 def equality_sets(species_trees, network, taxa):
     """
@@ -1221,7 +1231,7 @@ def equality_sets(species_trees, network, taxa):
             for j in range(len(gt_probs)):
 
                 gt2, prob2 = gt_probs[j]
-                if prob1 == prob2 and gt1 != gt2 and gt2 not in seen_trees:
+                if approximately_equal(prob1, prob2)  and gt1 != gt2 and gt2 not in seen_trees:
                     equal_trees.add(gt2)
                     seen.add(gt2)
 
@@ -1393,18 +1403,13 @@ def calculate_generalized(alignments, species_tree, reticulations, window_size, 
     trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
     increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
 
-    if useDir:
-        alignment = concat_directory(directory);
-
-    alignments_to_d = calculate_L(alignments, taxa, (increase, decrease), verbose, alpha)
-    alignments_to_windows_to_d = calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size,
-                                                        window_offset, verbose, alpha)
-    # if verbose:
-    #     l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = calculate_L(alignments, taxa, (increase, decrease), verbose, alpha)
-    # else:
-    #     l_stat, significant = calculate_L(alignment, taxa, (increase, decrease), verbose, alpha)
+    # if useDir:
+    #     alignment = concat_directory(directory);
     #
-    # alignments_to_windows_to_d = calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size, window_offset, verbose, alpha)
+    # alignments_to_d = calculate_L(alignments, taxa, (increase, decrease), verbose, alpha)
+    # alignments_to_windows_to_d = calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size,
+    #                                                     window_offset, verbose, alpha)
+
 
     if verbose:
         print
@@ -1497,6 +1502,23 @@ def plot_formatting(info_tuple, verbose=False):
 if __name__ == '__main__':
     # if we're running file directly and not importing it
 
+    species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
+    species_tree = '((((P1,P2),(P3,P4)),P5),O);'
+    alignments = ["C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"]
+    stat = calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
+
+    for i in range(10):
+        s = calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
+        if stat != s:
+            print
+            print
+            print "WHAT THE FUCK"
+            print
+            print "Initial: ", stat
+            print "Final:   ", s
+            break
+
+
     # print pattern_string_generator(['A', 'A', 'A', 'A', 'A'])
 
     # Inputs for paper
@@ -1534,13 +1556,7 @@ if __name__ == '__main__':
     # concat_directory("/Users/Peter/PycharmProjects/ALPHA/travy_test")
     # print calculate_generalized('/Users/Peter/PycharmProjects/ALPHA/CLFILE', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
 
-    species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
-    species_tree = '(((P1,P2),(P3,P4)),O);'
-    alignments = ["C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"]
-    # alignment = "C:\\Users\\travi\\Desktop\\seqfileNamed"
-    # print calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
-
-    plot_formatting(calculate_generalized(alignments, species_tree, r, 1000, 1000, True))
+    # plot_formatting(calculate_generalized(alignments, species_tree, r, 1000, 1000, True))
     # # lstat, signif, windows_to_l = calculate_generalized(alignment, species_tree, r, 1000, 1000, True, 0.05)
     # # plot_formatting((lstat, signif, windows_to_l))
     # plot_formatting(calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P3', 'P1')], 1000, 1000, False, 0.99), False)
