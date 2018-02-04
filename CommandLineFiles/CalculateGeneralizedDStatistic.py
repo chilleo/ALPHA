@@ -1180,7 +1180,7 @@ def network_adjust(species_network):
 
     return adjusted_networks
 
-def approximately_equal(x, y, tol=0.00000000001):
+def approximately_equal(x, y, tol=0.0000000001):
     """
     Determines if floats x and y are equal within a degree of uncertainty
     Inputs:
@@ -1503,10 +1503,10 @@ def plot_formatting(info_tuple, verbose=False):
 if __name__ == '__main__':
     # if we're running file directly and not importing it
 
-    species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
-    species_tree = '(((P1,P2),(P3,P4)),P5);'
-    alignments = ["C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"]
-    stat = calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
+    # species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
+    # species_tree = '(((P1,P2),(P3,P4)),O);'
+    # alignments = ["C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"]
+    # print calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
 
 
     # print pattern_string_generator(['A', 'A', 'A', 'A', 'A'])
