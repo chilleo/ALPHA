@@ -1231,7 +1231,8 @@ def equality_sets(species_trees, network, taxa):
             for j in range(len(gt_probs)):
 
                 gt2, prob2 = gt_probs[j]
-                if approximately_equal(prob1, prob2)  and gt1 != gt2 and gt2 not in seen_trees:
+                # if approximately_equal(prob1, prob2) and gt1 != gt2 and gt2 not in seen_trees:
+                if prob1 == prob2 and gt1 != gt2 and gt2 not in seen_trees:
                     equal_trees.add(gt2)
                     seen.add(gt2)
 
@@ -1403,12 +1404,12 @@ def calculate_generalized(alignments, species_tree, reticulations, window_size, 
     trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
     increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
 
-    # if useDir:
-    #     alignment = concat_directory(directory);
-    #
-    # alignments_to_d = calculate_L(alignments, taxa, (increase, decrease), verbose, alpha)
-    # alignments_to_windows_to_d = calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size,
-    #                                                     window_offset, verbose, alpha)
+    if useDir:
+        alignment = concat_directory(directory)
+
+    alignments_to_d = calculate_L(alignments, taxa, (increase, decrease), verbose, alpha)
+    alignments_to_windows_to_d = calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size,
+                                                        window_offset, verbose, alpha)
 
 
     if verbose:
