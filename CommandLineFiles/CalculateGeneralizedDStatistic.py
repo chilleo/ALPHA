@@ -1231,8 +1231,7 @@ def equality_sets(species_trees, network, taxa):
             for j in range(len(gt_probs)):
 
                 gt2, prob2 = gt_probs[j]
-                # if approximately_equal(prob1, prob2) and gt1 != gt2 and gt2 not in seen_trees:
-                if prob1 == prob2 and gt1 != gt2 and gt2 not in seen_trees:
+                if approximately_equal(prob1, prob2) and gt1 != gt2 and gt2 not in seen_trees:
                     equal_trees.add(gt2)
                     seen.add(gt2)
 
@@ -1266,7 +1265,7 @@ def equality_sets(species_trees, network, taxa):
                 for j in range(len(gt_probs)):
 
                     gt2, prob2 = gt_probs[j]
-                    if prob1 == prob2 and gt1 != gt2 and gt2 not in seen_trees:
+                    if approximately_equal(prob1, prob2) and gt1 != gt2 and gt2 not in seen_trees:
                         equal_trees.add(gt2)
                         seen.add(gt2)
 
@@ -1503,10 +1502,10 @@ def plot_formatting(info_tuple, verbose=False):
 if __name__ == '__main__':
     # if we're running file directly and not importing it
 
-    # species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
-    # species_tree = '(((P1,P2),(P3,P4)),O);'
-    # alignments = ["C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"]
-    # print calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
+    species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
+    species_tree = '(((P1,P2),(P3,P4)),O);'
+    alignments = ["C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"]
+    print calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
 
 
     # print pattern_string_generator(['A', 'A', 'A', 'A', 'A'])
