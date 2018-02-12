@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PyQt4 import QtCore
 from sys import platform
-from ete3 import Tree
 
 """
 Functions:
@@ -97,10 +96,13 @@ class StatisticsCalculations(QtCore.QThread):
         # Run PhyloNet jar file
         dir_path = os.path.dirname(os.path.realpath(__file__))
         j = os.path.join(dir_path, "Unstable.jar")
+        print species_tree
+        print gene_tree
         p = subprocess.Popen("java -jar {0} {1} {2}".format(j,species_tree, gene_tree), stdout=subprocess.PIPE, shell=True)
 
         # Read output and convert to float
         (p_of_gt_given_st, err) = p.communicate()
+        print p_of_gt_given_st
 
         return p_of_gt_given_st
 

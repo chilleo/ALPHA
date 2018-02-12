@@ -59,7 +59,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>5</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="welcomePage">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -359,8 +359,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>726</width>
-               <height>741</height>
+               <width>730</width>
+               <height>680</height>
               </rect>
              </property>
              <attribute name="label">
@@ -658,16 +658,6 @@
                            <item>
                             <property name="text">
                              <string>GTRCATI</string>
-                            </property>
-                           </item>
-                           <item>
-                            <property name="text">
-                             <string>ASC_GTRCAT</string>
-                            </property>
-                           </item>
-                           <item>
-                            <property name="text">
-                             <string>ASC_GTRGAMMA</string>
                             </property>
                            </item>
                            <item>
@@ -1322,8 +1312,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>726</width>
-               <height>741</height>
+               <width>949</width>
+               <height>467</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -3626,7 +3616,7 @@ Run RAxML -&gt; Advanced</string>
             <item>
              <widget class="QLabel" name="label_48">
               <property name="text">
-               <string>ABBA BABA BABY</string>
+               <string>ABBA BABA</string>
               </property>
              </widget>
             </item>
@@ -3659,7 +3649,7 @@ Run RAxML -&gt; Advanced</string>
      <x>0</x>
      <y>0</y>
      <width>776</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -3729,7 +3719,7 @@ Run RAxML -&gt; Advanced</string>
   </action>
   <action name="actionLStatistic">
    <property name="text">
-    <string>L Statistic</string>
+    <string>(BETA) L Statistic</string>
    </property>
   </action>
  </widget>
