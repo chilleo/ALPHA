@@ -438,7 +438,7 @@ class StatisticsCalculations(QtCore.QThread):
                 i. d_stat --- the D statistic value
                 ii. windows_to_d --- a mapping of window indices to D values
         """
-
+        print "RUNNING"
         # Initialize the site index to 0
         site_idx = 0
 
@@ -585,8 +585,7 @@ class StatisticsCalculations(QtCore.QThread):
         else:
             d_stat = 0
 
-        return d_stat, windows_to_d
-
+        # return d_stat, windows_to_d
         self.emit(QtCore.SIGNAL('D_FINISHED'), d_stat, windows_to_d)
 
 

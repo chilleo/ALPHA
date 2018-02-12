@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui_layout.ui'
 #
-# Created: Sun Feb 11 20:24:25 2018
+# Created: Sun Feb 11 21:45:27 2018
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -181,7 +181,7 @@ class Ui_PhylogeneticVisualization(object):
         self.raxmlToolBox.setObjectName(_fromUtf8("raxmlToolBox"))
         self.raxmlOptionsPage = QtGui.QWidget()
         self.raxmlOptionsPage.setEnabled(True)
-        self.raxmlOptionsPage.setGeometry(QtCore.QRect(0, 0, 730, 680))
+        self.raxmlOptionsPage.setGeometry(QtCore.QRect(0, 0, 579, 418))
         self.raxmlOptionsPage.setObjectName(_fromUtf8("raxmlOptionsPage"))
         self.verticalLayout_21 = QtGui.QVBoxLayout(self.raxmlOptionsPage)
         self.verticalLayout_21.setObjectName(_fromUtf8("verticalLayout_21"))
@@ -1621,7 +1621,7 @@ class Ui_PhylogeneticVisualization(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(PhylogeneticVisualization)
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(0)
         self.raxmlToolBox.setCurrentIndex(0)
         self.raxmlOptionsTabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(PhylogeneticVisualization)
@@ -1634,7 +1634,7 @@ class Ui_PhylogeneticVisualization(object):
         self.modeComboBox.setItemText(1, _translate("PhylogeneticVisualization", "File Converter", None))
         self.modeComboBox.setItemText(2, _translate("PhylogeneticVisualization", "MS Comparison", None))
         self.modeComboBox.setItemText(3, _translate("PhylogeneticVisualization", "D Statistic", None))
-        self.modeComboBox.setItemText(4, _translate("PhylogeneticVisualization", "L Statistic", None))
+        self.modeComboBox.setItemText(4, _translate("PhylogeneticVisualization", "(BETA) L Statistic", None))
         self.launchBtn.setText(_translate("PhylogeneticVisualization", "Launch", None))
         self.label_18.setText(_translate("PhylogeneticVisualization", "RAxML", None))
         self.label_2.setText(_translate("PhylogeneticVisualization", "Select Alignment", None))
