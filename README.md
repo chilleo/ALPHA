@@ -149,6 +149,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         ```
     - If the command returns "Python 2.7.13" skip to step 3. Otherwise proceed.
     - Download and Install [Python 2.7.13](https://www.python.org/downloads/)
+    - NOTE: If the python --version still shows an older version after downloading and installing the new version, fully close and reopen your terminal.
     
 
 3) Install [Homebrew](https://brew.sh/)
