@@ -585,9 +585,10 @@ class StatisticsCalculations(QtCore.QThread):
         else:
             d_stat = 0
 
-        return d_stat, windows_to_d
 
         self.emit(QtCore.SIGNAL('D_FINISHED'), d_stat, windows_to_d)
+
+        return d_stat, windows_to_d
 
 
     def run(self):

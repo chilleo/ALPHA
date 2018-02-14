@@ -19,7 +19,7 @@ from module import msComparison as ms
 from module import plotter as p
 
 # generalized d-statistic
-from CommandLineFiles import CalculateGeneralizedDStatistic as cgd
+# from CommandLineFiles import CalculateGeneralizedDStatistic as cgd
 
 
 class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
@@ -549,7 +549,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
                 if len(self.figuresToBeRegenerated) > 0:
                     self.msg = QtGui.QMessageBox()
                     self.msg.setText("Regenerate Figures?")
-                    self.msg.setInformativeText('Would you like to regenerate previously generated figures or only generate new figures?')
+                    # self.msg.setInformativeText('Would you like to regenerate previously generated figures or only generate new figures?')
+                    self.msg.setInformativeText('You have selected figures which have previously been generated. All selected figures will be generated. Are you sure you want to proceed?')
                     self.msg.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel)
 
                     # set icon
