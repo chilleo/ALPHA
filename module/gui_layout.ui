@@ -59,7 +59,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="welcomePage">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -146,7 +146,7 @@
               </item>
               <item>
                <property name="text">
-                <string>L Statistic</string>
+                <string>(BETA) L Statistic</string>
                </property>
               </item>
              </widget>
@@ -359,8 +359,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>730</width>
-               <height>680</height>
+               <width>726</width>
+               <height>741</height>
               </rect>
              </property>
              <attribute name="label">
@@ -1312,8 +1312,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>949</width>
-               <height>467</height>
+               <width>638</width>
+               <height>405</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -3649,7 +3649,7 @@ Run RAxML -&gt; Advanced</string>
      <x>0</x>
      <y>0</y>
      <width>776</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="styleSheet">
