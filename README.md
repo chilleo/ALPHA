@@ -208,6 +208,124 @@ The command in Step 2 should now return "Python 2.7.13".
 If you receive this error after running the command in Step 7, run this command:
     
         mkdir -p /Users/owner/Library/Python/2.7/lib/python/site-packages echo 'import site; site.addsitedir("/usr/local/lib/python2.7/site-packages")'
+        
+#### Permissions Errors on Homebrew
+If you have trouble installing with Homebrew due to permissions errors, you may need to reset the permissions of your /usr/local stack. Running the following commands in Terminal fixes this issue:
+
+        brew update 
+        brew upgrade
+        brew cleanup
+        brew install node 
+        brew link --overwrite node
+        sudo chown -R $USER:admin /usr/local
+
+### Windows Instructions
+1) Install [Cygwin](https://www.cygwin.com/)
+    - Run the setup installer in the section 'Current Cygwin DLL Version.'
+    - In the 'Choose a Download Site' section of the installer, select the first download site in the list. This is 
+      http://cygwin.mirror.constant.com.
+      
+2) Install [RAxML](https://github.com/stamatak/standard-RAxML)
+    - Download the [RAxML](https://github.com/stamatak/standard-RAxML) source code in a zip folder. 
+    - Unzip the directory 
+    - Open a Command Prompt window and 'cd' into the directory
+    - In terminal run:
+    
+        ```
+        make -f Makefile.gcc
+        rm *.o
+        make -f Makefile.SSE3.gcc
+        rm *.o
+        make -f Makefile.PTHREADS.gcc
+        rm *.o
+        make -f Makefile.PTHREADS.gcc
+        ```
+    - Check that RAxML runs with the following command:
+        
+        ```
+        ./raxmlHPC -v
+        ```
+        
+    - 'cd' out of standard-RaxML-master and run:
+        
+        ```
+        cp raxmlHPC* /usr/local/bin/
+        raxmlHPC -v
+        ```
+    - If the last command shows the version, proceed. Otherwise, check the Common Errors section below. 
+    
+3) Install [Python 2.7.13](https://www.python.org/downloads/)
+    - In terminal run::
+    
+        ```
+        python --version
+        ```
+    - If the command returns "Python 2.7.13" skip to step 3. Otherwise proceed.
+    - Download and Install [Python 2.7.13](https://www.python.org/downloads/)
+    
+
+4) Install [SIP](https://www.riverbankcomputing.com/software/sip/download)
+    - Download the SIP source package. 
+    - Unzip the directory. 
+    - Open a Command Prompt window and 'cd' into the directory
+    - In terminal run:
+    
+        ```
+        python configure.py
+        python configure.py --platform win32-g++
+        make install
+        ```
+
+5) Install [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download)
+    - Download the PyQt4 source package. 
+    - Unzip the directory. 
+    - Open a Command Prompt window and 'cd' into the directory
+    - In terminal run:
+    
+        ```
+        python configure.py
+        make install
+        ```
+
+6) Install [PIP](https://pip.pypa.io/en/stable/installing/):
+    - Download the get-pip.py file.
+    - Open a Command Prompt window and 'cd' into the directory containing the file. 
+    - In terminal run:  
+       
+        ```
+        python get-pip.py
+        ```
+
+7) Install remaining dependencies with PIP:
+    - In terminal run:
+    
+        ```
+        pip install matplotlib pillow scipy natsort reportlab svgutils ete3 dendropy biopython
+        ```
+
+8) Install ALPHA:
+    - Download the source code of this repo as a zip
+    - Unzip the directory
+    - 'cd' into the directory
+    - To open ALPHA, run the following command in terminal:
+    
+        ```
+        python main.py
+        ```
+
+### Common Installation Errors
+
+#### Cygwin Errors
+* working on make errors and other possible errors*
+
+#### Python 2.7.13 Installation
+If the command in Step 2 does not return "Python 2.7.13" after you have installed it, run:
+    
+        
+        export PATH="/path/to/your/python2.7.13/bin:${PATH}"
+        
+        
+The command in Step 2 should now return "Python 2.7.13".
 
 ## How To Use
 After installing and opening ALPHA, you can use the drop down menu on the main page to select the mode you'd like to use. 
