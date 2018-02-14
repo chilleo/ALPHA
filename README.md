@@ -14,6 +14,7 @@
    - [File Converter Mode](#file-converter-mode)
    - [MS Comparison Mode](#ms-comparison-mode)
    - [D Statistic Mode](#d-statistic-mode)
+- [Frequently Asked Questions](##frequently-asked-questions)   
 - [Contributors](#contributors)
 - [References](#references)
 
@@ -442,6 +443,14 @@ Using the provided four taxa tree, select your desired topology. Click the Run b
 <img src="https://user-images.githubusercontent.com/25121486/30996748-a3291af8-a488-11e7-8389-4fd4515b64f4.png" alt="D-Statistic" width="400">
 
 For more information on the D Statistic and what it outputs, see the [D Statistic](#d-statistic) section above.
+
+## Frequently Asked Questions
+
+Q: Any click in a text box in the main window of the software leads to the following comment in the terminal:
+*****2018-01-04 10:53:15.808 Python[89398:f07] unlockFocus called too many time.***** 
+Is this an error?
+
+A: No. This is currently a known issue with the PyQt GUI software. It is a harmless message without any effect on ALPHA and can safely be ignored.
 
 ## Contributors
 - [Chabrielle Allen](https://github.com/chaballen)
