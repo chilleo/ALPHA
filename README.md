@@ -14,7 +14,7 @@
    - [File Converter Mode](#file-converter-mode)
    - [MS Comparison Mode](#ms-comparison-mode)
    - [D Statistic Mode](#d-statistic-mode)
-- [Frequently Asked Questions](##frequently-asked-questions)   
+- [FAQ](#frequently-asked-questions)   
 - [Contributors](#contributors)
 - [References](#references)
 
