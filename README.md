@@ -7,11 +7,13 @@
       - [MS Comparison](#ms-comparison)
       - [D Statistic](#d-statistic)
     - [Output Files](#output-files)
-- [Installation](#installation)
+- [MAC Installation](#installation)
+   - [Common Installation Errors](#common-installation-errors)
+- [Windows Installation](#installation)
    - [Common Installation Errors](#common-installation-errors)
 - [How To Use](#how-to-use)
    - [RAxML Mode](#raxml-mode)
-   - [File Converter Mode](#file-converter-mode)
+   - [File Converter](#file-converter-mode)
    - [MS Comparison Mode](#ms-comparison-mode)
    - [D Statistic Mode](#d-statistic-mode)
 - [FAQ](#frequently-asked-questions)   
@@ -228,7 +230,13 @@ If you have trouble installing with Homebrew due to permissions errors, you may 
     - In the 'Choose a Download Site' section of the installer, select the first download site in the list. This is 
       http://cygwin.mirror.constant.com.
       
-2) Install [RAxML](https://github.com/stamatak/standard-RAxML)
+2) Install [MinGW](http://www.mingw.org/wiki/Getting_Started)
+    - Run the setup installer in the section 'Graphical User Interface Installer.'
+    - In the MinGW Installation Manager that opens after installation, select the 'mingw32-base' and 'msys-base' packages and click 
+      'Mark for Installation.' 
+    - Select the 'Installation' tab and click 'Apply Changes.'
+      
+3) Install [RAxML](https://github.com/stamatak/standard-RAxML)
     - Download the [RAxML](https://github.com/stamatak/standard-RAxML) source code in a zip folder. 
     - Unzip the directory 
     - Open a Command Prompt window and 'cd' into the directory
@@ -257,7 +265,7 @@ If you have trouble installing with Homebrew due to permissions errors, you may 
         ```
     - If the last command shows the version, proceed. Otherwise, check the Common Errors section below. 
     
-3) Install [Python 2.7.13](https://www.python.org/downloads/)
+4) Install [Python 2.7.13](https://www.python.org/downloads/)
     - In terminal run::
     
         ```
@@ -267,7 +275,7 @@ If you have trouble installing with Homebrew due to permissions errors, you may 
     - Download and Install [Python 2.7.13](https://www.python.org/downloads/)
     
 
-4) Install [SIP](https://www.riverbankcomputing.com/software/sip/download)
+5) Install [SIP](https://www.riverbankcomputing.com/software/sip/download)
     - Download the SIP source package. 
     - Unzip the directory. 
     - Open a Command Prompt window and 'cd' into the directory
@@ -279,7 +287,7 @@ If you have trouble installing with Homebrew due to permissions errors, you may 
         make install
         ```
 
-5) Install [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download)
+6) Install [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download)
     - Download the PyQt4 source package. 
     - Unzip the directory. 
     - Open a Command Prompt window and 'cd' into the directory
@@ -290,7 +298,7 @@ If you have trouble installing with Homebrew due to permissions errors, you may 
         make install
         ```
 
-6) Install [PIP](https://pip.pypa.io/en/stable/installing/):
+7) Install [PIP](https://pip.pypa.io/en/stable/installing/):
     - Download the get-pip.py file.
     - Open a Command Prompt window and 'cd' into the directory containing the file. 
     - In terminal run:  
@@ -299,14 +307,14 @@ If you have trouble installing with Homebrew due to permissions errors, you may 
         python get-pip.py
         ```
 
-7) Install remaining dependencies with PIP:
+8) Install remaining dependencies with PIP:
     - In terminal run:
     
         ```
         pip install matplotlib pillow scipy natsort reportlab svgutils ete3 dendropy biopython
         ```
 
-8) Install ALPHA:
+9) Install ALPHA:
     - Download the source code of this repo as a zip
     - Unzip the directory
     - 'cd' into the directory
@@ -318,17 +326,24 @@ If you have trouble installing with Homebrew due to permissions errors, you may 
 
 ### Common Installation Errors
 
-#### Cygwin Errors
-* working on make errors and other possible errors*
+#### Make Errors
+If the make commands in step 3 do not work and MinGW is installed, run:
+        
+        
+        export PATH="/path/to/your/MinGW/bin:${PATH}"
+        export PATH="/path/to/your/MinGW/msys/1.0/bin:${PATH}"
+
+
+The commands in Step 3 should now run.
 
 #### Python 2.7.13 Installation
-If the command in Step 2 does not return "Python 2.7.13" after you have installed it, run:
+If the command in Step 4 does not return "Python 2.7.13" after you have installed it, run:
     
         
         export PATH="/path/to/your/python2.7.13/bin:${PATH}"
         
         
-The command in Step 2 should now return "Python 2.7.13".
+The command in Step 4 should now return "Python 2.7.13".
 
 ## How To Use
 After installing and opening ALPHA, you can use the drop down menu on the main page to select the mode you'd like to use. 
