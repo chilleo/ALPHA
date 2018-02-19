@@ -5,18 +5,19 @@
       - [RAxML](#raxml)
       - [File Converter](#file-converter)
       - [MS Comparison](#ms-comparison)
-      - [D Statistic](#d-statistic)
+      - [D-statistic](#d-statistic)
     - [Output Files](#output-files)
 - [Installation](#installation)
    - [Mac Installation](#mac-instructions)
-   - [Common Installation Errors](#common-installation-errors)
    - [Windows Installation](#windows-instructions)
    - [Common Installation Errors](#common-installation-errors)
+      - [Mac](#mac)
+      - [Windows](#windows)
 - [How To Use](#how-to-use)
    - [RAxML Mode](#raxml-mode)
    - [File Converter](#file-converter-mode)
    - [MS Comparison Mode](#ms-comparison-mode)
-   - [D Statistic Mode](#d-statistic-mode)
+   - [D-statistic Mode](#d-statistic-mode)
 - [FAQ](#frequently-asked-questions)   
 - [Contributors](#contributors)
 - [References](#references)
@@ -117,8 +118,8 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
 ### Mac Instructions
 1) Install [RAxML](https://github.com/stamatak/standard-RAxML)
     - Download the [RAxML](https://github.com/stamatak/standard-RAxML) source code in a zip folder. 
-    - Unzip the directory 
-    - Open a terminal window and 'cd' into the directory
+    - Unzip the directory. 
+    - Open a terminal window and 'cd' into the RAxML directory.
     - In terminal run:
     
         ```
@@ -126,23 +127,13 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         rm *.o
         make -f Makefile.SSE3.gcc
         rm *.o
-        make -f Makefile.PTHREADS.gcc
-        rm *.o
-        make -f Makefile.PTHREADS.gcc
-        ```
-    - Check that RAxML runs with the following command:
-        
-        ```
         ./raxmlHPC -v
-        ```
-        
-    - 'cd' out of standard-RaxML-master and run:
-        
-        ```
         cp raxmlHPC* /usr/local/bin/
+        cd ..
         raxmlHPC -v
         ```
-    - If the last command shows the version, proceed. Otherwise, check the Common Errors section below. 
+        
+    - If the fifth and last commands show the version, proceed. Otherwise, check the Common Installation Errors section below. 
     
 2) Install [Python 2.7.13](https://www.python.org/downloads/)
     - In terminal run::
@@ -151,7 +142,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         python --version
         ```
     - If the command returns "Python 2.7.13" skip to step 3. Otherwise proceed.
-    - Download and Install [Python 2.7.13](https://www.python.org/downloads/)
+    - Download and Install [Python 2.7.13](https://www.python.org/downloads/).
     - If the python --version still shows an older version after downloading and installing the new version, fully close and reopen your terminal. See Common Installation Errors if problems persist.
     
 
@@ -186,44 +177,15 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         ```
 
 7) Install ALPHA:
-    - Download the source code of this repo as a zip
-    - Unzip the directory
-    - 'cd' into the directory
+    - Download the source code of this repo as a zip.
+    - Unzip the directory.
+    - 'cd' into the directory.
     - To open ALPHA, run the following command in terminal:
     
         ```
         python main.py
         ```
-    - See below for fixes to many common installation problems
-
-### Common Installation Errors
-
-#### Installing Xcode 
-If prompted, install the latest verson of [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12).
-
-#### Python 2.7.13 Installation
-If the command in Step 2 does not return "Python 2.7.13" after you have installed it, run:
-    
-        
-        export PATH="/path/to/your/python2.7.13/bin:${PATH}"
-        
-        
-The command in Step 2 should now return "Python 2.7.13".
-
-#### No module named SIP
-If you receive this error after running the command in Step 7, run this command:
-    
-        mkdir -p /Users/owner/Library/Python/2.7/lib/python/site-packages echo 'import site; site.addsitedir("/usr/local/lib/python2.7/site-packages")'
-        
-#### Permissions Errors on Homebrew
-If you have trouble installing with Homebrew due to permissions errors, you may need to reset the permissions of your /usr/local stack. Running the following commands in Terminal fixes this issue:
-
-        brew update 
-        brew upgrade
-        brew cleanup
-        brew install node 
-        brew link --overwrite node
-        sudo chown -R $USER:admin /usr/local
+    - See Common Installation Errors for fixes to any issues.
 
 ### Windows Instructions
 1) Install [Cygwin](https://www.cygwin.com/)
@@ -231,7 +193,7 @@ If you have trouble installing with Homebrew due to permissions errors, you may 
     - In the 'Choose a Download Site' section of the installer, select the first download site in the list. This is 
       http://cygwin.mirror.constant.com.
       
-2) Install [MinGW](http://www.mingw.org/wiki/Getting_Started)
+2) Install [MinGW](http://www.mingw.org/wiki/Getting_Started).
     - Run the setup installer in the section 'Graphical User Interface Installer.'
     - In the MinGW Installation Manager that opens after installation, select the 'mingw32-base' and 'msys-base' packages and click 
       'Mark for Installation.' 
@@ -239,32 +201,22 @@ If you have trouble installing with Homebrew due to permissions errors, you may 
       
 3) Install [RAxML](https://github.com/stamatak/standard-RAxML)
     - Download the [RAxML](https://github.com/stamatak/standard-RAxML) source code in a zip folder. 
-    - Unzip the directory 
-    - Open a Command Prompt window and 'cd' into the directory
-    - In terminal run:
+    - Unzip the directory. 
+    - Open Cygwin and 'cd' into the directory.
+    - In the Cygwin terminal run:
     
         ```
         make -f Makefile.gcc
         rm *.o
         make -f Makefile.SSE3.gcc
         rm *.o
-        make -f Makefile.PTHREADS.gcc
-        rm *.o
-        make -f Makefile.PTHREADS.gcc
-        ```
-    - Check that RAxML runs with the following command:
-        
-        ```
         ./raxmlHPC -v
-        ```
-        
-    - 'cd' out of standard-RaxML-master and run:
-        
-        ```
         cp raxmlHPC* /usr/local/bin/
+        cd ..
         raxmlHPC -v
         ```
-    - If the last command shows the version, proceed. Otherwise, check the Common Errors section below. 
+        
+    - If the fifth and last command shows the version, proceed. Otherwise, check the Common Installation Errors section below. 
     
 4) Install [Python 2.7.13](https://www.python.org/downloads/)
     - In terminal run::
@@ -272,6 +224,7 @@ If you have trouble installing with Homebrew due to permissions errors, you may 
         ```
         python --version
         ```
+        
     - If the command returns "Python 2.7.13" skip to step 3. Otherwise proceed.
     - Download and Install [Python 2.7.13](https://www.python.org/downloads/)
     
@@ -279,7 +232,7 @@ If you have trouble installing with Homebrew due to permissions errors, you may 
 5) Install [SIP](https://www.riverbankcomputing.com/software/sip/download)
     - Download the SIP source package. 
     - Unzip the directory. 
-    - Open a Command Prompt window and 'cd' into the directory
+    - Open a Command Prompt window and 'cd' into the directory.
     - In terminal run:
     
         ```
@@ -291,7 +244,7 @@ If you have trouble installing with Homebrew due to permissions errors, you may 
 6) Install [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download)
     - Download the PyQt4 source package. 
     - Unzip the directory. 
-    - Open a Command Prompt window and 'cd' into the directory
+    - Open a Command Prompt window and 'cd' into the directory.
     - In terminal run:
     
         ```
@@ -316,19 +269,38 @@ If you have trouble installing with Homebrew due to permissions errors, you may 
         ```
 
 9) Install ALPHA:
-    - Download the source code of this repo as a zip
-    - Unzip the directory
-    - 'cd' into the directory
+    - Download the source code of this repo as a zip.
+    - Unzip the directory.
+    - 'cd' into the directory.
     - To open ALPHA, run the following command in terminal:
     
         ```
         python main.py
         ```
+        
+    - See Common Installation Errors for fixes to any issues.
 
 ### Common Installation Errors
 
-#### Make Errors
-If the make commands in step 3 do not work and MinGW is installed, run:
+##### Installing Xcode on Mac
+If prompted, install the latest verson of [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12).
+
+##### Installing RAxML on Mac
+If you get an error with the last command when installing RAxML, run the following in place of the original 'cp' command: 
+
+
+        sudo cp raxmlHPC* /usr/local/bin/
+
+
+##### Permissions Errors on Homebrew for Mac
+If you have trouble installing Homebrew due to permissions errors, running the following command in Terminal in place of the original command fixes this issue:
+
+
+        sudo /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+
+##### Make Errors on Windows
+If the 'make' commands in step 3 do not work and MinGW is installed, run:
         
         
         export PATH="/path/to/your/MinGW/bin:${PATH}"
@@ -337,14 +309,21 @@ If the make commands in step 3 do not work and MinGW is installed, run:
 
 The commands in Step 3 should now run.
 
-#### Python 2.7.13 Installation
-If the command in Step 4 does not return "Python 2.7.13" after you have installed it, run:
+##### Python 2.7.13 Installation
+If the command in Step 2 does not return "Python 2.7.13" after you have installed it, run:
     
         
         export PATH="/path/to/your/python2.7.13/bin:${PATH}"
         
         
-The command in Step 4 should now return "Python 2.7.13".
+The command in Step 2 should now return "Python 2.7.13".
+
+##### No module named SIP
+If you receive this error after running the command in Step 7, run this command:
+    
+    
+        -- finding real solution
+
 
 ## How To Use
 After installing and opening ALPHA, you can use the drop down menu on the main page to select the mode you'd like to use. 
