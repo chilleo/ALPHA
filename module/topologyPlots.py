@@ -15,6 +15,7 @@ from dendropy.calculate import treecompare
 from dendropy import Tree
 import dendropy
 from PyQt4 import QtCore
+from matplotlib.pyplot import gca
 
 
 """
@@ -394,6 +395,8 @@ class TopologyPlotter(QtCore.QThread):
         # labels axes
         plt.xlabel('Windows', fontsize=10)
         plt.ylabel('Top Newick Strings', fontsize=10)
+
+        plt.yticks()
 
         # save plot
         plot = "plots/topologyScatter.png"

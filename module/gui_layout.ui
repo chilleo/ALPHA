@@ -359,8 +359,13 @@
               <rect>
                <x>0</x>
                <y>0</y>
+<<<<<<< HEAD
                <width>579</width>
                <height>418</height>
+=======
+               <width>726</width>
+               <height>741</height>
+>>>>>>> af6637625f9661d47692f6da26e2a467af147bc8
               </rect>
              </property>
              <attribute name="label">
@@ -1312,8 +1317,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>949</width>
-               <height>467</height>
+               <width>638</width>
+               <height>405</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -3649,7 +3654,7 @@ Run RAxML -&gt; Advanced</string>
      <x>0</x>
      <y>0</y>
      <width>776</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="styleSheet">

@@ -2,8 +2,12 @@
 
 # Form implementation generated from reading ui file 'gui_layout.ui'
 #
+<<<<<<< HEAD
 # Created: Sun Feb 11 21:45:27 2018
 #      by: PyQt4 UI code generator 4.10
+=======
+# Created by: PyQt4 UI code generator 4.12
+>>>>>>> af6637625f9661d47692f6da26e2a467af147bc8
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -60,6 +64,7 @@ class Ui_PhylogeneticVisualization(object):
         self.welcomePage = QtGui.QWidget()
         self.welcomePage.setObjectName(_fromUtf8("welcomePage"))
         self.horizontalLayout_4 = QtGui.QHBoxLayout(self.welcomePage)
+        self.horizontalLayout_4.setMargin(0)
         self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem)
@@ -116,6 +121,7 @@ class Ui_PhylogeneticVisualization(object):
         self.inputPage.setBaseSize(QtCore.QSize(0, 0))
         self.inputPage.setObjectName(_fromUtf8("inputPage"))
         self.verticalLayout = QtGui.QVBoxLayout(self.inputPage)
+        self.verticalLayout.setMargin(0)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.label_18 = QtGui.QLabel(self.inputPage)
         font = QtGui.QFont()
@@ -181,9 +187,14 @@ class Ui_PhylogeneticVisualization(object):
         self.raxmlToolBox.setObjectName(_fromUtf8("raxmlToolBox"))
         self.raxmlOptionsPage = QtGui.QWidget()
         self.raxmlOptionsPage.setEnabled(True)
+<<<<<<< HEAD
         self.raxmlOptionsPage.setGeometry(QtCore.QRect(0, 0, 579, 418))
+=======
+        self.raxmlOptionsPage.setGeometry(QtCore.QRect(0, 0, 726, 741))
+>>>>>>> af6637625f9661d47692f6da26e2a467af147bc8
         self.raxmlOptionsPage.setObjectName(_fromUtf8("raxmlOptionsPage"))
         self.verticalLayout_21 = QtGui.QVBoxLayout(self.raxmlOptionsPage)
+        self.verticalLayout_21.setMargin(0)
         self.verticalLayout_21.setObjectName(_fromUtf8("verticalLayout_21"))
         self.widget = QtGui.QWidget(self.raxmlOptionsPage)
         self.widget.setMinimumSize(QtCore.QSize(0, 0))
@@ -211,6 +222,7 @@ class Ui_PhylogeneticVisualization(object):
         self.raxmlStandardOptionsTab = QtGui.QWidget()
         self.raxmlStandardOptionsTab.setObjectName(_fromUtf8("raxmlStandardOptionsTab"))
         self.horizontalLayout = QtGui.QHBoxLayout(self.raxmlStandardOptionsTab)
+        self.horizontalLayout.setMargin(0)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.verticalLayout_2 = QtGui.QVBoxLayout()
         self.verticalLayout_2.setSpacing(1)
@@ -224,7 +236,6 @@ class Ui_PhylogeneticVisualization(object):
         font.setBold(True)
         font.setWeight(75)
         self.windowOptionsLabel.setFont(font)
-        self.windowOptionsLabel.setMargin(0)
         self.windowOptionsLabel.setIndent(-1)
         self.windowOptionsLabel.setObjectName(_fromUtf8("windowOptionsLabel"))
         self.horizontalLayout_10.addWidget(self.windowOptionsLabel)
@@ -369,8 +380,8 @@ class Ui_PhylogeneticVisualization(object):
         self.horizontalLayout_12.addItem(spacerItem11)
         self.verticalLayout_25.addLayout(self.horizontalLayout_12)
         self.horizontalLayout_7 = QtGui.QHBoxLayout()
-        self.horizontalLayout_7.setSpacing(7)
         self.horizontalLayout_7.setContentsMargins(0, 5, 0, 5)
+        self.horizontalLayout_7.setSpacing(7)
         self.horizontalLayout_7.setObjectName(_fromUtf8("horizontalLayout_7"))
         self.checkboxRooted = QtGui.QCheckBox(self.raxmlStandardOptionsTab)
         font = QtGui.QFont()
@@ -413,6 +424,7 @@ class Ui_PhylogeneticVisualization(object):
         self.raxmlAdvancedOptionsTab = QtGui.QWidget()
         self.raxmlAdvancedOptionsTab.setObjectName(_fromUtf8("raxmlAdvancedOptionsTab"))
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.raxmlAdvancedOptionsTab)
+        self.verticalLayout_3.setMargin(0)
         self.verticalLayout_3.setSpacing(1)
         self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
         self.horizontalLayout_9 = QtGui.QHBoxLayout()
@@ -498,6 +510,8 @@ class Ui_PhylogeneticVisualization(object):
         self.speciesTreeComboBox = QtGui.QComboBox(self.speciesTreeOutGroupGroupBox)
         self.speciesTreeComboBox.setObjectName(_fromUtf8("speciesTreeComboBox"))
         self.horizontalLayout_31.addWidget(self.speciesTreeComboBox)
+        self.speciesTreeComboBox.raise_()
+        self.label_13.raise_()
         self.horizontalLayout_29.addWidget(self.speciesTreeOutGroupGroupBox)
         self.verticalLayout_3.addLayout(self.horizontalLayout_29)
         self.runRaxmlHL_2 = QtGui.QHBoxLayout()
@@ -535,10 +549,11 @@ class Ui_PhylogeneticVisualization(object):
         self.verticalLayout_17.addLayout(self.runRaxmlHL)
         spacerItem20 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_17.addItem(spacerItem20)
+        self.raxmlOptionsTabWidget.raise_()
         self.verticalLayout_21.addWidget(self.widget)
         self.raxmlToolBox.addItem(self.raxmlOptionsPage, _fromUtf8(""))
         self.graphOptionsPage = QtGui.QWidget()
-        self.graphOptionsPage.setGeometry(QtCore.QRect(0, 0, 949, 467))
+        self.graphOptionsPage.setGeometry(QtCore.QRect(0, 0, 638, 405))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -546,6 +561,7 @@ class Ui_PhylogeneticVisualization(object):
         self.graphOptionsPage.setSizePolicy(sizePolicy)
         self.graphOptionsPage.setObjectName(_fromUtf8("graphOptionsPage"))
         self.verticalLayout_9 = QtGui.QVBoxLayout(self.graphOptionsPage)
+        self.verticalLayout_9.setMargin(0)
         self.verticalLayout_9.setObjectName(_fromUtf8("verticalLayout_9"))
         self.generateFiguresWrapper = QtGui.QWidget(self.graphOptionsPage)
         self.generateFiguresWrapper.setEnabled(False)
@@ -565,8 +581,8 @@ class Ui_PhylogeneticVisualization(object):
         self.generateFiguresWrapper.setWhatsThis(_fromUtf8(""))
         self.generateFiguresWrapper.setObjectName(_fromUtf8("generateFiguresWrapper"))
         self.verticalLayout_12 = QtGui.QVBoxLayout(self.generateFiguresWrapper)
-        self.verticalLayout_12.setSpacing(7)
         self.verticalLayout_12.setMargin(0)
+        self.verticalLayout_12.setSpacing(7)
         self.verticalLayout_12.setObjectName(_fromUtf8("verticalLayout_12"))
         self.graphOptionsGroupBox = QtGui.QGroupBox(self.generateFiguresWrapper)
         font = QtGui.QFont()
@@ -707,7 +723,6 @@ class Ui_PhylogeneticVisualization(object):
         font.setItalic(True)
         self.numberOfUniqueTopologiesLabel.setFont(font)
         self.numberOfUniqueTopologiesLabel.setScaledContents(False)
-        self.numberOfUniqueTopologiesLabel.setMargin(-1)
         self.numberOfUniqueTopologiesLabel.setIndent(-1)
         self.numberOfUniqueTopologiesLabel.setObjectName(_fromUtf8("numberOfUniqueTopologiesLabel"))
         self.horizontalLayout_45.addWidget(self.numberOfUniqueTopologiesLabel)
@@ -792,6 +807,7 @@ class Ui_PhylogeneticVisualization(object):
         self.fileConverterPage = QtGui.QWidget()
         self.fileConverterPage.setObjectName(_fromUtf8("fileConverterPage"))
         self.verticalLayout_16 = QtGui.QVBoxLayout(self.fileConverterPage)
+        self.verticalLayout_16.setMargin(0)
         self.verticalLayout_16.setObjectName(_fromUtf8("verticalLayout_16"))
         self.label_9 = QtGui.QLabel(self.fileConverterPage)
         font = QtGui.QFont()
@@ -866,7 +882,6 @@ class Ui_PhylogeneticVisualization(object):
         self.line_6 = QtGui.QFrame(self.fileConverterPage)
         self.line_6.setFrameShadow(QtGui.QFrame.Raised)
         self.line_6.setFrameShape(QtGui.QFrame.HLine)
-        self.line_6.setFrameShadow(QtGui.QFrame.Sunken)
         self.line_6.setObjectName(_fromUtf8("line_6"))
         self.verticalLayout_16.addWidget(self.line_6)
         self.label_17 = QtGui.QLabel(self.fileConverterPage)
@@ -964,6 +979,7 @@ class Ui_PhylogeneticVisualization(object):
         self.msComparisonPage = QtGui.QWidget()
         self.msComparisonPage.setObjectName(_fromUtf8("msComparisonPage"))
         self.verticalLayout_5 = QtGui.QVBoxLayout(self.msComparisonPage)
+        self.verticalLayout_5.setMargin(0)
         self.verticalLayout_5.setObjectName(_fromUtf8("verticalLayout_5"))
         self.label_12 = QtGui.QLabel(self.msComparisonPage)
         font = QtGui.QFont()
@@ -1007,6 +1023,7 @@ class Ui_PhylogeneticVisualization(object):
         self.stackedWidget_3Page1 = QtGui.QWidget()
         self.stackedWidget_3Page1.setObjectName(_fromUtf8("stackedWidget_3Page1"))
         self.verticalLayout_7 = QtGui.QVBoxLayout(self.stackedWidget_3Page1)
+        self.verticalLayout_7.setMargin(0)
         self.verticalLayout_7.setObjectName(_fromUtf8("verticalLayout_7"))
         self.horizontalLayout_38 = QtGui.QHBoxLayout()
         self.horizontalLayout_38.setObjectName(_fromUtf8("horizontalLayout_38"))
@@ -1060,7 +1077,6 @@ class Ui_PhylogeneticVisualization(object):
         font.setBold(True)
         font.setWeight(75)
         self.windowLabel.setFont(font)
-        self.windowLabel.setMargin(0)
         self.windowLabel.setIndent(-1)
         self.windowLabel.setObjectName(_fromUtf8("windowLabel"))
         self.horizontalLayout_40.addWidget(self.windowLabel)
@@ -1225,6 +1241,7 @@ class Ui_PhylogeneticVisualization(object):
         self.dStatisticPage.setEnabled(True)
         self.dStatisticPage.setObjectName(_fromUtf8("dStatisticPage"))
         self.verticalLayout_14 = QtGui.QVBoxLayout(self.dStatisticPage)
+        self.verticalLayout_14.setMargin(0)
         self.verticalLayout_14.setObjectName(_fromUtf8("verticalLayout_14"))
         self.label_16 = QtGui.QLabel(self.dStatisticPage)
         font = QtGui.QFont()
@@ -1397,6 +1414,7 @@ class Ui_PhylogeneticVisualization(object):
         self.lStatisticPage = QtGui.QWidget()
         self.lStatisticPage.setObjectName(_fromUtf8("lStatisticPage"))
         self.verticalLayout_20 = QtGui.QVBoxLayout(self.lStatisticPage)
+        self.verticalLayout_20.setMargin(0)
         self.verticalLayout_20.setObjectName(_fromUtf8("verticalLayout_20"))
         self.label_38 = QtGui.QLabel(self.lStatisticPage)
         font = QtGui.QFont()
@@ -1585,7 +1603,7 @@ class Ui_PhylogeneticVisualization(object):
         self.gridLayout.addLayout(self.inputMainHorizontalLayout, 0, 0, 1, 1)
         PhylogeneticVisualization.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(PhylogeneticVisualization)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 776, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 776, 22))
         self.menubar.setStyleSheet(_fromUtf8(""))
         self.menubar.setNativeMenuBar(True)
         self.menubar.setObjectName(_fromUtf8("menubar"))
@@ -1788,4 +1806,14 @@ class Ui_PhylogeneticVisualization(object):
         self.actionDStatistic.setText(_translate("PhylogeneticVisualization", "D Statistic", None))
         self.actionDocumentation.setText(_translate("PhylogeneticVisualization", "Documentation", None))
         self.actionLStatistic.setText(_translate("PhylogeneticVisualization", "(BETA) L Statistic", None))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    PhylogeneticVisualization = QtGui.QMainWindow()
+    ui = Ui_PhylogeneticVisualization()
+    ui.setupUi(PhylogeneticVisualization)
+    PhylogeneticVisualization.show()
+    sys.exit(app.exec_())
 
