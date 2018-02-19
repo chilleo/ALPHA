@@ -20,6 +20,8 @@ Travis Benedict
 Peter Dulworth
 """
 
+GLOBAL_SET = set(['BABAAA', 'ABABAA', 'BABBBA', 'ABAAAA', 'ABAABA', 'AABBAA', 'AAABAA', 'BBBBAA', 'ABABBA', 'BBBABA', 'BABABA', 'BBAABA', 'BABBAA', 'AAAABA'])
+
 
 def generate_network_tree(inheritance, species_tree, reticulations):
     """
@@ -303,7 +305,7 @@ def determine_interesting_trees(trees_to_pgS, trees_to_pgN):
 
         for tree2 in trees_to_pgS:
 
-            if trees_to_pgS[tree1] == trees_to_pgS[tree2]:
+            if approximately_equal(trees_to_pgS[tree1], trees_to_pgS[tree2]):
                 equal_trees.add(tree2)
 
         if len(equal_trees) > 1:
@@ -721,6 +723,9 @@ def determine_patterns(pattern_set, patterns_to_equality, patterns_to_pgN):
     terms2 --- a set of other patterns to count and add to each other to determine introgression
     """
 
+    print patterns_to_equality
+
+
     terms1 = set([])
     terms2 = set([])
 
@@ -734,13 +739,16 @@ def determine_patterns(pattern_set, patterns_to_equality, patterns_to_pgN):
 
                 pat2_prob = patterns_to_pgN[pattern2]
 
-                if pat1_prob > pat2_prob:
-                    terms1.add(pattern1)
-                    terms2.add(pattern2)
+                # Issues with randomness when values are close but not technically equal
+                if not approximately_equal(pat1_prob, pat2_prob):
 
-                elif pat1_prob < pat2_prob:
-                    terms1.add(pattern2)
-                    terms2.add(pattern1)
+                    if pat1_prob > pat2_prob:
+                        terms1.add(pattern1)
+                        terms2.add(pattern2)
+
+                    elif pat1_prob < pat2_prob:
+                        terms1.add(pattern2)
+                        terms2.add(pattern1)
 
     inverted1 = pattern_inverter(terms1)
     for pattern in inverted1:
@@ -1191,7 +1199,7 @@ def approximately_equal(x, y, tol=0.0000000001):
 
 def equality_sets(species_trees, network, taxa):
     """
-    Create strings which represent the total ordering of p(gt|st)
+    Create mappings of site patterns to patterns with equivalent probabilities
     Input:
     species_tree --- a newick string containing the overall species tree without branch lengths
     Output:
@@ -1214,11 +1222,12 @@ def equality_sets(species_trees, network, taxa):
         st_to_pattern_probs[st] = sorted(patterns_pgS.items(), key=lambda tup: tup[1], reverse=True)
         st_to_pattern_probs_N[st] = sorted(patterns_pgN.items(), key=lambda tup: tup[1], reverse=True)
 
+    seen_trees = set([])
+
     # Generate equality sets based on p(gt|st)
     for st in sorted(st_to_pattern_probs.keys()):
 
         gt_probs = st_to_pattern_probs[st]
-        seen_trees = set([])
 
         for i in range(len(gt_probs)):
 
@@ -1229,58 +1238,41 @@ def equality_sets(species_trees, network, taxa):
             for j in range(len(gt_probs)):
 
                 gt2, prob2 = gt_probs[j]
-                if approximately_equal(prob1, prob2) and gt1 != gt2 and gt2 not in seen_trees:
+                if approximately_equal(prob1, prob2): #and gt1 != gt2: and gt2 not in seen_trees:
                     equal_trees.add(gt2)
                     seen.add(gt2)
 
             # Add the equality set to the mapping if tbe pattern is not already in the mapping and set is non empty
-            if len(equal_trees) != 0 and gt1 not in seen_trees:
-                if gt1 in trees_to_equality:
-                    # If there is already an equality set for that pattern choose the larger of the two
-                    if len(trees_to_equality[gt1]) > len(equal_trees):
-                        break
-                    else:
-                        trees_to_equality[gt1] = equal_trees
-                        seen_trees.add(gt1)
-                        seen_trees = seen_trees.union(seen)
-                else:
-                    trees_to_equality[gt1] = equal_trees
-                    seen_trees.add(gt1)
-                    seen_trees = seen_trees.union(seen)
+            if len(equal_trees) != 0:# and gt1 not in seen_trees:
+                trees_to_equality[gt1] = equal_trees
+                seen_trees.add(gt1)
+                seen_trees = seen_trees.union(seen)
 
-        # Generate equality sets based on p(gt|N)
-        for st in sorted(st_to_pattern_probs_N.keys()):
+    seen_trees = set([])
 
-            gt_probs = st_to_pattern_probs_N[st]
-            seen_trees = set([])
+    # Generate equality sets based on p(gt|N)
+    for st in sorted(st_to_pattern_probs_N.keys()):
 
-            for i in range(len(gt_probs)):
+        gt_probs = st_to_pattern_probs_N[st]
 
-                gt1, prob1 = gt_probs[i]
-                equal_trees = set([])
+        for i in range(len(gt_probs)):
 
-                seen = set([])
-                for j in range(len(gt_probs)):
+            gt1, prob1 = gt_probs[i]
+            equal_trees = set([])
 
-                    gt2, prob2 = gt_probs[j]
-                    if approximately_equal(prob1, prob2) and gt1 != gt2 and gt2 not in seen_trees:
-                        equal_trees.add(gt2)
-                        seen.add(gt2)
+            seen = set([])
+            for j in range(len(gt_probs)):
 
-                # Add the equality set to the mapping if tbe pattern is not already in the mapping and set is non empty
-                if len(equal_trees) != 0 and gt1 not in seen_trees:
-                    if gt1 in trees_to_equality_N:
-                        # If there is already an equality set for that pattern choose the larger of the two
-                        if len(trees_to_equality_N[gt1]) > len(equal_trees):
-                            break
-                        else:
-                            trees_to_equality_N[gt1] = equal_trees
-                            seen_trees.add(gt1)
-                            seen_trees = seen_trees.union(seen)
-                    else:
-                        trees_to_equality_N[gt1] = equal_trees
-                        seen_trees.add(gt1)
-                        seen_trees = seen_trees.union(seen)
+                gt2, prob2 = gt_probs[j]
+                if approximately_equal(prob1, prob2):# and gt1 != gt2 and gt2 not in seen_trees:
+                    equal_trees.add(gt2)
+                    seen.add(gt2)
+
+            # Add the equality set to the mapping if tbe pattern is not already in the mapping and set is non empty
+            if len(equal_trees) != 0:# and gt1 not in seen_trees:
+                trees_to_equality_N[gt1] = equal_trees
+                seen_trees.add(gt1)
+                seen_trees = seen_trees.union(seen)
 
     return trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN
 
@@ -1378,8 +1370,9 @@ def concat_directory(directory_path):
 # def read_statistic(statistic):
 
 
-def calculate_generalized(alignments, species_tree=None, reticulations=None, window_size=100000000000, window_offset=100000000000, verbose=False,
-                          alpha= 0.01, useDir=False, directory="", statistic=False, save=True):
+def calculate_generalized(alignments, species_tree=None, reticulations=None, window_size=100000000000,
+                          window_offset=100000000000, verbose=False, alpha=0.01, useDir=False, directory="",
+                          statistic=False, save=True):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1532,13 +1525,26 @@ def plot_formatting(info_tuple, verbose=False):
 if __name__ == '__main__':
     # if we're running file directly and not importing it
 
-    # species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
-    # species_tree = '(((P1,P2),(P3,P4)),O);'
+    species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
+    species_tree = '(((P1,P2),(P3,P4)),O);'
     alignments = ["C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"]
     # print calculate_generalized(alignments, species_tree, r, 1000, 1000, True, save=True)
     #
-    save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_1.txt"
-    # plot_formatting(calculate_generalized(alignments, statistic=save_file))
+    save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt"
+    plot_formatting(calculate_generalized(alignments, statistic=save_file))
+
+    # species_tree, r = '(((P1,P2),(P3,(P4,P5))),O);', [('P1', 'P3')]
+    # alignments = ["C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"]
+    # alignments = ["C:\\Users\\travi\\Desktop\\sixtaxa.txt"]
+    # i = calculate_generalized(alignments, species_tree, r, 100000, 100000, True, save=True)
+
+    # for j in range(10):
+    #     k = calculate_generalized(alignments, species_tree, r, 100000, 100000, True, save=True)
+    #     if i != k:
+    #         print "FAIL"
+    #         print i
+    #         print k
+    #     print j
 
 
     # print pattern_string_generator(['A', 'A', 'A', 'A', 'A'])
