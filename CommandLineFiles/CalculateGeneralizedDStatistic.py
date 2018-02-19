@@ -850,8 +850,6 @@ def calculate_L(alignments, taxa_order, patterns_of_interest, verbose=False, alp
 
         for line in lines[1:]:
             # Add each sequence to a list
-            # print line.split()
-            # print line
             sequence = line.split()[1]
             sequence_list.append(sequence)
 
@@ -1377,8 +1375,11 @@ def concat_directory(directory_path):
 
     return os.path.abspath(directory_path) + "/concatFile.phylip.txt"
 
+# def read_statistic(statistic):
 
-def calculate_generalized(alignments, species_tree, reticulations, window_size, window_offset, verbose=False, alpha= 0.01, useDir=False, directory=""):
+
+def calculate_generalized(alignments, species_tree=None, reticulations=None, window_size=100000000000, window_offset=100000000000, verbose=False,
+                          alpha= 0.01, useDir=False, directory="", statistic=False, save=True):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1395,23 +1396,51 @@ def calculate_generalized(alignments, species_tree, reticulations, window_size, 
         l_stat --- the L statistic value
     """
 
-    st = re.sub("\:\d+\.\d+", "", species_tree)
-    trees, taxa = branch_adjust(st)
-    newick_patterns = newicks_to_patterns_generator(taxa, trees)
-    network = generate_network_tree((0.1, 0.9), list(trees)[0], reticulations)
-    trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
-    trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
-    increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
+    # If the user does not have a specific statistic file to use
+    if not statistic:
+        st = re.sub("\:\d+\.\d+", "", species_tree)
+        trees, taxa = branch_adjust(st)
+        newick_patterns = newicks_to_patterns_generator(taxa, trees)
+        network = generate_network_tree((0.1, 0.9), list(trees)[0], reticulations)
+        trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
+        trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
+        increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
+
+        # If users want to save the statistic and speed up future runs
+        if save:
+            num = 0
+            file_name = "DGenStatistic_{0}.txt".format(num)
+            while os.path.exists(file_name):
+                num += 1
+                file_name = "DGenStatistic_{0}.txt".format(num)
+
+            with open(file_name, "w") as text_file:
+                output_str = "Taxa: {0}\n".format(taxa)
+                text_file.write(output_str)
+                output_str = "Left Terms: {0}\n".format(increase)
+                text_file.write(output_str)
+                output_str = "Right Terms: {0}\n".format(decrease)
+                text_file.write(output_str)
+                output_str = "Statistic: {0}\n".format(generate_statistic_string((increase, decrease)))
+                text_file.write(output_str)
+                text_file.close()
+
+    # Users can specify a previously generated statistic to use for alignment counting
+    else:
+        with(open(statistic, "r")) as s:
+            lines = s.readlines()
+            taxa = eval(lines[0].split(None, 1)[1])
+            increase = eval(lines[1].split(None, 2)[2])
+            decrease = eval(lines[2].split(None, 2)[2])
 
     if useDir:
-        alignment = concat_directory(directory)
+        alignments = [concat_directory(directory)]
 
     alignments_to_d = calculate_L(alignments, taxa, (increase, decrease), verbose, alpha)
     alignments_to_windows_to_d = calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size,
                                                         window_offset, verbose, alpha)
-
-
-    if verbose:
+    print alignments_to_d
+    if verbose and not statistic:
         print
         print "Newick strings with corresponding patterns: ", newick_patterns
         print
@@ -1496,16 +1525,20 @@ def plot_formatting(info_tuple, verbose=False):
                     output_str = "{0}, {1}, {2}, {3}, {4} \n".format(idx, l_stat, significant, chisq, pval)
 
                 text_file.write(output_str)
+                text_file.close()
 
 
 
 if __name__ == '__main__':
     # if we're running file directly and not importing it
 
-    species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
-    species_tree = '(((P1,P2),(P3,P4)),O);'
+    # species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
+    # species_tree = '(((P1,P2),(P3,P4)),O);'
     alignments = ["C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"]
-    print calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
+    # print calculate_generalized(alignments, species_tree, r, 1000, 1000, True, save=True)
+    #
+    save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_1.txt"
+    # plot_formatting(calculate_generalized(alignments, statistic=save_file))
 
 
     # print pattern_string_generator(['A', 'A', 'A', 'A', 'A'])

@@ -121,7 +121,7 @@ class Window(QtGui.QMainWindow):
         self.resize(x, y)
 
     def closeEvent(self, QCloseEvent):
-        plt.clf()
+        # plt.clf()
         self.emit(QtCore.SIGNAL("WINDOW_CLOSED"))
         print self.windowTitle + ' Closed'
 
