@@ -1534,12 +1534,13 @@ if __name__ == '__main__':
     species_tree = '(((P1,P2),(P3,P4)),O);'
     alignments = ["C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim3\\seqfile", "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim4\\seqfile",
                   "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim5\\seqfile", "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim6\\seqfile"]
+
     # print calculate_generalized(alignments, species_tree, r, 1000, 1000, True, save=True)
 
-    calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, save=True)
+    # calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, save=True)
     #
-    # save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt"
-    # plot_formatting(calculate_generalized(alignments, statistic=save_file))
+    save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt"
+    plot_formatting(calculate_generalized(alignments, statistic=save_file))
     #
     # calculate_generalized(alignments, statistic="C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt")
 

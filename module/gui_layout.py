@@ -2,12 +2,10 @@
 
 # Form implementation generated from reading ui file 'gui_layout.ui'
 #
-<<<<<<< HEAD
+
 # Created: Sun Feb 11 21:45:27 2018
-#      by: PyQt4 UI code generator 4.10
-=======
 # Created by: PyQt4 UI code generator 4.12
->>>>>>> af6637625f9661d47692f6da26e2a467af147bc8
+
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -187,11 +185,7 @@ class Ui_PhylogeneticVisualization(object):
         self.raxmlToolBox.setObjectName(_fromUtf8("raxmlToolBox"))
         self.raxmlOptionsPage = QtGui.QWidget()
         self.raxmlOptionsPage.setEnabled(True)
-<<<<<<< HEAD
-        self.raxmlOptionsPage.setGeometry(QtCore.QRect(0, 0, 579, 418))
-=======
         self.raxmlOptionsPage.setGeometry(QtCore.QRect(0, 0, 726, 741))
->>>>>>> af6637625f9661d47692f6da26e2a467af147bc8
         self.raxmlOptionsPage.setObjectName(_fromUtf8("raxmlOptionsPage"))
         self.verticalLayout_21 = QtGui.QVBoxLayout(self.raxmlOptionsPage)
         self.verticalLayout_21.setMargin(0)
