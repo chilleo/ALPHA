@@ -723,9 +723,6 @@ def determine_patterns(pattern_set, patterns_to_equality, patterns_to_pgN):
     terms2 --- a set of other patterns to count and add to each other to determine introgression
     """
 
-    print patterns_to_equality
-
-
     terms1 = set([])
     terms2 = set([])
 
@@ -838,15 +835,17 @@ def calculate_L(alignments, taxa_order, patterns_of_interest, verbose=False, alp
     terms1 = patterns_of_interest[0]
     terms2 = patterns_of_interest[1]
 
-    terms1_counts = defaultdict(int)
-    terms2_counts = defaultdict(int)
-
-    sequence_list = []
-    taxon_list = []
-
     alignments_to_d = {}
 
     for alignment in alignments:
+
+        # Initialize these things for all files
+        terms1_counts = defaultdict(int)
+        terms2_counts = defaultdict(int)
+
+        sequence_list = []
+        taxon_list = []
+
         with open(alignment) as f:
 
             # Create a list of each line in the file
@@ -864,6 +863,8 @@ def calculate_L(alignments, taxa_order, patterns_of_interest, verbose=False, alp
             # Add each taxon to a list
             taxon = line.split()[0]
             taxon_list.append(taxon)
+
+        length_of_sequences = len(min(sequence_list, key=len))
 
         # The outgroup is the last taxa in taxa order
         outgroup = taxa_order[-1]
@@ -966,11 +967,11 @@ def calculate_windows_to_L(alignments, taxa_order, patterns_of_interest, window_
     terms1 = patterns_of_interest[0]
     terms2 = patterns_of_interest[1]
 
-    sequence_list = []
-    taxon_list = []
-
     alignments_to_windows_to_d = {}
     for alignment in alignments:
+
+        sequence_list = []
+        taxon_list = []
 
         with open(alignment) as f:
 
@@ -1372,7 +1373,7 @@ def concat_directory(directory_path):
 
 def calculate_generalized(alignments, species_tree=None, reticulations=None, window_size=100000000000,
                           window_offset=100000000000, verbose=False, alpha=0.01, useDir=False, directory="",
-                          statistic=False, save=True):
+                          statistic=False, save=False):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1415,6 +1416,10 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
                 output_str = "Right Terms: {0}\n".format(decrease)
                 text_file.write(output_str)
                 output_str = "Statistic: {0}\n".format(generate_statistic_string((increase, decrease)))
+                text_file.write(output_str)
+                output_str = "Species Tree: {0}\n".format(species_tree)
+                text_file.write(output_str)
+                output_str = "Reticulations: {0}\n".format(reticulations)
                 text_file.write(output_str)
                 text_file.close()
 
@@ -1527,11 +1532,18 @@ if __name__ == '__main__':
 
     species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
     species_tree = '(((P1,P2),(P3,P4)),O);'
-    alignments = ["C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"]
+    alignments = ["C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim3\\seqfile", "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim4\\seqfile",
+                  "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim5\\seqfile", "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim6\\seqfile"]
     # print calculate_generalized(alignments, species_tree, r, 1000, 1000, True, save=True)
+
+    calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, save=True)
     #
-    save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt"
-    plot_formatting(calculate_generalized(alignments, statistic=save_file))
+    # save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt"
+    # plot_formatting(calculate_generalized(alignments, statistic=save_file))
+    #
+    # calculate_generalized(alignments, statistic="C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt")
+
+    # python - c "from CalculateGeneralizedDStatistic import *; calculate_generalized(['C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip'], statistic='C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt')"
 
     # species_tree, r = '(((P1,P2),(P3,(P4,P5))),O);', [('P1', 'P3')]
     # alignments = ["C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"]
