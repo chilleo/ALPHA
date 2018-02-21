@@ -229,18 +229,21 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
     - Download and Install [Python 2.7.13](https://www.python.org/downloads/)
     
 
-5) Install [SIP](https://www.riverbankcomputing.com/software/sip/download)
-    - Download the SIP source package. 
-    - Unzip the directory. 
-    - Open a Command Prompt window and 'cd' into the directory.
-    - In terminal run:
+5) Install [SIP](https://www.riverbankcomputing.com/software/sip/download) and [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download).
+    - Download the [PyQt4 Wheel Package](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyqt4).
+    - Open a Command Prompt window and 'cd' into the directory containing the wheel file.
+    - Run the following for Windows 64-bit:
     
         ```
-        python configure.py
-        python configure.py --platform win32-g++
-        make install
+        pip install PyQt4-4.11.4-cp27-cp27m-win_amd64.whl
         ```
 
+    - Run the following for Windows 32-bit:
+        
+        ```
+        pip install PyQt4-4.11.4-cp27-cp27m-win32.whl
+        ```
+        
 6) Install [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download)
     - Download the PyQt4 source package. 
     - Unzip the directory. 
@@ -265,7 +268,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
     - In terminal run:
     
         ```
-        pip install matplotlib pillow scipy natsort reportlab svgutils ete3 dendropy biopython
+        pip install matplotlib pillow scipy natsort reportlab svgutils ete3 dendropy biopython numpy statistics
         ```
 
 9) Install ALPHA:
