@@ -11,8 +11,6 @@
    - [Mac Installation](#mac-instructions)
    - [Windows Installation](#windows-instructions)
    - [Common Installation Errors](#common-installation-errors)
-      - [Mac](#mac)
-      - [Windows](#windows)
 - [How To Use](#how-to-use)
    - [RAxML Mode](#raxml-mode)
    - [File Converter](#file-converter-mode)
@@ -276,6 +274,11 @@ If you get an error with the last command when installing RAxML, run the followi
 
         sudo cp raxmlHPC* /usr/local/bin/
 
+##### Permissions Errors on Homebrew for Mac
+If you have trouble installing Homebrew due to permissions errors, running the following command in Terminal in place of the original command fixes this issue:
+
+        sudo /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
 ##### Error: Command Not Recognized 
 IF you receive an error saying that a command (i.e. raxmlHPC, make, python, etc.) "is not recognized as an internal or external command, operable program or batch file," do the following: 
 
@@ -290,7 +293,7 @@ For Mac:
 For Windows:
    - Go to Control Panel > System > Advanced System Settings > Environment Variables.
      - This can be done by searching 'path' in the search bar on Windows 10.
-   - Select 'Path' under the 'User variables for user' section and click 'Edit.'
+   - Select 'Path' under the 'User variables for user' section and click 'Edit.' Add the directory destinations below.
      - For 'make':
               
         /path/to/your/MinGW/bin/
@@ -307,10 +310,8 @@ For Windows:
    
    - Once you add the path(s) to your Environment Variables list and click 'OK,' close and reopen Command Prompt. The commands should now work correctly.
 
-##### Permissions Errors on Homebrew for Mac
-If you have trouble installing Homebrew due to permissions errors, running the following command in Terminal in place of the original command fixes this issue:
-
-        sudo /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+##### Installing Java
+If you are having issues with Java not being recognized as a command, install the newest version of [Java](https://java.com/en/download/) and use the above insructions to add it to your path if it is not automatically added. 
 
 ##### No module named SIP
 If you receive this error after running the command in Step 7, run this command:
