@@ -24,7 +24,7 @@
 
 ## Introduction
 
-Automated Local Phylogenomic Analyses, or ALPHA, is a python-based application that provides an intuitive user interface for phylogenetic analyses and data visualization. It has four distinct modes that are useful for different types of phylogenetic analysis: RAxML, File Converter, MS Comparison, and D Statistic.
+Automated Local Phylogenomic Analyses, or ALPHA, is a python-based application that provides an intuitive user interface for phylogenetic analyses and data visualization. It has four distinct modes that are useful for different types of phylogenetic analysis: RAxML, File Converter, MS Comparison, and D-statistic.
 
 <img src="https://user-images.githubusercontent.com/25121486/30996594-93970970-a487-11e7-996a-2cad60f0002b.png" alt="Welcome" width="400">
 
@@ -32,7 +32,7 @@ RAxML mode gives users a front-end to interact with RAxML (STAMATAKIS 2014a) for
 
 The file converter in ALPHA provides a user interface for a Biopython AlignIO file converter function. It allows users to convert between twelve popular genome alignment file types. RAxML mode only accepts phylip-sequential format.
 MS Comparison mode allows users to perform an accuracy comparison between a “truth file” and one or more files in MS format or the results of RAxML mode.
-With D Statistic mode, users can compute Patterson’s D Statistic for determining introgression in a four taxa alignment. D Statistic mode produces a scatter plot of the value of the D Statistic across sliding windows as well as the value of the D Statistic across the entire alignment.
+With D-statistic mode, users can compute Patterson’s D-statistic for determining introgression in a four taxa alignment. D-statistic mode produces a scatter plot of the value of the D-statistic across sliding windows as well as the value of the D-statistic across the entire alignment.
 
 ### Requirements
 
@@ -97,10 +97,10 @@ The TMRCA Line Graph shows the tree height over each site when comparing the tru
 
 <img src="https://user-images.githubusercontent.com/25121486/31040226-4adbfd12-a54a-11e7-9869-57a488908ac0.png" alt="MS-Comparison" width="400">
 
-#### D Statistic
-D Statistic mode allows the user to input an alignment file in phylip-sequential format, choose the window size and offset, and select the location of each outgroup in the tree visual. This mode then generates the overall D Statistic and a scatter plot in which the x-axis is the window number, and the y-axis is the D Statistic value computed for that window.
+#### D-statistic
+D-statistic mode allows the user to input an alignment file in phylip-sequential format, choose the window size and offset, and select the location of each outgroup in the tree visual. This mode then generates the overall D-statistic and a scatter plot in which the x-axis is the window number, and the y-axis is the D-statistic value computed for that window.
 
-<img src="https://user-images.githubusercontent.com/25121486/30996746-a109a5e4-a488-11e7-9ef2-0434fa6defd9.png" alt="D-Statistic" width="400">
+<img src="https://user-images.githubusercontent.com/25121486/30996746-a109a5e4-a488-11e7-9ef2-0434fa6defd9.png" alt="D-statistic" width="400">
 
 For further reading on the D Statistic and its usage see: \
 [Green et al. (2010)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5100745/#SD1), 
@@ -124,16 +124,13 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
     
         ```
         make -f Makefile.gcc
-        rm *.o
-        make -f Makefile.SSE3.gcc
-        rm *.o
         ./raxmlHPC -v
         cp raxmlHPC* /usr/local/bin/
         cd ..
         raxmlHPC -v
         ```
         
-    - If the fifth and last commands show the version, proceed. Otherwise, check the Common Installation Errors section below. 
+    - If the second and last commands show the version, proceed. Otherwise, check the Common Installation Errors section below. 
     
 2) Install [Python 2.7.13](https://www.python.org/downloads/)
     - In terminal run::
@@ -141,6 +138,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         ```
         python --version
         ```
+        
     - If the command returns "Python 2.7.13" skip to step 3. Otherwise proceed.
     - Download and Install [Python 2.7.13](https://www.python.org/downloads/).
     - If the python --version still shows an older version after downloading and installing the new version, fully close and reopen your terminal. See Common Installation Errors if problems persist.
@@ -153,8 +151,9 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
         ```
 
+    - If any errors occur, see the Common Installation Errors section below.
 
-4) Install [SIP and PyQt4](https://www.riverbankcomputing.com/software/pyqt/download)
+4) Install [SIP](https://www.riverbankcomputing.com/software/sip/download) and [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download)
     - In terminal run:
     
         ```
@@ -173,7 +172,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
     - In terminal run:
     
         ```
-        pip install matplotlib pillow scipy natsort reportlab svgutils ete3 dendropy biopython
+        pip install matplotlib pillow scipy natsort reportlab svgutils ete3 dendropy biopython statistics numpy virtualenv
         ```
 
 7) Install ALPHA:
@@ -185,18 +184,17 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         ```
         python main.py
         ```
+        
     - See Common Installation Errors for fixes to any issues.
 
 ### Windows Instructions
 1) Install [Cygwin](https://www.cygwin.com/)
     - Run the setup installer in the section 'Current Cygwin DLL Version.'
-    - In the 'Choose a Download Site' section of the installer, select the first download site in the list. This is 
-      http://cygwin.mirror.constant.com.
+    - In the 'Choose a Download Site' section of the installer, select the first download site in the list. This is listed as http://cygwin.mirror.constant.com.
       
 2) Install [MinGW](http://www.mingw.org/wiki/Getting_Started).
     - Run the setup installer in the section 'Graphical User Interface Installer.'
-    - In the MinGW Installation Manager that opens after installation, select the 'mingw32-base' and 'msys-base' packages and click 
-      'Mark for Installation.' 
+    - In the MinGW Installation Manager that opens after installation, select the 'mingw32-base' and 'msys-base' packages and click 'Mark for Installation.' 
     - Select the 'Installation' tab and click 'Apply Changes.'
       
 3) Install [RAxML](https://github.com/stamatak/standard-RAxML)
@@ -207,16 +205,13 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
     
         ```
         make -f Makefile.gcc
-        rm *.o
-        make -f Makefile.SSE3.gcc
-        rm *.o
         ./raxmlHPC -v
         cp raxmlHPC* /usr/local/bin/
         cd ..
         raxmlHPC -v
         ```
         
-    - If the fifth and last command shows the version, proceed. Otherwise, check the Common Installation Errors section below. 
+    - If the second and last commands show the version, proceed. Otherwise, check the Common Installation Errors section below. 
     
 4) Install [Python 2.7.13](https://www.python.org/downloads/)
     - In terminal run::
@@ -228,6 +223,14 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
     - If the command returns "Python 2.7.13" skip to step 3. Otherwise proceed.
     - Download and Install [Python 2.7.13](https://www.python.org/downloads/)
     
+7) Install [PIP](https://pip.pypa.io/en/stable/installing/):
+    - Download the get-pip.py file.
+    - Open a Command Prompt window and 'cd' into the directory containing the file. 
+    - In terminal run:  
+       
+        ```
+        python get-pip.py
+        ```
 
 5) Install [SIP](https://www.riverbankcomputing.com/software/sip/download) and [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download).
     - Download the [PyQt4 Wheel Package](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyqt4).
@@ -244,31 +247,11 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         pip install PyQt4-4.11.4-cp27-cp27m-win32.whl
         ```
         
-6) Install [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download)
-    - Download the PyQt4 source package. 
-    - Unzip the directory. 
-    - Open a Command Prompt window and 'cd' into the directory.
-    - In terminal run:
-    
-        ```
-        python configure.py
-        make install
-        ```
-
-7) Install [PIP](https://pip.pypa.io/en/stable/installing/):
-    - Download the get-pip.py file.
-    - Open a Command Prompt window and 'cd' into the directory containing the file. 
-    - In terminal run:  
-       
-        ```
-        python get-pip.py
-        ```
-
 8) Install remaining dependencies with PIP:
     - In terminal run:
     
         ```
-        pip install matplotlib pillow scipy natsort reportlab svgutils ete3 dendropy biopython numpy statistics
+        pip install matplotlib pillow scipy natsort reportlab svgutils ete3 dendropy biopython statistics numpy
         ```
 
 9) Install ALPHA:
@@ -291,35 +274,43 @@ If prompted, install the latest verson of [Xcode](https://itunes.apple.com/us/ap
 ##### Installing RAxML on Mac
 If you get an error with the last command when installing RAxML, run the following in place of the original 'cp' command: 
 
-
         sudo cp raxmlHPC* /usr/local/bin/
 
+#### Error: Command Not Recognized 
+IF you receive an error saying that a command (i.e. raxmlHPC, make, python, etc.) "is not recognized as an internal or external command, operable program or batch file," do the following: 
+
+For Mac:
+   - In terminal, run:
+     - For 'python':
+        
+        export PATH="/path/to/your/python2.7.13/bin:${PATH}"
+   
+   - The commands should work correctly after adding their program directories to your path.
+
+For Windows:
+   - Go to Control Panel > System > Advanced System Settings > Environment Variables.
+     - This can be done by searching 'path' in the search bar on Windows 10.
+   - Select 'Path' under the 'User variables for user' section and click 'Edit.'
+     - For 'make':
+              
+        /path/to/your/MinGW/bin/
+        /path/to/your/MinGW/msys/1.0/bin/
+     
+     - For 'raxmlHPC':      
+        
+        /path/to/your/standard-raxml-master/
+        
+     - For 'python':       
+        
+        /path/to/your/Python27/
+        /path/to/your/Python27/Scripts/
+   
+   - Once you add the path(s) to your Environment Variables list and click 'OK,' close and reopen Command Prompt. The commands should now work correctly.
 
 ##### Permissions Errors on Homebrew for Mac
 If you have trouble installing Homebrew due to permissions errors, running the following command in Terminal in place of the original command fixes this issue:
 
-
         sudo /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-
-
-##### Make Errors on Windows
-If the 'make' commands in step 3 do not work and MinGW is installed, run:
-        
-        
-        export PATH="/path/to/your/MinGW/bin:${PATH}"
-        export PATH="/path/to/your/MinGW/msys/1.0/bin:${PATH}"
-
-
-The commands in Step 3 should now run.
-
-##### Python 2.7.13 Installation
-If the command in Step 2 does not return "Python 2.7.13" after you have installed it, run:
-    
-        
-        export PATH="/path/to/your/python2.7.13/bin:${PATH}"
-        
-        
-The command in Step 2 should now return "Python 2.7.13".
 
 ##### No module named SIP
 If you receive this error after running the command in Step 7, run this command:
@@ -433,16 +424,16 @@ Click the Compare button to run MS Comparison and generate the desired figures.
 
 For more information on MS Comparison and the graphs it generates, see the [MS Comparison](#ms-comparison) section above.
 
-### D Statistic Mode
-To compute the D Statistic, first input the desired alignment in phylip-sequential format. 
+### D-statistic Mode
+To compute the D-statistic, first input the desired alignment in phylip-sequential format. 
 
 Then, input the preferred window size and offset. 
 
-Using the provided four taxa tree, select your desired topology. Click the Run button to generate the D Statistic and the Windows to D Statistic Scatter Plot.
+Using the provided four taxa tree, select your desired topology. Click the Run button to generate the D Statistic and the Windows to D-statistic Scatter Plot.
 
 <img src="https://user-images.githubusercontent.com/25121486/30996748-a3291af8-a488-11e7-8389-4fd4515b64f4.png" alt="D-Statistic" width="400">
 
-For more information on the D Statistic and what it outputs, see the [D Statistic](#d-statistic) section above.
+For more information on the D-statistic and what it outputs, see the [D-statistic](#d-statistic) section above.
 
 ## Frequently Asked Questions
 
