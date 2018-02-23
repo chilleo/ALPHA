@@ -116,7 +116,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
 ## Installation
 
 ### Mac Instructions
-1) Install [RAxML](https://github.com/stamatak/standard-RAxML)
+1) Install [RAxML](https://github.com/stamatak/standard-RAxML).
     - Download the [RAxML](https://github.com/stamatak/standard-RAxML) source code in a zip folder. 
     - Unzip the directory. 
     - Open a terminal window and 'cd' into the RAxML directory.
@@ -132,8 +132,8 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         
     - If the second and last commands show the version, proceed. Otherwise, check the Common Installation Errors section below. 
     
-2) Install [Python 2.7.13](https://www.python.org/downloads/)
-    - In terminal run::
+2) Install [Python 2.7.13](https://www.python.org/downloads/).
+    - In terminal run:
     
         ```
         python --version
@@ -144,7 +144,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
     - If the python --version still shows an older version after downloading and installing the new version, fully close and reopen your terminal. See Common Installation Errors if problems persist.
     
 
-3) Install [Homebrew](https://brew.sh/)
+3) Install [Homebrew](https://brew.sh/).
     - In terminal run:
     
         ```
@@ -153,7 +153,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
 
     - If any errors occur, see the Common Installation Errors section below.
 
-4) Install [SIP](https://www.riverbankcomputing.com/software/sip/download) and [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download)
+4) Install [SIP](https://www.riverbankcomputing.com/software/sip/download) and [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download).
     - In terminal run:
     
         ```
@@ -161,21 +161,21 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         brew install cartr/qt4/pyqt
         ```
 
-5) Install [PIP](https://pip.pypa.io/en/stable/installing/):
+5) Install [PIP](https://pip.pypa.io/en/stable/installing/).
     - In terminal run:  
        
         ```
         sudo easy_install pip
         ```
 
-6) Install remaining dependencies with PIP:
+6) Install remaining dependencies with PIP.
     - In terminal run:
     
         ```
         pip install matplotlib pillow scipy natsort reportlab svgutils ete3 dendropy biopython statistics numpy virtualenv
         ```
 
-7) Install ALPHA:
+7) Install ALPHA.
     - Download the source code of this repo as a zip.
     - Unzip the directory.
     - 'cd' into the directory.
@@ -188,7 +188,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
     - See Common Installation Errors for fixes to any issues.
 
 ### Windows Instructions
-1) Install [Cygwin](https://www.cygwin.com/)
+1) Install [Cygwin](https://www.cygwin.com/).
     - Run the setup installer in the section 'Current Cygwin DLL Version.'
     - In the 'Choose a Download Site' section of the installer, select the first download site in the list. This is listed as http://cygwin.mirror.constant.com.
       
@@ -197,7 +197,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
     - In the MinGW Installation Manager that opens after installation, select the 'mingw32-base' and 'msys-base' packages and click 'Mark for Installation.' 
     - Select the 'Installation' tab and click 'Apply Changes.'
       
-3) Install [RAxML](https://github.com/stamatak/standard-RAxML)
+3) Install [RAxML](https://github.com/stamatak/standard-RAxML).
     - Download the [RAxML](https://github.com/stamatak/standard-RAxML) source code in a zip folder. 
     - Unzip the directory. 
     - Open Cygwin and 'cd' into the directory.
@@ -213,8 +213,8 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         
     - If the second and last commands show the version, proceed. Otherwise, check the Common Installation Errors section below. 
     
-4) Install [Python 2.7.13](https://www.python.org/downloads/)
-    - In terminal run::
+4) Install [Python 2.7.13](https://www.python.org/downloads/).
+    - In terminal run:
     
         ```
         python --version
@@ -223,7 +223,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
     - If the command returns "Python 2.7.13" skip to step 3. Otherwise proceed.
     - Download and Install [Python 2.7.13](https://www.python.org/downloads/)
     
-7) Install [PIP](https://pip.pypa.io/en/stable/installing/):
+7) Install [PIP](https://pip.pypa.io/en/stable/installing/).
     - Download the get-pip.py file.
     - Open a Command Prompt window and 'cd' into the directory containing the file. 
     - In terminal run:  
@@ -247,14 +247,14 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         pip install PyQt4-4.11.4-cp27-cp27m-win32.whl
         ```
         
-8) Install remaining dependencies with PIP:
+8) Install remaining dependencies with PIP.
     - In terminal run:
     
         ```
         pip install matplotlib pillow scipy natsort reportlab svgutils ete3 dendropy biopython statistics numpy
         ```
 
-9) Install ALPHA:
+9) Install ALPHA..
     - Download the source code of this repo as a zip.
     - Unzip the directory.
     - 'cd' into the directory.
