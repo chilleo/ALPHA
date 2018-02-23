@@ -276,7 +276,7 @@ If you get an error with the last command when installing RAxML, run the followi
 
         sudo cp raxmlHPC* /usr/local/bin/
 
-#### Error: Command Not Recognized 
+##### Error: Command Not Recognized 
 IF you receive an error saying that a command (i.e. raxmlHPC, make, python, etc.) "is not recognized as an internal or external command, operable program or batch file," do the following: 
 
 For Mac:
