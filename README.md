@@ -128,7 +128,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         raxmlHPC -v
         ```
         
-    - If the second and last commands show the version, proceed. Otherwise, check the Common Installation Errors section below. 
+    - If the second and last commands show the version, proceed. Otherwise, check the [Common Installation Errors](#common-installation-errors) below. 
     
 2) Install [Python 2.7.13](https://www.python.org/downloads/).
     - In terminal run:
@@ -139,7 +139,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         
     - If the command returns "Python 2.7.13" skip to step 3. Otherwise proceed.
     - Download and Install [Python 2.7.13](https://www.python.org/downloads/).
-    - If the python --version still shows an older version after downloading and installing the new version, fully close and reopen your terminal. See Common Installation Errors if problems persist.
+    - Rerun the above command. If it still shows an older version after downloading and installing the new version, fully close and reopen your terminal. See [Common Installation Errors](#common-installation-errors) if problems persist.
     
 
 3) Install [Homebrew](https://brew.sh/).
@@ -149,7 +149,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
         ```
 
-    - If any errors occur, see the Common Installation Errors section below.
+    - If any errors occur, see the [Common Installation Errors](#common-installation-errors) section.
 
 4) Install [SIP](https://www.riverbankcomputing.com/software/sip/download) and [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download).
     - In terminal run:
@@ -183,7 +183,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         python main.py
         ```
         
-    - See Common Installation Errors for fixes to any issues.
+    - See [Common Installation Errors](#common-installation-errors) for fixes to any issues.
 
 ### Windows Instructions
 1) Install [Cygwin](https://www.cygwin.com/).
@@ -209,7 +209,13 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         raxmlHPC -v
         ```
         
-    - If the second and last commands show the version, proceed. Otherwise, check the Common Installation Errors section below. 
+    - Open Command Prompt and run:
+        
+        ```
+        raxmlHPC -v
+        ```
+ 
+    - If both the Cygwin and Command Prompt commands show the version, proceed. Otherwise, check the [Common Installation Errors](#common-installation-errors) section. 
     
 4) Install [Python 2.7.13](https://www.python.org/downloads/).
     - In terminal run:
@@ -219,7 +225,8 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         ```
         
     - If the command returns "Python 2.7.13" skip to step 3. Otherwise proceed.
-    - Download and Install [Python 2.7.13](https://www.python.org/downloads/)
+    - Download and Install [Python 2.7.13](https://www.python.org/downloads/).
+    - Rerun the above command. If it still shows an older version after downloading and installing the new version, fully close and reopen your terminal. See [Common Installation Errors](#common-installation-errors) if problems persist.
     
 7) Install [PIP](https://pip.pypa.io/en/stable/installing/).
     - Download the get-pip.py file.
@@ -262,7 +269,7 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         python main.py
         ```
         
-    - See Common Installation Errors for fixes to any issues.
+    - See [Common Installation Errors](#common-installation-errors) for fixes to any issues.
 
 ### Common Installation Errors
 
