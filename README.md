@@ -272,16 +272,16 @@ If prompted, install the latest verson of [Xcode](https://itunes.apple.com/us/ap
 ##### Installing RAxML on Mac
 If you get an error with the last command when installing RAxML, run the following in place of the original 'cp' command: 
 
-        '''
+        ```
         sudo cp raxmlHPC* /usr/local/bin/
-        '''
+        ```
 
 ##### Permissions Errors on Homebrew for Mac
 If you have trouble installing Homebrew due to permissions errors, running the following command in Terminal in place of the original command fixes this issue:
 
-        '''
+        ```
         sudo /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-        '''
+        ```
 
 ##### Error: Command Not Recognized 
 IF you receive an error saying that a command (i.e. raxmlHPC, make, python, etc.) "is not recognized as an internal or external command, operable program or batch file," do the following: 
@@ -290,16 +290,16 @@ For Mac:
    - In terminal, run:
      - For 'raxmlHPC':
         
-        '''
+        ```
         export PATH="/path/to/your/standard-raxml-master:${PATH}"
-        '''
+        ```
 
      - For 'python':
         
-        '''
+        ```
         export PATH="/path/to/your/Python2.7.13/:${PATH}"
         export PATH="/path/to/your/Python2.7.13/Scripts:${PATH}"
-        '''
+        ```
 
    - The commands should work correctly after adding their program directories (ex. C:\Python27) to your path. 
 
@@ -309,23 +309,23 @@ For Windows:
    - Select 'Path' under the 'User variables for user' section and click 'Edit.' Add the directory destinations (ex. C:\Python27\Scripts) below.
      - For 'make':
               
-        '''
+        ```
         /path/to/your/MinGW/bin/
         /path/to/your/MinGW/msys/1.0/bin/
-        '''
+        ```
      
      - For 'raxmlHPC':      
         
-        '''
+        ```
         /path/to/your/standard-raxml-master/
-        '''
+        ```
         
      - For 'python':       
         
-        '''
+        ```
         /path/to/your/Python2.7.13/
         /path/to/your/Python2.7.13/Scripts/
-        '''
+        ```
    
    - Once you add the path(s) to your Environment Variables list and click 'OK,' close and reopen Command Prompt. The commands should now work correctly.
 
@@ -336,10 +336,10 @@ If you are having issues with Java not being recognized as a command, install th
 If you receive this error, run the following in terminal:
    - Uninstall SIP and PyQt4.
    
-       '''
+       ```
        brew uninstall SIP
        brew uninstall cartr/qt4/pyqt
-       '''
+       ```
     
     - Use one of the following methods to reinstall SIP and PyQt4.
        
@@ -348,27 +348,27 @@ If you receive this error, run the following in terminal:
        - Unzip the directories.
        - 'cd' into the SIP directory, and run the following: 
        
-       ''' 
+       ``` 
        python configure.py
        make 
        make install
-       '''
+       ```
        
        - 'cd' into the PyQt4 directory, and run the following: 
        
-       ''' 
+       ``` 
        python configure.py
        make 
        make install
-       '''
+       ```
        
     - If you receive the same error, reinstall using the same instructions as above with the following commands:
        
-       ''' 
+       ``` 
        python configure.py
        make 
        sudo make install
-       '''
+       ```
        
 
 ## How To Use
