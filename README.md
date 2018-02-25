@@ -272,53 +272,104 @@ If prompted, install the latest verson of [Xcode](https://itunes.apple.com/us/ap
 ##### Installing RAxML on Mac
 If you get an error with the last command when installing RAxML, run the following in place of the original 'cp' command: 
 
+        '''
         sudo cp raxmlHPC* /usr/local/bin/
+        '''
 
 ##### Permissions Errors on Homebrew for Mac
 If you have trouble installing Homebrew due to permissions errors, running the following command in Terminal in place of the original command fixes this issue:
 
+        '''
         sudo /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+        '''
 
 ##### Error: Command Not Recognized 
 IF you receive an error saying that a command (i.e. raxmlHPC, make, python, etc.) "is not recognized as an internal or external command, operable program or batch file," do the following: 
 
 For Mac:
    - In terminal, run:
+     - For 'raxmlHPC':
+        
+        '''
+        export PATH="/path/to/your/standard-raxml-master:${PATH}"
+        '''
+
      - For 'python':
         
-        export PATH="/path/to/your/python2.7.13/bin:${PATH}"
-   
-   - The commands should work correctly after adding their program directories to your path.
+        '''
+        export PATH="/path/to/your/Python2.7.13/:${PATH}"
+        export PATH="/path/to/your/Python2.7.13/Scripts:${PATH}"
+        '''
+
+   - The commands should work correctly after adding their program directories (ex. C:\Python27) to your path. 
 
 For Windows:
    - Go to Control Panel > System > Advanced System Settings > Environment Variables.
      - This can be done by searching 'path' in the search bar on Windows 10.
-   - Select 'Path' under the 'User variables for user' section and click 'Edit.' Add the directory destinations below.
+   - Select 'Path' under the 'User variables for user' section and click 'Edit.' Add the directory destinations (ex. C:\Python27\Scripts) below.
      - For 'make':
               
+        '''
         /path/to/your/MinGW/bin/
         /path/to/your/MinGW/msys/1.0/bin/
+        '''
      
      - For 'raxmlHPC':      
         
+        '''
         /path/to/your/standard-raxml-master/
+        '''
         
      - For 'python':       
         
-        /path/to/your/Python27/
-        /path/to/your/Python27/Scripts/
+        '''
+        /path/to/your/Python2.7.13/
+        /path/to/your/Python2.7.13/Scripts/
+        '''
    
    - Once you add the path(s) to your Environment Variables list and click 'OK,' close and reopen Command Prompt. The commands should now work correctly.
 
 ##### Installing Java
 If you are having issues with Java not being recognized as a command, install the newest version of [Java](https://java.com/en/download/) and use the above insructions to add it to your path if it is not automatically added. 
 
-##### No module named SIP
-If you receive this error after running the command in Step 7, run this command:
+##### 'No module named SIP' or 'No module named PyQt4'
+If you receive this error, run the following in terminal:
+   - Uninstall SIP and PyQt4.
+   
+       '''
+       brew uninstall SIP
+       brew uninstall cartr/qt4/pyqt
+       '''
     
-    
-        -- finding real solution
-
+    - Use one of the following methods to reinstall SIP and PyQt4.
+       
+   1) Reinstall using source packages.
+       - Download the [SIP](https://www.riverbankcomputing.com/software/sip/download) and [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download) source packages. 
+       - Unzip the directories.
+       - 'cd' into the SIP directory, and run the following: 
+       
+       ''' 
+       python configure.py
+       make 
+       make install
+       '''
+       
+       - 'cd' into the PyQt4 directory, and run the following: 
+       
+       ''' 
+       python configure.py
+       make 
+       make install
+       '''
+       
+    - If you receive the same error, reinstall using the same instructions as above with the following commands:
+       
+       ''' 
+       python configure.py
+       make 
+       sudo make install
+       '''
+       
 
 ## How To Use
 After installing and opening ALPHA, you can use the drop down menu on the main page to select the mode you'd like to use. 
