@@ -348,19 +348,19 @@ If you receive this error, run the following in terminal:
        - Unzip the directories.
        - 'cd' into the SIP directory, and run the following: 
        
-       ``` 
-       python configure.py
-       make 
-       make install
-       ```
+            ``` 
+            python configure.py
+            make 
+            make install
+            ```
        
        - 'cd' into the PyQt4 directory, and run the following: 
        
-       ``` 
-       python configure.py
-       make 
-       make install
-       ```
+            ``` 
+            python configure.py
+            make 
+            make install
+            ```
        
     - If you receive the same error, reinstall using the same instructions as above with the following commands:
        
