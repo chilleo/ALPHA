@@ -711,13 +711,14 @@ def calculate_pattern_probabilities(newicks_to_patterns, newicks_to_pgS, newicks
     return patterns_to_pgS, patterns_to_pgN
 
 
-def determine_patterns(pattern_set, patterns_to_equality, patterns_to_pgN):
+def determine_patterns(pattern_set, patterns_to_equality, patterns_to_pgN, patterns_to_pgS):
     """
     Determine which patterns are useful in determining introgression
     Inputs:
     pattern_set -- a set containing all patterns of interest
     patterns_to_equality --- a mapping of site patterns to site patterns with equivalent p(gt|st)
     patterns_to_pgN --- a mapping of site patterns to their total p(g|N) value for a network
+    patterns_to_pgS --- a mapping of site patterns to their total p(g|st)
     Outputs:
     terms1 --- a set of patterns to count and add to each other to determine introgression
     terms2 --- a set of other patterns to count and add to each other to determine introgression
@@ -755,9 +756,89 @@ def determine_patterns(pattern_set, patterns_to_equality, patterns_to_pgN):
     for pattern in inverted2:
         terms2.add(''.join(pattern))
 
+    # Fix the chunk of code below
+
+    if len(terms1) != len(terms2):
+
+        terms1, terms2 = resize_terms(terms1, terms2, patterns_to_pgS)
+
     return terms1, terms2
 
+def resize_terms(terms1, terms2, patterns_to_pgS):
+    """
+    
+    :param terms1: 
+    :param terms2: 
+    :param patterns_to_pgS: 
+    :return: 
+    """
 
+    terms1 = list(terms1)
+    terms2 = list(terms2)
+
+    # Create a mapping of pgtst to trees for each term
+    pgtst_to_trees1 = defaultdict(set)
+    pgtst_to_trees2 = defaultdict(set)
+
+    for tree in terms1:
+        prob = float(format(patterns_to_pgS[tree], '.15f'))
+        pgtst_to_trees1[prob].add(tree)
+
+    for tree in terms2:
+        prob = float(format(patterns_to_pgS[tree], '.15f'))
+        pgtst_to_trees2[prob].add(tree)
+
+    # Balance terms
+    terms1_prob_counts = defaultdict(int)
+    terms2_prob_counts = defaultdict(int)
+
+    for tree in terms1:
+        prob = float(format(patterns_to_pgS[tree], '.15f'))
+        terms1_prob_counts[prob] += 1
+
+    for tree in terms2:
+        prob = float(format(patterns_to_pgS[tree], '.15f'))
+        terms2_prob_counts[prob] += 1
+
+    for prob in terms1_prob_counts:
+
+        count1, count2 = terms1_prob_counts[prob], terms2_prob_counts[prob]
+        removed = []
+
+        if count1 > count2:
+            num_remove = (count1 - count2) / 2
+
+            for i in range(num_remove):
+                removed.append(pgtst_to_trees1[prob].pop())
+
+            terms1_remove = True
+
+        if count1 < count2:
+            num_remove = (count2 - count1) / 2
+
+            for i in range(num_remove):
+                removed.append(pgtst_to_trees2[prob].pop())
+
+            terms1_remove = False
+
+        # Remove site patterns and their inverses
+        rm = []
+        inv_rm = pattern_inverter(removed)
+        for pattern in inv_rm:
+            rm.append(''.join(pattern))
+        rm = rm + removed
+
+        for pattern in rm:
+
+            if terms1_remove:
+                terms1.remove(pattern)
+
+            else:
+                terms2.remove(pattern)
+
+    terms1, terms2 = tuple(terms1), tuple(terms2)
+
+    return terms1, terms2
 def generate_statistic_string(patterns_of_interest):
     """
     Create a string representing the statistic for determining introgression like "(ABBA - BABA)/(ABBA + BABA)"
@@ -1223,8 +1304,6 @@ def equality_sets(species_trees, network, taxa):
         st_to_pattern_probs[st] = sorted(patterns_pgS.items(), key=lambda tup: tup[1], reverse=True)
         st_to_pattern_probs_N[st] = sorted(patterns_pgN.items(), key=lambda tup: tup[1], reverse=True)
 
-    seen_trees = set([])
-
     # Generate equality sets based on p(gt|st)
     for st in sorted(st_to_pattern_probs.keys()):
 
@@ -1235,21 +1314,15 @@ def equality_sets(species_trees, network, taxa):
             gt1, prob1 = gt_probs[i]
             equal_trees = set([])
 
-            seen = set([])
             for j in range(len(gt_probs)):
 
                 gt2, prob2 = gt_probs[j]
-                if approximately_equal(prob1, prob2): #and gt1 != gt2: and gt2 not in seen_trees:
+                if approximately_equal(prob1, prob2):
                     equal_trees.add(gt2)
-                    seen.add(gt2)
 
             # Add the equality set to the mapping if tbe pattern is not already in the mapping and set is non empty
-            if len(equal_trees) != 0:# and gt1 not in seen_trees:
+            if len(equal_trees) != 0:
                 trees_to_equality[gt1] = equal_trees
-                seen_trees.add(gt1)
-                seen_trees = seen_trees.union(seen)
-
-    seen_trees = set([])
 
     # Generate equality sets based on p(gt|N)
     for st in sorted(st_to_pattern_probs_N.keys()):
@@ -1261,19 +1334,15 @@ def equality_sets(species_trees, network, taxa):
             gt1, prob1 = gt_probs[i]
             equal_trees = set([])
 
-            seen = set([])
             for j in range(len(gt_probs)):
 
                 gt2, prob2 = gt_probs[j]
-                if approximately_equal(prob1, prob2):# and gt1 != gt2 and gt2 not in seen_trees:
+                if approximately_equal(prob1, prob2):
                     equal_trees.add(gt2)
-                    seen.add(gt2)
 
             # Add the equality set to the mapping if tbe pattern is not already in the mapping and set is non empty
-            if len(equal_trees) != 0:# and gt1 not in seen_trees:
+            if len(equal_trees) != 0:
                 trees_to_equality_N[gt1] = equal_trees
-                seen_trees.add(gt1)
-                seen_trees = seen_trees.union(seen)
 
     return trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN
 
@@ -1398,7 +1467,7 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         network = generate_network_tree((0.1, 0.9), list(trees)[0], reticulations)
         trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
         trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
-        increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN)
+        increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN, patterns_pgS)
 
         # If users want to save the statistic and speed up future runs
         if save:
@@ -1445,6 +1514,48 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         print "Probability of gene tree patterns: ", patterns_pgS
         print
         print "Probability of species network patterns:", patterns_pgN
+        print
+        print "Patterns that were formerly equal with increasing probability: ", increase
+        print "Patterns that were formerly equal with decreasing probability: ", decrease
+        print
+        print "Patterns of interest: ", increase, decrease
+        print
+        print "Statistic: ", generate_statistic_string((increase, decrease))
+        print
+
+        inc_prob = 0
+        for pattern in increase:
+            inc_prob += patterns_pgS[pattern]
+        print "Total p(gt|st) for increasing site patterns: ", inc_prob
+        dec_prob = 0
+        for pattern in decrease:
+            dec_prob += patterns_pgS[pattern]
+        print "Total p(gt|st) for decreasing site patterns: ", dec_prob
+
+        print
+        print "Information for each file: "
+        for alignment in alignments_to_d:
+            l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d[alignment]
+            print alignment + ": "
+            print
+            print "Overall Chi-Squared statistic: ", chisq
+            print "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored)
+            print "Overall p value: ", pval
+            print
+            print "Left term counts: "
+            for pattern in left_counts:
+                print pattern + ": {0}".format(left_counts[pattern])
+            print
+            print "Right term counts: "
+            for pattern in right_counts:
+                print pattern + ": {0}".format(right_counts[pattern])
+            print
+            print "Windows to D value: ", alignments_to_windows_to_d[alignment]
+            print
+            print "Final Overall D value {0}".format(l_stat)
+            print "Significant deviation from 0: {0}".format(significant)
+
+    elif verbose and statistic:
         print
         print "Patterns that were formerly equal with increasing probability: ", increase
         print "Patterns that were formerly equal with decreasing probability: ", decrease
@@ -1531,17 +1642,18 @@ if __name__ == '__main__':
     # if we're running file directly and not importing it
 
     species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
-    species_tree = '(((P1,P2),(P3,P4)),O);'
-    alignments = ["C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim3\\seqfile", "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim4\\seqfile",
-                  "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim5\\seqfile", "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim6\\seqfile"]
+    # species_tree = '(((P1,P2),(P3,P4)),O);'
+    species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
+    alignments = ["C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim2\\seqfile.txt"]
 
-    # print calculate_generalized(alignments, species_tree, r, 1000, 1000, True, save=True)
+    # print calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
 
-    # calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, save=True)
+    calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, save=True)
     #
-    save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt"
-    plot_formatting(calculate_generalized(alignments, statistic=save_file))
-    #
+    # save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt"
+    # plot_formatting(calculate_generalized(alignments, statistic=save_file))
+
+    # print calculate_generalized(alignments, statistic="C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_10.txt", verbose=True)
     # calculate_generalized(alignments, statistic="C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt")
 
     # python - c "from CalculateGeneralizedDStatistic import *; calculate_generalized(['C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip'], statistic='C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt')"
