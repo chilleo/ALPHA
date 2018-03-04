@@ -3240,7 +3240,7 @@ Run RAxML -&gt; Advanced</string>
           <item>
            <widget class="QStackedWidget" name="lStatisticStackedWidget">
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="page">
              <layout class="QHBoxLayout" name="horizontalLayout_63">
@@ -3302,9 +3302,32 @@ Run RAxML -&gt; Advanced</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="lineEdit">
+                   <widget class="QLineEdit" name="lStatPasswordLineEdit">
                     <property name="echoMode">
                      <enum>QLineEdit::Password</enum>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_65">
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QPushButton" name="lStatLoginBtn">
+                    <property name="maximumSize">
+                     <size>
+                      <width>100</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Login</string>
                     </property>
                    </widget>
                   </item>

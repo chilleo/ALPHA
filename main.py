@@ -225,6 +225,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         # set default L-statistic page to ask for password
         self.lStatisticStackedWidget.setCurrentIndex(0)
+        self.lStatLoginBtn.clicked.connect(lambda: self.login(self.lStatPasswordLineEdit.text()))
 
         # list of combo boxes containing the taxa from the alignment for the L statistic
         self.lStatisticSourceComboBoxes = [ self.reticulationSource0 ]
@@ -436,6 +437,18 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         sourceNodes = [cb.currentText().encode('utf-8') for cb in self.lStatisticSourceComboBoxes]
         targetNodes = [cb.currentText().encode('utf-8') for cb in self.lStatisticTargetComboBoxes]
         return [(sourceNodes[i], targetNodes[i]) for i in range(len(sourceNodes))]
+
+    def login(self, password):
+        """
+            If the password is correct, displays l-statistic page.
+            Otherwise, displays appropriate error message.
+        """
+        if (password == "loveluay"):
+            self.lStatisticStackedWidget.setCurrentIndex(1)
+        else:
+            moreInfo = "\"" + password + "\" is incorrect. please try again or contact chilleo@gmail.com"
+            self.message("Incorrect Password", "The password you entered is incorrect.", moreInfo)
+
 
     # **************************** MS PAGE ****************************#
 
