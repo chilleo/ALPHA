@@ -18,10 +18,6 @@ from module import bootstrapContraction as bc
 from module import msComparison as ms
 from module import plotter as p
 
-# generalized d-statistic
-# from CommandLineFiles import CalculateGeneralizedDStatistic as cgd
-
-
 class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
     def __init__(self, parent=None):
         super(PhyloVisApp, self).__init__(parent)
@@ -227,6 +223,9 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         # **************************** L STATISTIC PAGE **************************** #
 
+        # set default L-statistic page to ask for password
+        self.lStatisticStackedWidget.setCurrentIndex(0)
+
         # list of combo boxes containing the taxa from the alignment for the L statistic
         self.lStatisticSourceComboBoxes = [ self.reticulationSource0 ]
         self.lStatisticTargetComboBoxes = [ self.reticulationTarget0 ]
@@ -247,6 +246,9 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         # dynamically add more file entries
         self.lStatisticAddReticulationBtn.clicked.connect(self.addReticulationComboBox)
+
+        # dynamically add more file entries
+        self.lStatisticAddAlignmentBtn.clicked.connect(self.addAlignmentEntry)
 
     # **************************** WELCOME PAGE **************************** #
 
@@ -280,6 +282,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
     # **************************** L STATISTIC PAGE **************************** #
 
     additionalReticulationCounter = 0
+    additionalAlignmentCounter = 0
+    additionalAlignmentNames = []
 
     def displayLStatistic(self, lVal, lWindows):
         self.lVal = lVal
@@ -289,6 +293,55 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.lStatisticValueLabel.setText(str(self.lVal))
         self.lStatisticLabel.setEnabled(True)
         self.lStatisticValueLabel.setEnabled(True)
+
+    def addAlignmentEntry(self):
+        self.additionalAlignmentCounter += 1
+        self.additionalAlignmentNames.append("alignment_hl" + str(self.additionalFileCounter))
+
+        # create horizontal layout
+        HL = QtGui.QHBoxLayout()
+        HL.setObjectName("alignment_hl" + str(self.additionalAlignmentCounter))
+
+        # create btn to remove and add to horizontal layout
+        btn = QtGui.QToolButton(self.lAlignmentGroupBox)
+        btn.setObjectName("removeAlignmentBtn" + str(self.additionalAlignmentCounter))
+        btn.setText('-')
+        btn.setFixedHeight(21)
+        btn.setFixedWidth(23)
+        HL.addWidget(btn)
+
+        # create text entry and add to horizontal layout
+        entry = QtGui.QLineEdit(self.lAlignmentGroupBox)
+        entry.setReadOnly(True)
+        entry.setObjectName("alignmentEntry" + str(self.additionalFileCounter))
+        HL.addWidget(entry)
+
+        # create btn and add to horizontal layout
+        btn2 = QtGui.QToolButton(self.lAlignmentGroupBox)
+        btn2.setObjectName("alignmentBtn" + str(self.additionalFileCounter))
+        btn2.setText('...')
+        HL.addWidget(btn2)
+
+        self.resize(self.width(), self.height() + 30)
+        self.alignmentParentVL.addLayout(HL)
+
+        btn.clicked.connect(lambda: self.removeFileEntry(HL, entry, btn, btn2))
+        btn2.clicked.connect(lambda: self.getFileName(entry))
+
+    def removeReticulationEntry(self, HL, sourceComboBox, arrow, targetComboBox, btn, hSpacer):
+        HL.deleteLater()
+        sourceComboBox.deleteLater()
+        arrow.deleteLater()
+        targetComboBox.deleteLater()
+        btn.deleteLater()
+        self.resize(self.width(), self.height() - 30)
+
+        self.lStatisticSourceComboBoxes.remove(sourceComboBox)
+        self.lStatisticTargetComboBoxes.remove(targetComboBox)
+
+        print "- ", [x.objectName() for x in self.lStatisticSourceComboBoxes]
+        print "- ", [x.objectName() for x in self.lStatisticTargetComboBoxes]
+        print "- ", self.getReticulations()
 
     def addReticulationComboBox(self):
         self.additionalReticulationCounter += 1
@@ -475,7 +528,10 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         entry.deleteLater()
         btn.deleteLater()
         btn2.deleteLater()
-        self.additionalFileEntryNames.remove(entry.objectName())
+        if entry.objectName() in self.additionalFileEntryNames:
+            self.additionalFileEntryNames.remove(entry.objectName())
+        if entry.objectName() in self.additionalAlignmentNames:
+            self.additionalAlignmentNames.remove(entry.objectName())
         self.resize(self.width(), self.height() - 30)
 
     # **************************** CONVERTER PAGE ****************************#
