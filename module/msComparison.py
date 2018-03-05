@@ -122,14 +122,13 @@ class MsComparison(QtCore.QThread):
             sites_to_newick --- a mapping of site indices to their corresponding best tree newick string
         """
 
-        output_directory = "../MS_Formatted_RAxML_Files"
+        output_directory = "..\\MS_Formatted_RAxML_Files"
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
 
         num = 0
-        file_name = "ms_formatted_RAxMl{0}.txt".format(num)
-        path = os.path.join(output_directory, file_name)
-        while os.path.exists(path):
+        file_name = "ms_formatted_RAxML{0}.txt".format(num)
+        while file_name in os.listdir(output_directory):
             num += 1
             file_name = "ms_formatted_RAxML{0}.txt".format(num)
 
@@ -157,14 +156,12 @@ class MsComparison(QtCore.QThread):
         # windows
         if platform == "win32":
             # Move RAxML output files into their own destination folder - Windows
-            os.rename("ms_formatted_RAxML{0}.txt".format(num),
-                      output_directory + "ms_formatted_RAxML{0}.txt".format(num))
+            os.rename(file_name, output_directory + "/" + file_name)
 
         # mac
         elif platform == "darwin":
             # Move RAxML output files into their own destination folder - Mac
-            os.rename("ms_formatted_RAxML{0}.txt".format(num),
-                      output_directory + "ms_formatted_RAxML{0}.txt".format(num))
+            os.rename(file_name, output_directory + "/" + file_name)
 
     def sitesToRobinsonFouldsDistance(self, sites_to_newick_1,  sites_to_newick_2):
         """
