@@ -228,7 +228,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # **************************** L STATISTIC PAGE **************************** #
 
         # set default L-statistic page to ask for password
-        self.lStatisticStackedWidget.setCurrentIndex(1)
+        self.lStatisticStackedWidget.setCurrentIndex(0)
         self.lStatLoginBtn.clicked.connect(lambda: self.login(self.lStatPasswordLineEdit.text()))
 
         # list of combo boxes containing the taxa from the alignment for the L statistic
@@ -249,7 +249,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # when an species tree is selected update the graph
         self.connect(self.lSpeciesTreeEntry, QtCore.SIGNAL('FILE_SELECTED'), self.updateLTree)
 
-
         # dynamically add more reticulations
         self.lStatisticAddReticulationBtn.clicked.connect(self.addReticulationComboBox)
 
@@ -259,6 +258,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # scroll all the way to the bottom every time you add an alignment or reticulation
         self.connect(self.reticulationScrollArea.verticalScrollBar(), QtCore.SIGNAL("rangeChanged(int,int)"), lambda: self.reticulationScrollArea.verticalScrollBar().setValue(self.reticulationScrollArea.verticalScrollBar().maximum()))
         self.connect(self.lAlignmentScrollArea.verticalScrollBar(), QtCore.SIGNAL("rangeChanged(int,int)"), lambda: self.lAlignmentScrollArea.verticalScrollBar().setValue(self.lAlignmentScrollArea.verticalScrollBar().maximum()))
+
+        self.runGenDStatBtn.clicked.connect(self.runGenD)
 
     # **************************** WELCOME PAGE **************************** #
 
@@ -296,11 +297,11 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
     additionalAlignmentNames = []
 
     def genDValidInput(self):
-        self.calcGenD.species_tree = "(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);"
-        self.calcGenD.r = [('P3', 'P1')]
-        self.calcGenD.alignments = ["exampleFiles/seqfile.txt"]
-        self.calcGenD.window_size = 0
-        self.calcGenD.window_offset = 0
+        self.calcGenD.species_tree = self.getLSpeciesTree()
+        self.calcGenD.r = self.getReticulations()
+        self.calcGenD.alignments = [self.lAlignmentEntry.text().encode('utf-8')]
+        self.calcGenD.window_size = int(self.lWindowSizeEntry.text().encode('utf-8'))
+        self.calcGenD.window_offset = int(self.lWindowOffsetEntry.text().encode('utf-8'))
         self.calcGenD.verbose = True
         self.calcGenD.alpha = 0.01
         self.calcGenD.save = True
@@ -417,6 +418,12 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         self.lStatisticSourceComboBoxes.remove(sourceComboBox)
         self.lStatisticTargetComboBoxes.remove(targetComboBox)
+
+    def getLSpeciesTree(self):
+        # read the species tree
+        with open(self.lSpeciesTreeEntry.text(), 'r') as stf:
+            st = stf.read().replace('\n', '')
+        return st
 
     def updateLTree(self):
         # read the species tree

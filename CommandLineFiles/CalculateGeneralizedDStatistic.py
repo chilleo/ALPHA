@@ -1639,16 +1639,19 @@ def plot_formatting(info_tuple, verbose=False):
 
 
 if __name__ == '__main__':
-    # if we're running file directly and not importing it
-
     species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
     # species_tree = '(((P1,P2),(P3,P4)),O);'
     species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
-    alignments = ["C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim2\\seqfile.txt"]
+
+    if platform == "darwin":
+        alignments = ["/Users/Peter/PycharmProjects/ALPHA/exampleFiles/seqfile.txt"]
+    else:
+        alignments = ["C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim2\\seqfile.txt"]
 
     # print calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
 
-    calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, save=True)
+    calculate_generalized(alignments, species_tree, r, 50000, 50000, True, 0.01, statistic=False, save=True)
+    # calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, statistic=False, save=True)
     #
     # save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt"
     # plot_formatting(calculate_generalized(alignments, statistic=save_file))
