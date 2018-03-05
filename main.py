@@ -504,23 +504,19 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
                 if (self.lStatisticStackedWidget.currentIndex() == 0):
                     self.login(self.lStatPasswordLineEdit.text())
 
-    def displayLStatistic(self, alignments_to_d, alignments_to_windows_to_d, v):
-        a = self.calcGenD.alignments[0]
-        lStat = (alignments_to_d[a])[0]
-        sig = (alignments_to_d[a])[1]
-
-        self.lValueLabel.setText(str(lStat))
-        self.statisticPatternLabel.setText(str(sig))
+    def displayLStatistic(self, alignments_to_d, alignments_to_windows_to_d, v, r):
+        self.regularOutputLabel.setText(str(r))
         self.verboseOutputLabel.setText(str(v))
 
         if self.calcGenD.generatePlot:
-            d = alignments_to_windows_to_d[a]
-            windows_to_lvals = {}
-            sigVec = []
-            for i in d:
-                windows_to_lvals[i] = (d[i])[0]
-                sigVec.append((1 if (d[i])[1] else 0))
-            self.lStatisticWindow = lStatisticWindow.LStatisticWindow(windows_to_lvals, sigVec)
+            for dd in alignments_to_windows_to_d:
+                d = alignments_to_windows_to_d[dd]
+                windows_to_lvals = {}
+                sigVec = []
+                for i in d:
+                    windows_to_lvals[i] = (d[i])[0]
+                    sigVec.append((1 if (d[i])[1] else 0))
+                self.lStatisticWindow = lStatisticWindow.LStatisticWindow(windows_to_lvals, sigVec)
 
 
     # **************************** MS PAGE ****************************#

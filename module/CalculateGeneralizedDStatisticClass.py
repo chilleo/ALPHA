@@ -1512,6 +1512,7 @@ denoting if the l_stat value is statistically significant
         alignments_to_windows_to_d = self.calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size,
                                                                  window_offset, verbose, alpha)
         vout = ""
+        rout = ""
         vout += str(alignments_to_d)
         if verbose and not statistic:
             vout += "\n"
@@ -1561,6 +1562,10 @@ denoting if the l_stat value is statistically significant
                 vout += "Final Overall D value {0}\n".format(l_stat)
                 vout += "Significant deviation from 0: {0}\n".format(significant)
 
+                rout += "Alignment: " + alignment + "\n"
+                rout += "Final Overall D value {0}\n".format(l_stat)
+                rout += "Significant deviation from 0: {0}\n\n".format(significant)
+
         elif verbose and statistic:
             vout += "\n"
             vout += "Patterns that were formerly equal with increasing probability: {0}\n".format(increase)
@@ -1592,6 +1597,10 @@ denoting if the l_stat value is statistically significant
                 vout += "Final Overall D value {0}\n".format(l_stat)
                 vout += "Significant deviation from 0: {0}\n".format(significant)
 
+                rout += "Alignment: " + alignment + "\n"
+                rout += "Final Overall D value {0}\n".format(l_stat)
+                rout += "Significant deviation from 0: {0}\n\n".format(significant)
+
         else:
             for alignment in alignments_to_d:
                 l_stat, significant = alignments_to_d[alignment]
@@ -1602,7 +1611,7 @@ denoting if the l_stat value is statistically significant
                 vout += "Final Overall D value {0}\n".format(l_stat)
                 vout += "Significant deviation from 0: {0}\n".format(significant)
 
-        self.emit(QtCore.SIGNAL("L_FINISHED"), alignments_to_d, alignments_to_windows_to_d, vout)
+        self.emit(QtCore.SIGNAL("L_FINISHED"), alignments_to_d, alignments_to_windows_to_d, vout, rout)
 
         return alignments_to_d, alignments_to_windows_to_d
 
