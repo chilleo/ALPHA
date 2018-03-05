@@ -3390,18 +3390,32 @@ Run RAxML -&gt; Advanced</string>
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_11">
-                <property name="font">
-                 <font>
-                  <pointsize>14</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
+               <layout class="QHBoxLayout" name="horizontalLayout_71">
+                <property name="bottomMargin">
+                 <number>0</number>
                 </property>
-                <property name="text">
-                 <string>Alignment</string>
-                </property>
-               </widget>
+                <item>
+                 <widget class="QLabel" name="label_11">
+                  <property name="font">
+                   <font>
+                    <pointsize>14</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Alignment</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="lUseDirCB">
+                  <property name="text">
+                   <string>Use Directory</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
               <item>
                <widget class="QLabel" name="label_6">
@@ -3416,90 +3430,143 @@ Run RAxML -&gt; Advanced</string>
                </widget>
               </item>
               <item>
-               <widget class="QScrollArea" name="lAlignmentScrollArea">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>100</height>
-                 </size>
+               <widget class="QStackedWidget" name="lAlignmentTypeStacked">
+                <property name="currentIndex">
+                 <number>0</number>
                 </property>
-                <property name="frameShape">
-                 <enum>QFrame::NoFrame</enum>
-                </property>
-                <property name="widgetResizable">
-                 <bool>true</bool>
-                </property>
-                <widget class="QWidget" name="scrollAreaWidgetContents_3">
-                 <property name="geometry">
-                  <rect>
-                   <x>0</x>
-                   <y>0</y>
-                   <width>726</width>
-                   <height>171</height>
-                  </rect>
-                 </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_19">
+                <widget class="QWidget" name="alignmentFilesPage">
+                 <layout class="QVBoxLayout" name="verticalLayout_32">
                   <item>
-                   <layout class="QVBoxLayout" name="alignmentParentVL">
-                    <property name="topMargin">
-                     <number>0</number>
+                   <widget class="QScrollArea" name="lAlignmentScrollArea">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>100</height>
+                     </size>
                     </property>
-                    <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_58">
+                    <property name="frameShape">
+                     <enum>QFrame::NoFrame</enum>
+                    </property>
+                    <property name="widgetResizable">
+                     <bool>true</bool>
+                    </property>
+                    <widget class="QWidget" name="scrollAreaWidgetContents_3">
+                     <property name="geometry">
+                      <rect>
+                       <x>0</x>
+                       <y>0</y>
+                       <width>702</width>
+                       <height>144</height>
+                      </rect>
+                     </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_19">
                       <item>
-                       <widget class="QLabel" name="label_44">
-                        <property name="text">
-                         <string>Alignment:</string>
+                       <layout class="QVBoxLayout" name="alignmentParentVL">
+                        <property name="topMargin">
+                         <number>0</number>
                         </property>
-                       </widget>
+                        <item>
+                         <layout class="QHBoxLayout" name="horizontalLayout_58">
+                          <item>
+                           <widget class="QLabel" name="label_44">
+                            <property name="text">
+                             <string>Alignment:</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLineEdit" name="lAlignmentEntry">
+                            <property name="text">
+                             <string/>
+                            </property>
+                            <property name="readOnly">
+                             <bool>true</bool>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QToolButton" name="lAlignmentBtn">
+                            <property name="text">
+                             <string>...</string>
+                            </property>
+                           </widget>
+                          </item>
+                         </layout>
+                        </item>
+                       </layout>
                       </item>
                       <item>
-                       <widget class="QLineEdit" name="lAlignmentEntry">
-                        <property name="text">
-                         <string>/Users/Peter/PycharmProjects/ALPHA/exampleFiles/seqfile.txt</string>
-                        </property>
-                        <property name="readOnly">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
+                       <layout class="QHBoxLayout" name="horizontalLayout_52">
+                        <item>
+                         <widget class="QToolButton" name="lStatisticAddAlignmentBtn">
+                          <property name="text">
+                           <string>+</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="horizontalSpacer_26">
+                          <property name="orientation">
+                           <enum>Qt::Horizontal</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>40</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                       </layout>
                       </item>
                       <item>
-                       <widget class="QToolButton" name="lAlignmentBtn">
-                        <property name="text">
-                         <string>...</string>
+                       <spacer name="verticalSpacer_19">
+                        <property name="orientation">
+                         <enum>Qt::Vertical</enum>
                         </property>
-                       </widget>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>20</width>
+                          <height>40</height>
+                         </size>
+                        </property>
+                       </spacer>
                       </item>
                      </layout>
-                    </item>
-                   </layout>
+                    </widget>
+                   </widget>
                   </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="alignmentDirPage">
+                 <layout class="QVBoxLayout" name="verticalLayout_33">
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_52">
+                   <layout class="QHBoxLayout" name="horizontalLayout_70">
                     <item>
-                     <widget class="QToolButton" name="lStatisticAddAlignmentBtn">
+                     <widget class="QLabel" name="label_5">
                       <property name="text">
-                       <string>+</string>
+                       <string>Alignment Directory:</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <spacer name="horizontalSpacer_26">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
+                     <widget class="QLineEdit" name="lAlignmentDirEntry">
+                      <property name="readOnly">
+                       <bool>true</bool>
                       </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QToolButton" name="lAlignmentDirBtn">
+                      <property name="text">
+                       <string>...</string>
                       </property>
-                     </spacer>
+                     </widget>
                     </item>
                    </layout>
                   </item>
                   <item>
-                   <spacer name="verticalSpacer_19">
+                   <spacer name="verticalSpacer_15">
                     <property name="orientation">
                      <enum>Qt::Vertical</enum>
                     </property>
@@ -3607,7 +3674,7 @@ Run RAxML -&gt; Advanced</string>
                           </size>
                          </property>
                          <property name="text">
-                          <string>50000</string>
+                          <string/>
                          </property>
                         </widget>
                        </item>
@@ -3644,7 +3711,7 @@ Run RAxML -&gt; Advanced</string>
                           </size>
                          </property>
                          <property name="text">
-                          <string>50000</string>
+                          <string/>
                          </property>
                         </widget>
                        </item>
@@ -3682,7 +3749,7 @@ Run RAxML -&gt; Advanced</string>
                        <item>
                         <widget class="QLineEdit" name="lSpeciesTreeEntry">
                          <property name="text">
-                          <string>/Users/Peter/PycharmProjects/ALPHA/speciesTree.txt</string>
+                          <string/>
                          </property>
                          <property name="readOnly">
                           <bool>true</bool>
@@ -3784,7 +3851,7 @@ Run RAxML -&gt; Advanced</string>
                    <x>0</x>
                    <y>0</y>
                    <width>726</width>
-                   <height>171</height>
+                   <height>168</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -3957,6 +4024,23 @@ Run RAxML -&gt; Advanced</string>
                       </property>
                      </spacer>
                     </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_69">
+                    <item>
+                     <spacer name="horizontalSpacer_33">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
                     <item>
                      <widget class="QPushButton" name="viewVerboseOutputBtn">
                       <property name="cursor">
@@ -3996,7 +4080,7 @@ Run RAxML -&gt; Advanced</string>
                        <x>0</x>
                        <y>0</y>
                        <width>702</width>
-                       <height>101</height>
+                       <height>103</height>
                       </rect>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_28">

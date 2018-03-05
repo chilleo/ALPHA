@@ -114,6 +114,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.raxmlToolBox.setCurrentIndex(0)
         self.raxmlOptionsTabWidget.setCurrentIndex(0)
         self.lOutputStacked.setCurrentIndex(0)
+        self.lAlignmentTypeStacked.setCurrentIndex(0)
         self.resize(self.windowSizes['welcomePage']['x'], self.windowSizes['welcomePage']['y'])
         self.outputFileConverterEntry.setText(os.getcwd())
 
@@ -245,6 +246,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         # select alignment and species tree for L statistic
         self.lAlignmentBtn.clicked.connect(lambda: self.getFileName(self.lAlignmentEntry))
+        self.lAlignmentDirBtn.clicked.connect(lambda: self.openDirectory(self.lAlignmentDirEntry))
         self.lSpeciesTreeBtn.clicked.connect(lambda: self.getFileName(self.lSpeciesTreeEntry))
         self.lStatisticFileBtn.clicked.connect(lambda: self.getFileName(self.lStatisticFileEntry))
 
@@ -268,8 +270,10 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.runGenDStatBtn.clicked.connect(self.runGenD)
         self.connect(self.calcGenD, QtCore.SIGNAL('GEN_D_COMPLETE'), self.genDComplete)
 
-        self.viewVerboseOutputBtn.clicked.connect(self.viewVerbose)
-        self.viewRegularOutputBtn.clicked.connect(self.viewRegular)
+        self.viewVerboseOutputBtn.clicked.connect(lambda: self.lOutputStacked.setCurrentIndex(1))
+        self.viewRegularOutputBtn.clicked.connect(lambda: self.lOutputStacked.setCurrentIndex(0))
+
+        self.lUseDirCB.stateChanged.connect(lambda: self.lAlignmentTypeStacked.setCurrentIndex(1 if self.lUseDirCB.isChecked() else 0))
 
         self.connect(self.calcGenD, QtCore.SIGNAL('L_FINISHED'), self.displayLStatistic)
 
@@ -316,8 +320,10 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.calcGenD.verbose = True
         self.calcGenD.alpha = 0.01
         self.calcGenD.save = True
-        self.calcGenD.useDir = False
+        self.calcGenD.useDir = self.lUseDirCB.isChecked()
         self.calcGenD.directory = ""
+        if self.lUseDirCB.isChecked():
+            self.calcGenD.directory = self.lAlignmentDirEntry.text().encode('utf-8')
         self.calcGenD.statistic = False
         if self.lStatisticFileCB.isChecked():
             self.calcGenD.statistic = self.lStatisticFileEntry.text().encode('utf-8')
@@ -497,12 +503,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             if (self.stackedWidget.currentIndex() == 5):
                 if (self.lStatisticStackedWidget.currentIndex() == 0):
                     self.login(self.lStatPasswordLineEdit.text())
-
-    def viewVerbose(self):
-        self.lOutputStacked.setCurrentIndex(1)
-
-    def viewRegular(self):
-        self.lOutputStacked.setCurrentIndex(0)
 
     def displayLStatistic(self, alignments_to_d, alignments_to_windows_to_d, v):
         a = self.calcGenD.alignments[0]

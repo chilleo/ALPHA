@@ -1515,64 +1515,51 @@ denoting if the l_stat value is statistically significant
         vout += str(alignments_to_d)
         if verbose and not statistic:
             vout += "\n"
-            vout += "Newick strings with corresponding patterns: "
-            vout += str(newick_patterns)
+            vout += "Newick strings with corresponding patterns: {0}\n".format(newick_patterns)
             vout += "\n"
-            vout += "Probability of gene tree patterns: "
-            vout += str(patterns_pgS)
+            vout += "Probability of gene tree patterns: {0}\n".format(patterns_pgS)
             vout += "\n"
-            vout += "Probability of species network patterns:"
-            vout += str(patterns_pgN)
+            vout += "Probability of species network patterns: {0}\n".format(patterns_pgN)
             vout += "\n"
-            vout += "Patterns that were formerly equal with increasing probability: "
-            vout += str(increase)
-            vout += "Patterns that were formerly equal with decreasing probability: "
-            vout += str(decrease)
+            vout += "Patterns that were formerly equal with increasing probability: {0}\n".format(increase)
+            vout += "Patterns that were formerly equal with decreasing probability: {0}\n".format(decrease)
             vout += "\n"
-            vout += "Patterns of interest: "
-            vout += str(increase)
-            vout += str(decrease)
+            vout += "Patterns of interest: {0} {1}\n".format(increase, decrease)
             vout += "\n"
-            vout += "Statistic: "
-            vout += str(self.generate_statistic_string((increase, decrease)))
+            vout += "Statistic: {0}\n".format(self.generate_statistic_string((increase, decrease)))
             vout += "\n"
 
             inc_prob = 0
             for pattern in increase:
                 inc_prob += patterns_pgS[pattern]
-            vout += "Total p(gt|st) for increasing site patterns: "
-            vout += str(inc_prob)
+            vout += "Total p(gt|st) for increasing site patterns: {0}\n".format(inc_prob)
             dec_prob = 0
             for pattern in decrease:
                 dec_prob += patterns_pgS[pattern]
-            vout += "Total p(gt|st) for decreasing site patterns: "
-            vout += str(dec_prob)
+            vout += "Total p(gt|st) for decreasing site patterns: {0}\n".format(dec_prob)
 
             vout += "\n"
-            vout += "Information for each file: "
+            vout += "Information for each file: \n"
             for alignment in alignments_to_d:
                 l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d[alignment]
                 vout += str(alignment) + ": "
                 vout += "\n"
-                vout += "Overall Chi-Squared statistic: "
-                vout += str(chisq)
-                vout += "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored)
-                vout += "Overall p value: "
-                vout += str(pval)
+                vout += "Overall Chi-Squared statistic: {0}\n".format(chisq)
+                vout += "Number of site ignored due to \"N\" or \"-\": {0}\n".format(num_ignored)
+                vout += "Overall p value: {0}\n".format(pval)
                 vout += "\n"
-                vout += "Left term counts: "
+                vout += "Left term counts: \n"
                 for pattern in left_counts:
-                    vout += str(pattern) + ": {0}".format(left_counts[pattern])
-                    vout += "\n"
+                    vout += str(pattern) + ": {0}\n".format(left_counts[pattern])
+                vout += "\n"
                 vout += "Right term counts: "
                 for pattern in right_counts:
-                    vout += str(pattern) + ": {0}".format(right_counts[pattern])
-                    vout += "\n"
-                vout += "Windows to D value: "
-                vout += str(alignments_to_windows_to_d[alignment])
+                    vout += str(pattern) + ": {0}\n".format(right_counts[pattern])
                 vout += "\n"
-                vout += "Final Overall D value {0}".format(l_stat)
-                vout += "Significant deviation from 0: {0}".format(significant)
+                vout += "Windows to D value: {0}\n".format(alignments_to_windows_to_d[alignment])
+                vout += "\n"
+                vout += "Final Overall D value {0}\n".format(l_stat)
+                vout += "Significant deviation from 0: {0}\n".format(significant)
 
         elif verbose and statistic:
             vout += "\n"
