@@ -17,6 +17,7 @@ from module import informativeSites as infSites
 from module import bootstrapContraction as bc
 from module import msComparison as ms
 from module import plotter as p
+from module import CalculateGeneralizedDStatisticClass as gd
 
 class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
     def __init__(self, parent=None):
@@ -73,6 +74,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.fileConverter = fc.FileConverter()
         # create new instance of Plotter class
         self.plotter = p.Plotter()
+        # create new instance of CalculateGeneralizedDStatisticClass class
+        self.calcGenD = gd.CalculateGeneralizedDStatisticClass()
 
         self.topologyPlotter.num = None
 
@@ -94,6 +97,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         # default values
         self.runComplete = False
+        self.genDRunComplete = False
         self.checkboxWeighted.setEnabled(False)
         self.outgroupComboBox.setEnabled(False)
         self.outgroupLabel.setEnabled(False)
@@ -252,7 +256,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # dynamically add more file entries
         self.lStatisticAddAlignmentBtn.clicked.connect(self.addAlignmentEntry)
 
-        # scroll all the way to the bottom everytime you add an alignment or reticulation
+        # scroll all the way to the bottom every time you add an alignment or reticulation
         self.connect(self.reticulationScrollArea.verticalScrollBar(), QtCore.SIGNAL("rangeChanged(int,int)"), lambda: self.reticulationScrollArea.verticalScrollBar().setValue(self.reticulationScrollArea.verticalScrollBar().maximum()))
         self.connect(self.lAlignmentScrollArea.verticalScrollBar(), QtCore.SIGNAL("rangeChanged(int,int)"), lambda: self.lAlignmentScrollArea.verticalScrollBar().setValue(self.lAlignmentScrollArea.verticalScrollBar().maximum()))
 
@@ -291,14 +295,36 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
     additionalAlignmentCounter = 0
     additionalAlignmentNames = []
 
-    def displayLStatistic(self, lVal, lWindows):
-        self.lVal = lVal
-        self.lWindows = lWindows
-        self.lStatisticWindow = dStatisticWindow.DStatisticWindow(self.lWindows)
+    def genDValidInput(self):
+        self.calcGenD.species_tree = "(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);"
+        self.calcGenD.r = [('P3', 'P1')]
+        self.calcGenD.alignments = ["exampleFiles/seqfile.txt"]
+        self.calcGenD.window_size = 0
+        self.calcGenD.window_offset = 0
+        self.calcGenD.verbose = True
+        self.calcGenD.alpha = 0.01
+        self.calcGenD.save = True
+        self.calcGenD.useDir = False
+        self.calcGenD.directory = ""
+        self.calcGenD.statistic = False
 
-        self.lStatisticValueLabel.setText(str(self.lVal))
-        self.lStatisticLabel.setEnabled(True)
-        self.lStatisticValueLabel.setEnabled(True)
+        return True
+
+    def runGenD(self):
+        # if all error handling passes run RAxML
+        if self.genDValidInput():
+            # if rax has been run previously, ask the user to confirm that they want to rerun
+            if self.genDRunComplete:
+                rerun = self.question("Rerun Generalized D Statistic?", "Are you sure you want to rerun generalized d-statistic?")
+
+                # if the user selected the 'ok' button
+                if rerun == QtGui.QMessageBox.Yes:
+                    # start raxml operations thread
+                    self.calcGenD.start()
+            # if raxml hasn't been run before just run it
+            else:
+                # start raxml operations thread
+                self.calcGenD.start()
 
     def addAlignmentEntry(self):
         self.additionalAlignmentCounter += 1
@@ -432,6 +458,9 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             self.message("Incorrect Password", "The password you entered is incorrect.", moreInfo)
 
     def keyPressEvent(self, e):
+        """
+            Allows user to use enter/return key to submit password on password page.
+        """
         super(PhyloVisApp, self).keyPressEvent(e)
         if e.key() in [QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return]:
             if (self.stackedWidget.currentIndex() == 5):
@@ -742,21 +771,12 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
     def runRAxML(self):
         # if all error handling passes run RAxML
         if self.raxmlInputErrorHandling():
+            # if rax has been run previously, ask the user to confirm that they want to rerun
             if self.runComplete:
-                self.msg = QtGui.QMessageBox()
-                self.msg.setText("Rerun RAxML?")
-                self.msg.setInformativeText('Are you sure you want to rerun RAxML?')
-                self.msg.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel)
-
-                # set icon
-                pixmap = QtGui.QPixmap('imgs/warning.png')
-                self.msg.setIconPixmap(pixmap)
-
-                # execute window
-                returnVal = self.msg.exec_()
+                rerunRax = self.question("Rerun RAxML?", "Are you sure you want to rerun RAxML?")
 
                 # if the user selected the 'ok' button
-                if returnVal == QtGui.QMessageBox.Yes:
+                if rerunRax == QtGui.QMessageBox.Yes:
                     # start raxml operations thread
                     self.raxmlOperations.start()
             # if raxml hasn't been run before just run it
@@ -790,12 +810,32 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         # default pixmap for error
         pixmap = QtGui.QPixmap('imgs/warning.png')
-
         # set icon
         errMessage.setIconPixmap(pixmap)
 
         # execute window
         errMessage.exec_()
+
+    def question(self, title, description, type='Question'):
+        """
+            creates and displays and window displaying the message
+        """
+
+        # create object
+        qMessage = QtGui.QMessageBox()
+
+        # set text
+        qMessage.setText(title)
+        qMessage.setInformativeText(description)
+        # default pixmap for error
+        pixmap = QtGui.QPixmap('imgs/warning.png')
+        # set icon
+        qMessage.setIconPixmap(pixmap)
+
+        qMessage.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel)
+
+        # execute window
+        return qMessage.exec_()
 
     def checkEntryPopulated(self, entry, errorTitle='Field Not Populated', errorMessage='Please populate field.', errorDescription=None):
         """
