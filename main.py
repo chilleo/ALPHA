@@ -234,6 +234,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # list of combo boxes containing the taxa from the alignment for the L statistic
         self.lStatisticSourceComboBoxes = [ self.reticulationSource0 ]
         self.lStatisticTargetComboBoxes = [ self.reticulationTarget0 ]
+        self.additionalAlignmentEntries = [ self.lAlignmentEntry ]
 
         # newick string for species tree
         self.lSpeciesTree = ""
@@ -260,6 +261,11 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.connect(self.lAlignmentScrollArea.verticalScrollBar(), QtCore.SIGNAL("rangeChanged(int,int)"), lambda: self.lAlignmentScrollArea.verticalScrollBar().setValue(self.lAlignmentScrollArea.verticalScrollBar().maximum()))
 
         self.runGenDStatBtn.clicked.connect(self.runGenD)
+        self.connect(self.calcGenD, QtCore.SIGNAL('GEN_D_COMPLETE'), self.genDComplete)
+
+        self.viewVerboseOutputBtn.clicked.connect(self.viewVerbose)
+        # self.viewRegularOutputBtn.clicked.connect(self.viewRegular)
+
 
     # **************************** WELCOME PAGE **************************** #
 
@@ -294,12 +300,12 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
     additionalReticulationCounter = 0
     additionalAlignmentCounter = 0
-    additionalAlignmentNames = []
 
     def genDValidInput(self):
         self.calcGenD.species_tree = self.getLSpeciesTree()
         self.calcGenD.r = self.getReticulations()
-        self.calcGenD.alignments = [self.lAlignmentEntry.text().encode('utf-8')]
+        self.calcGenD.alignments = self.getAlignments()
+        print self.calcGenD.alignments
         self.calcGenD.window_size = int(self.lWindowSizeEntry.text().encode('utf-8'))
         self.calcGenD.window_offset = int(self.lWindowOffsetEntry.text().encode('utf-8'))
         self.calcGenD.verbose = True
@@ -308,6 +314,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.calcGenD.useDir = False
         self.calcGenD.directory = ""
         self.calcGenD.statistic = False
+        self.calcGenD.generatePlot = self.generatePlotCB.isChecked()
+
 
         return True
 
@@ -327,9 +335,13 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
                 # start raxml operations thread
                 self.calcGenD.start()
 
+    def genDComplete(self):
+        self.runGenDStatBtn.setText("Rerun")
+        self.lProgressBar.setValue(100)
+        self.genDRunComplete = True
+
     def addAlignmentEntry(self):
         self.additionalAlignmentCounter += 1
-        self.additionalAlignmentNames.append("alignment_hl" + str(self.additionalFileCounter))
 
         # create horizontal layout
         HL = QtGui.QHBoxLayout()
@@ -355,8 +367,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         btn2.setText('...')
         HL.addWidget(btn2)
 
-        # self.resize(self.width(), self.height() + 30)
         self.alignmentParentVL.addLayout(HL)
+        self.additionalAlignmentEntries.append(entry)
 
         btn.clicked.connect(lambda: self.removeFileEntry(HL, entry, btn, btn2))
         btn2.clicked.connect(lambda: self.getFileName(entry))
@@ -453,6 +465,12 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         targetNodes = [cb.currentText().encode('utf-8') for cb in self.lStatisticTargetComboBoxes]
         return [(sourceNodes[i], targetNodes[i]) for i in range(len(sourceNodes))]
 
+    def getAlignments(self):
+        """
+            Output: a list of alignments
+        """
+        return [entry.text().encode('utf-8') for entry in self.additionalAlignmentEntries]
+
     def login(self, password):
         """
             If the password is correct, displays l-statistic page.
@@ -473,6 +491,12 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             if (self.stackedWidget.currentIndex() == 5):
                 if (self.lStatisticStackedWidget.currentIndex() == 0):
                     self.login(self.lStatPasswordLineEdit.text())
+
+    def viewVerbose(self):
+        pass
+
+    def viewRegular(self):
+        pass
 
     # **************************** MS PAGE ****************************#
 
@@ -567,8 +591,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         btn2.deleteLater()
         if entry.objectName() in self.additionalFileEntryNames:
             self.additionalFileEntryNames.remove(entry.objectName())
-        if entry.objectName() in self.additionalAlignmentNames:
-            self.additionalAlignmentNames.remove(entry.objectName())
+        if entry in self.additionalAlignmentEntries:
+            self.additionalAlignmentEntries.remove(entry)
         # self.resize(self.width(), self.height() - 30)
 
     # **************************** CONVERTER PAGE ****************************#

@@ -3435,7 +3435,7 @@ Run RAxML -&gt; Advanced</string>
                    <x>0</x>
                    <y>0</y>
                    <width>726</width>
-                   <height>256</height>
+                   <height>255</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_19">
@@ -3523,7 +3523,7 @@ Run RAxML -&gt; Advanced</string>
                 <item>
                  <layout class="QVBoxLayout" name="verticalLayout_30">
                   <property name="bottomMargin">
-                   <number>10</number>
+                   <number>0</number>
                   </property>
                   <item>
                    <widget class="QLabel" name="label_42">
@@ -3612,7 +3612,7 @@ Run RAxML -&gt; Advanced</string>
                 <item>
                  <layout class="QVBoxLayout" name="verticalLayout_29">
                   <property name="bottomMargin">
-                   <number>10</number>
+                   <number>0</number>
                   </property>
                   <item>
                    <widget class="QLabel" name="label_5">
@@ -3675,7 +3675,7 @@ Run RAxML -&gt; Advanced</string>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_62">
                 <item>
-                 <widget class="QCheckBox" name="checkBox">
+                 <widget class="QCheckBox" name="generatePlotCB">
                   <property name="text">
                    <string>Generate Plot</string>
                   </property>
@@ -3751,7 +3751,7 @@ Run RAxML -&gt; Advanced</string>
                    <x>0</x>
                    <y>0</y>
                    <width>726</width>
-                   <height>256</height>
+                   <height>254</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -3840,7 +3840,7 @@ Run RAxML -&gt; Advanced</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QProgressBar" name="progressBar_2">
+                 <widget class="QProgressBar" name="lProgressBar">
                   <property name="value">
                    <number>0</number>
                   </property>
@@ -3907,6 +3907,22 @@ Run RAxML -&gt; Advanced</string>
                    </size>
                   </property>
                  </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="viewVerboseOutputBtn">
+                  <property name="cursor">
+                   <cursorShape>OpenHandCursor</cursorShape>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">color:blue;</string>
+                  </property>
+                  <property name="text">
+                   <string>View Verbose Output</string>
+                  </property>
+                  <property name="flat">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
