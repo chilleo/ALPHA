@@ -359,8 +359,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>726</width>
-               <height>741</height>
+               <width>509</width>
+               <height>386</height>
               </rect>
              </property>
              <attribute name="label">
@@ -3435,7 +3435,7 @@ Run RAxML -&gt; Advanced</string>
                    <x>0</x>
                    <y>0</y>
                    <width>726</width>
-                   <height>167</height>
+                   <height>256</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_19">
@@ -3455,6 +3455,9 @@ Run RAxML -&gt; Advanced</string>
                       </item>
                       <item>
                        <widget class="QLineEdit" name="lAlignmentEntry">
+                        <property name="text">
+                         <string>/Users/Peter/PycharmProjects/ALPHA/exampleFiles/seqfile.txt</string>
+                        </property>
                         <property name="readOnly">
                          <bool>true</bool>
                         </property>
@@ -3546,7 +3549,7 @@ Run RAxML -&gt; Advanced</string>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_3">
+                     <widget class="QLineEdit" name="lWindowSizeEntry">
                       <property name="maximumSize">
                        <size>
                         <width>60</width>
@@ -3580,7 +3583,7 @@ Run RAxML -&gt; Advanced</string>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_4">
+                     <widget class="QLineEdit" name="lWindowOffsetEntry">
                       <property name="maximumSize">
                        <size>
                         <width>60</width>
@@ -3648,6 +3651,9 @@ Run RAxML -&gt; Advanced</string>
                     </item>
                     <item>
                      <widget class="QLineEdit" name="lSpeciesTreeEntry">
+                      <property name="text">
+                       <string>/Users/Peter/PycharmProjects/ALPHA/speciesTree.txt</string>
+                      </property>
                       <property name="readOnly">
                        <bool>true</bool>
                       </property>
@@ -3745,7 +3751,7 @@ Run RAxML -&gt; Advanced</string>
                    <x>0</x>
                    <y>0</y>
                    <width>726</width>
-                   <height>168</height>
+                   <height>256</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -3825,22 +3831,9 @@ Run RAxML -&gt; Advanced</string>
                </widget>
               </item>
               <item>
-               <spacer name="verticalSpacer_15">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
                <layout class="QHBoxLayout" name="horizontalLayout_59">
                 <item>
-                 <widget class="QPushButton" name="pushButton">
+                 <widget class="QPushButton" name="runGenDStatBtn">
                   <property name="text">
                    <string>Run</string>
                   </property>
