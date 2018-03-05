@@ -5,7 +5,7 @@ from PyQt4 import QtGui, QtCore
 from functools import partial
 
 # GUI
-from raxmlOutputWindows import allTreesWindow, donutPlotWindow, scatterPlotWindow, pgtstWindow, robinsonFouldsWindow, heatMapWindow, bootstrapContractionWindow, dStatisticWindow, msRobinsonFouldsWindow, msPercentMatchingWindow, msTMRCAWindow, windowsToInfSitesWindow
+from raxmlOutputWindows import allTreesWindow, donutPlotWindow, scatterPlotWindow, pgtstWindow, robinsonFouldsWindow, heatMapWindow, bootstrapContractionWindow, dStatisticWindow, msRobinsonFouldsWindow, msPercentMatchingWindow, msTMRCAWindow, windowsToInfSitesWindow, lStatisticWindow
 from module import gui_layout as gui
 
 # logic
@@ -113,6 +113,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.stackedWidget.setCurrentIndex(0)
         self.raxmlToolBox.setCurrentIndex(0)
         self.raxmlOptionsTabWidget.setCurrentIndex(0)
+        self.lOutputStacked.setCurrentIndex(0)
         self.resize(self.windowSizes['welcomePage']['x'], self.windowSizes['welcomePage']['y'])
         self.outputFileConverterEntry.setText(os.getcwd())
 
@@ -153,6 +154,9 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.checkBoxCustomRaxml.stateChanged.connect(lambda: self.toggleEnabled(self.customRaxmlCommandEntry))
         self.checkboxSpeciesTreeRooted.stateChanged.connect(lambda: self.toggleEnabled(self.speciesTreeOutGroupGroupBox))
         self.checkboxSpeciesTreeUseCustomRax.stateChanged.connect(lambda: self.toggleEnabled(self.speciesTreeRaxmlCommandEntry))
+        self.lStatisticFileCB.stateChanged.connect(lambda: self.toggleEnabled(self.lStatisticFileBtn))
+        self.lStatisticFileCB.stateChanged.connect(lambda: self.toggleEnabled(self.lStatisticFileEntry))
+        self.lStatisticFileCB.stateChanged.connect(lambda: self.toggleEnabled(self.lStatisticFileLabel))
 
         self.generateFiguresBtn.clicked.connect(self.generateFigures)
 
@@ -242,6 +246,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # select alignment and species tree for L statistic
         self.lAlignmentBtn.clicked.connect(lambda: self.getFileName(self.lAlignmentEntry))
         self.lSpeciesTreeBtn.clicked.connect(lambda: self.getFileName(self.lSpeciesTreeEntry))
+        self.lStatisticFileBtn.clicked.connect(lambda: self.getFileName(self.lStatisticFileEntry))
 
         # when an alignment is selected update the combo boxes
         self.connect(self.lAlignmentEntry, QtCore.SIGNAL('FILE_SELECTED'), lambda: self.updateTaxonComboBoxes(self.lStatisticSourceComboBoxes, self.lAlignmentEntry))
@@ -264,8 +269,9 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.connect(self.calcGenD, QtCore.SIGNAL('GEN_D_COMPLETE'), self.genDComplete)
 
         self.viewVerboseOutputBtn.clicked.connect(self.viewVerbose)
-        # self.viewRegularOutputBtn.clicked.connect(self.viewRegular)
+        self.viewRegularOutputBtn.clicked.connect(self.viewRegular)
 
+        self.connect(self.calcGenD, QtCore.SIGNAL('L_FINISHED'), self.displayLStatistic)
 
     # **************************** WELCOME PAGE **************************** #
 
@@ -305,7 +311,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.calcGenD.species_tree = self.getLSpeciesTree()
         self.calcGenD.r = self.getReticulations()
         self.calcGenD.alignments = self.getAlignments()
-        print self.calcGenD.alignments
         self.calcGenD.window_size = int(self.lWindowSizeEntry.text().encode('utf-8'))
         self.calcGenD.window_offset = int(self.lWindowOffsetEntry.text().encode('utf-8'))
         self.calcGenD.verbose = True
@@ -314,8 +319,9 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.calcGenD.useDir = False
         self.calcGenD.directory = ""
         self.calcGenD.statistic = False
+        if self.lStatisticFileCB.isChecked():
+            self.calcGenD.statistic = self.lStatisticFileEntry.text().encode('utf-8')
         self.calcGenD.generatePlot = self.generatePlotCB.isChecked()
-
 
         return True
 
@@ -493,10 +499,28 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
                     self.login(self.lStatPasswordLineEdit.text())
 
     def viewVerbose(self):
-        pass
+        self.lOutputStacked.setCurrentIndex(1)
 
     def viewRegular(self):
-        pass
+        self.lOutputStacked.setCurrentIndex(0)
+
+    def displayLStatistic(self, alignments_to_d, alignments_to_windows_to_d):
+        a = self.calcGenD.alignments[0]
+        lStat = (alignments_to_d[a])[0]
+        sig = (alignments_to_d[a])[1]
+
+        self.lValueLabel.setText(str(lStat))
+        self.statisticPatternLabel.setText(str(sig))
+
+        if self.calcGenD.generatePlot:
+            d = alignments_to_windows_to_d[a]
+            windows_to_lvals = {}
+            sigVec = []
+            for i in d:
+                windows_to_lvals[i] = (d[i])[0]
+                sigVec.append((1 if (d[i])[1] else 0))
+            self.lStatisticWindow = lStatisticWindow.LStatisticWindow(windows_to_lvals, sigVec)
+
 
     # **************************** MS PAGE ****************************#
 
@@ -593,7 +617,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             self.additionalFileEntryNames.remove(entry.objectName())
         if entry in self.additionalAlignmentEntries:
             self.additionalAlignmentEntries.remove(entry)
-        # self.resize(self.width(), self.height() - 30)
+            # self.resize(self.width(), self.height() - 30)
 
     # **************************** CONVERTER PAGE ****************************#
 
@@ -663,21 +687,11 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             if self.raxmlInputErrorHandling():
                 self.figuresToBeRegenerated = self.prevGeneratedFigures.intersection(self.requestedFigures())
                 if len(self.figuresToBeRegenerated) > 0:
-                    self.msg = QtGui.QMessageBox()
-                    self.msg.setText("Regenerate Figures?")
-                    # self.msg.setInformativeText('Would you like to regenerate previously generated figures or only generate new figures?')
-                    self.msg.setInformativeText('You have selected figures which have previously been generated. All selected figures will be generated. Are you sure you want to proceed?')
-                    self.msg.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel)
-
-                    # set icon
-                    pixmap = QtGui.QPixmap('imgs/warning.png')
-                    self.msg.setIconPixmap(pixmap)
-
                     # execute window
-                    returnVal = self.msg.exec_()
+                    regen = self.question("Regenerate Figures?", "You have selected figures which have previously been generated. All selected figures will be generated. Are you sure you want to proceed?")
 
                     # if the user selected the 'ok' button
-                    if returnVal == QtGui.QMessageBox.Yes:
+                    if regen == QtGui.QMessageBox.Yes:
                         # start raxml operations thread
                         self.updatedDisplayWindows()
                         # if raxml hasn't been run before just run it
@@ -1016,11 +1030,11 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         elif validator == 'Int':
             entry.setValidator(QtGui.QIntValidator(entry))
 
-    # def resizeEvent(self, event):
-    #     print self.size()
+            # def resizeEvent(self, event):
+            #     print self.size()
 
-    # def moveEvent(self, QMoveEvent):
-    #     print self.pos()
+            # def moveEvent(self, QMoveEvent):
+            #     print self.pos()
 
 
 if __name__ == '__main__':  # if we're running file directly and not importing it

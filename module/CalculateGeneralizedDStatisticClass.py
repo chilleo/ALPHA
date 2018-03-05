@@ -916,7 +916,8 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         window_offset --- the desired offset between windows
         Output:
         l_stat --- the L statistic value
-        significant --- a boolean denoting if the l_stat value is statistically significant
+        significant --- a boolean Built a python application for visualizing evolutionary diversity across genomes  ALPHA : a toolkit for Automated Local PHylogenomic Analyses, that provides an intuitive user interface for phylogenetic analyses and data-viz.
+denoting if the l_stat value is statistically significant
         """
 
         # Separate the patterns of interest into their two terms
@@ -1559,6 +1560,7 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
                 print "Final Overall D value {0}".format(l_stat)
                 print "Significant deviation from 0: {0}".format(significant)
 
+
         elif verbose and statistic:
             print
             print "Patterns that were formerly equal with increasing probability: ", increase
@@ -1599,6 +1601,8 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
                 print
                 print "Final Overall D value {0}".format(l_stat)
                 print "Significant deviation from 0: {0}".format(significant)
+
+        self.emit(QtCore.SIGNAL("L_FINISHED"), alignments_to_d, alignments_to_windows_to_d)
 
         return alignments_to_d, alignments_to_windows_to_d
 
@@ -1675,7 +1679,8 @@ if __name__ == '__main__':
     else:
         alignments = ["C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim2\\seqfile.txt"]
 
-    gd.calculate_generalized(alignments, species_tree, r, window_size=50000, window_offset=50000, verbose=True, alpha=0.01, save=True)
+    # gd.calculate_generalized(alignments, species_tree, r, window_size=50000, window_offset=50000, verbose=True, alpha=0.01, save=True)
+    gd.calculate_generalized(alignments, species_tree, r, window_size=50000, window_offset=50000, statistic="/Users/Peter/PycharmProjects/ALPHA/CommandLineFiles/DGenStatistic_0.txt", verbose=True, alpha=0.01, save=True)
 
     # save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt"
     # plot_formatting(calculate_generalized(alignments, statistic=save_file))
