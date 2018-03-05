@@ -1510,99 +1510,112 @@ denoting if the l_stat value is statistically significant
 
         alignments_to_d = self.calculate_L(alignments, taxa, (increase, decrease), verbose, alpha)
         alignments_to_windows_to_d = self.calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size,
-                                                            window_offset, verbose, alpha)
-        print alignments_to_d
+                                                                 window_offset, verbose, alpha)
+        vout = ""
+        vout += str(alignments_to_d)
         if verbose and not statistic:
-            print
-            print "Newick strings with corresponding patterns: ", newick_patterns
-            print
-            print "Probability of gene tree patterns: ", patterns_pgS
-            print
-            print "Probability of species network patterns:", patterns_pgN
-            print
-            print "Patterns that were formerly equal with increasing probability: ", increase
-            print "Patterns that were formerly equal with decreasing probability: ", decrease
-            print
-            print "Patterns of interest: ", increase, decrease
-            print
-            print "Statistic: ", self.generate_statistic_string((increase, decrease))
-            print
+            vout += "\n"
+            vout += "Newick strings with corresponding patterns: "
+            vout += str(newick_patterns)
+            vout += "\n"
+            vout += "Probability of gene tree patterns: "
+            vout += str(patterns_pgS)
+            vout += "\n"
+            vout += "Probability of species network patterns:"
+            vout += str(patterns_pgN)
+            vout += "\n"
+            vout += "Patterns that were formerly equal with increasing probability: "
+            vout += str(increase)
+            vout += "Patterns that were formerly equal with decreasing probability: "
+            vout += str(decrease)
+            vout += "\n"
+            vout += "Patterns of interest: "
+            vout += str(increase)
+            vout += str(decrease)
+            vout += "\n"
+            vout += "Statistic: "
+            vout += str(self.generate_statistic_string((increase, decrease)))
+            vout += "\n"
 
             inc_prob = 0
             for pattern in increase:
                 inc_prob += patterns_pgS[pattern]
-            print "Total p(gt|st) for increasing site patterns: ", inc_prob
+            vout += "Total p(gt|st) for increasing site patterns: "
+            vout += str(inc_prob)
             dec_prob = 0
             for pattern in decrease:
                 dec_prob += patterns_pgS[pattern]
-            print "Total p(gt|st) for decreasing site patterns: ", dec_prob
+            vout += "Total p(gt|st) for decreasing site patterns: "
+            vout += str(dec_prob)
 
-            print
-            print "Information for each file: "
+            vout += "\n"
+            vout += "Information for each file: "
             for alignment in alignments_to_d:
                 l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d[alignment]
-                print alignment + ": "
-                print
-                print "Overall Chi-Squared statistic: ", chisq
-                print "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored)
-                print "Overall p value: ", pval
-                print
-                print "Left term counts: "
+                vout += str(alignment) + ": "
+                vout += "\n"
+                vout += "Overall Chi-Squared statistic: "
+                vout += str(chisq)
+                vout += "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored)
+                vout += "Overall p value: "
+                vout += str(pval)
+                vout += "\n"
+                vout += "Left term counts: "
                 for pattern in left_counts:
-                    print pattern + ": {0}".format(left_counts[pattern])
-                print
-                print "Right term counts: "
+                    vout += str(pattern) + ": {0}".format(left_counts[pattern])
+                    vout += "\n"
+                vout += "Right term counts: "
                 for pattern in right_counts:
-                    print pattern + ": {0}".format(right_counts[pattern])
-                print
-                print "Windows to D value: ", alignments_to_windows_to_d[alignment]
-                print
-                print "Final Overall D value {0}".format(l_stat)
-                print "Significant deviation from 0: {0}".format(significant)
-
+                    vout += str(pattern) + ": {0}".format(right_counts[pattern])
+                    vout += "\n"
+                vout += "Windows to D value: "
+                vout += str(alignments_to_windows_to_d[alignment])
+                vout += "\n"
+                vout += "Final Overall D value {0}".format(l_stat)
+                vout += "Significant deviation from 0: {0}".format(significant)
 
         elif verbose and statistic:
-            print
-            print "Patterns that were formerly equal with increasing probability: ", increase
-            print "Patterns that were formerly equal with decreasing probability: ", decrease
-            print
-            print "Patterns of interest: ", increase, decrease
-            print
-            print "Statistic: ", self.generate_statistic_string((increase, decrease))
-            print
-            print "Information for each file: "
+            vout += "\n"
+            vout += "Patterns that were formerly equal with increasing probability: {0}\n".format(increase)
+            vout += "Patterns that were formerly equal with decreasing probability: {0}\n".format(decrease)
+            vout += "\n"
+            vout += "Patterns of interest: {0} {1}\n".format(increase, decrease)
+            vout += "\n"
+            vout += "Statistic: {0}\n".format(self.generate_statistic_string((increase, decrease)))
+            vout += "\n"
+            vout += "Information for each file: \n"
             for alignment in alignments_to_d:
                 l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d[alignment]
-                print alignment + ": "
-                print
-                print "Overall Chi-Squared statistic: ", chisq
-                print "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored)
-                print "Overall p value: ", pval
-                print
-                print "Left term counts: "
+                vout += alignment + ": "
+                vout += "\n"
+                vout += "Overall Chi-Squared statistic: {0}\n".format(chisq)
+                vout += "Number of site ignored due to \"N\" or \"-\": {0}\n".format(num_ignored)
+                vout += "Overall p value: {0}\n".format(pval)
+                vout += "\n"
+                vout += "Left term counts: \n"
                 for pattern in left_counts:
-                    print pattern + ": {0}".format(left_counts[pattern])
-                print
-                print "Right term counts: "
+                    vout += pattern + ": {0}\n".format(left_counts[pattern])
+                vout += "\n"
+                vout += "Right term counts: \n"
                 for pattern in right_counts:
-                    print pattern + ": {0}".format(right_counts[pattern])
-                print
-                print "Windows to D value: ", alignments_to_windows_to_d[alignment]
-                print
-                print "Final Overall D value {0}".format(l_stat)
-                print "Significant deviation from 0: {0}".format(significant)
+                    vout += pattern + ": {0}\n".format(right_counts[pattern])
+                vout += "\n"
+                vout += "Windows to D value: {0}\n".format(alignments_to_windows_to_d[alignment])
+                vout += "\n"
+                vout += "Final Overall D value {0}\n".format(l_stat)
+                vout += "Significant deviation from 0: {0}\n".format(significant)
 
         else:
             for alignment in alignments_to_d:
                 l_stat, significant = alignments_to_d[alignment]
-                print alignment + ": "
-                print
-                print "Windows to D value: ", alignments_to_windows_to_d[alignment]
-                print
-                print "Final Overall D value {0}".format(l_stat)
-                print "Significant deviation from 0: {0}".format(significant)
+                vout += alignment + ": \n"
+                vout += "\n"
+                vout += "Windows to D value: {0}\n".format(alignments_to_windows_to_d[alignment])
+                vout += "\n"
+                vout += "Final Overall D value {0}\n".format(l_stat)
+                vout += "Significant deviation from 0: {0}\n".format(significant)
 
-        self.emit(QtCore.SIGNAL("L_FINISHED"), alignments_to_d, alignments_to_windows_to_d)
+        self.emit(QtCore.SIGNAL("L_FINISHED"), alignments_to_d, alignments_to_windows_to_d, vout)
 
         return alignments_to_d, alignments_to_windows_to_d
 

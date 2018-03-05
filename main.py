@@ -504,13 +504,14 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
     def viewRegular(self):
         self.lOutputStacked.setCurrentIndex(0)
 
-    def displayLStatistic(self, alignments_to_d, alignments_to_windows_to_d):
+    def displayLStatistic(self, alignments_to_d, alignments_to_windows_to_d, v):
         a = self.calcGenD.alignments[0]
         lStat = (alignments_to_d[a])[0]
         sig = (alignments_to_d[a])[1]
 
         self.lValueLabel.setText(str(lStat))
         self.statisticPatternLabel.setText(str(sig))
+        self.verboseOutputLabel.setText(str(v))
 
         if self.calcGenD.generatePlot:
             d = alignments_to_windows_to_d[a]
