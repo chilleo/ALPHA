@@ -318,7 +318,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.calcGenD.window_size = int(self.lWindowSizeEntry.text().encode('utf-8'))
         self.calcGenD.window_offset = int(self.lWindowOffsetEntry.text().encode('utf-8'))
         self.calcGenD.verbose = True
-        self.calcGenD.alpha = 0.01
+        self.calcGenD.alpha = self.lAlphaEntry.text().encode('utf-8')
         self.calcGenD.save = True
         self.calcGenD.useDir = self.lUseDirCB.isChecked()
         self.calcGenD.directory = ""
