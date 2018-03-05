@@ -224,7 +224,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # **************************** L STATISTIC PAGE **************************** #
 
         # set default L-statistic page to ask for password
-        self.lStatisticStackedWidget.setCurrentIndex(0)
+        self.lStatisticStackedWidget.setCurrentIndex(1)
         self.lStatLoginBtn.clicked.connect(lambda: self.login(self.lStatPasswordLineEdit.text()))
 
         # list of combo boxes containing the taxa from the alignment for the L statistic
@@ -245,11 +245,16 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # when an species tree is selected update the graph
         self.connect(self.lSpeciesTreeEntry, QtCore.SIGNAL('FILE_SELECTED'), self.updateLTree)
 
-        # dynamically add more file entries
+
+        # dynamically add more reticulations
         self.lStatisticAddReticulationBtn.clicked.connect(self.addReticulationComboBox)
 
         # dynamically add more file entries
         self.lStatisticAddAlignmentBtn.clicked.connect(self.addAlignmentEntry)
+
+        # scroll all the way to the bottom everytime you add an alignment or reticulation
+        self.connect(self.reticulationScrollArea.verticalScrollBar(), QtCore.SIGNAL("rangeChanged(int,int)"), lambda: self.reticulationScrollArea.verticalScrollBar().setValue(self.reticulationScrollArea.verticalScrollBar().maximum()))
+        self.connect(self.lAlignmentScrollArea.verticalScrollBar(), QtCore.SIGNAL("rangeChanged(int,int)"), lambda: self.lAlignmentScrollArea.verticalScrollBar().setValue(self.lAlignmentScrollArea.verticalScrollBar().maximum()))
 
     # **************************** WELCOME PAGE **************************** #
 
@@ -304,7 +309,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         HL.setObjectName("alignment_hl" + str(self.additionalAlignmentCounter))
 
         # create btn to remove and add to horizontal layout
-        btn = QtGui.QToolButton(self.lAlignmentGroupBox)
+        btn = QtGui.QToolButton()
         btn.setObjectName("removeAlignmentBtn" + str(self.additionalAlignmentCounter))
         btn.setText('-')
         btn.setFixedHeight(21)
@@ -312,37 +317,22 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         HL.addWidget(btn)
 
         # create text entry and add to horizontal layout
-        entry = QtGui.QLineEdit(self.lAlignmentGroupBox)
+        entry = QtGui.QLineEdit()
         entry.setReadOnly(True)
         entry.setObjectName("alignmentEntry" + str(self.additionalFileCounter))
         HL.addWidget(entry)
 
         # create btn and add to horizontal layout
-        btn2 = QtGui.QToolButton(self.lAlignmentGroupBox)
+        btn2 = QtGui.QToolButton()
         btn2.setObjectName("alignmentBtn" + str(self.additionalFileCounter))
         btn2.setText('...')
         HL.addWidget(btn2)
 
-        self.resize(self.width(), self.height() + 30)
+        # self.resize(self.width(), self.height() + 30)
         self.alignmentParentVL.addLayout(HL)
 
         btn.clicked.connect(lambda: self.removeFileEntry(HL, entry, btn, btn2))
         btn2.clicked.connect(lambda: self.getFileName(entry))
-
-    def removeReticulationEntry(self, HL, sourceComboBox, arrow, targetComboBox, btn, hSpacer):
-        HL.deleteLater()
-        sourceComboBox.deleteLater()
-        arrow.deleteLater()
-        targetComboBox.deleteLater()
-        btn.deleteLater()
-        self.resize(self.width(), self.height() - 30)
-
-        self.lStatisticSourceComboBoxes.remove(sourceComboBox)
-        self.lStatisticTargetComboBoxes.remove(targetComboBox)
-
-        print "- ", [x.objectName() for x in self.lStatisticSourceComboBoxes]
-        print "- ", [x.objectName() for x in self.lStatisticTargetComboBoxes]
-        print "- ", self.getReticulations()
 
     def addReticulationComboBox(self):
         self.additionalReticulationCounter += 1
@@ -352,7 +342,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         HL.setObjectName("reticulation_hl" + str(self.additionalReticulationCounter))
 
         # create btn to remove and add to horizontal layout
-        btn = QtGui.QToolButton(self.reticulationGroupBox)
+        btn = QtGui.QToolButton()
         btn.setObjectName("removeReticulationBtn" + str(self.additionalReticulationCounter))
         btn.setText('-')
         btn.setFixedHeight(21)
@@ -360,18 +350,18 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         HL.addWidget(btn)
 
         # create combo box and add to horizontal layout
-        sourceComboBox = QtGui.QComboBox(self.reticulationGroupBox)
+        sourceComboBox = QtGui.QComboBox()
         sourceComboBox.setObjectName("reticulationSource" + str(self.additionalReticulationCounter))
         HL.addWidget(sourceComboBox)
 
         # create label "=>" and add to horizontal layout
-        arrowLabel = QtGui.QLabel(self.reticulationGroupBox)
+        arrowLabel = QtGui.QLabel()
         arrowLabel.setObjectName("arrow" + str(self.additionalReticulationCounter))
         arrowLabel.setText("=>")
         HL.addWidget(arrowLabel)
 
         # create combo box and add to horizontal layout
-        targetComboBox = QtGui.QComboBox(self.reticulationGroupBox)
+        targetComboBox = QtGui.QComboBox()
         targetComboBox.setObjectName("reticulationTarget" + str(self.additionalReticulationCounter))
         HL.addWidget(targetComboBox)
 
@@ -379,7 +369,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         hSpacer = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         HL.addItem(hSpacer)
 
-        self.resize(self.width(), self.height() + 30)
+        # self.resize(self.width(), self.height() + 30)
         self.reticulationComboBoxParentVL.addLayout(HL)
 
         self.lStatisticSourceComboBoxes.append(sourceComboBox)
@@ -391,24 +381,16 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         btn.clicked.connect(lambda: self.removeReticulationComboBox(HL, sourceComboBox, arrowLabel, targetComboBox, btn, hSpacer))
 
-        print "+ ", [x.objectName() for x in self.lStatisticSourceComboBoxes]
-        print "+ ", [x.objectName() for x in self.lStatisticTargetComboBoxes]
-        print "+ ", self.getReticulations()
-
     def removeReticulationComboBox(self, HL, sourceComboBox, arrow, targetComboBox, btn, hSpacer):
         HL.deleteLater()
         sourceComboBox.deleteLater()
         arrow.deleteLater()
         targetComboBox.deleteLater()
         btn.deleteLater()
-        self.resize(self.width(), self.height() - 30)
+        # self.resize(self.width(), self.height() - 30)
 
         self.lStatisticSourceComboBoxes.remove(sourceComboBox)
         self.lStatisticTargetComboBoxes.remove(targetComboBox)
-
-        print "- ", [x.objectName() for x in self.lStatisticSourceComboBoxes]
-        print "- ", [x.objectName() for x in self.lStatisticTargetComboBoxes]
-        print "- ", self.getReticulations()
 
     def updateLTree(self):
         # read the species tree
@@ -449,6 +431,12 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             moreInfo = "\"" + password + "\" is incorrect. please try again or contact chilleo@gmail.com"
             self.message("Incorrect Password", "The password you entered is incorrect.", moreInfo)
 
+    def keyPressEvent(self, e):
+        super(PhyloVisApp, self).keyPressEvent(e)
+        if e.key() in [QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return]:
+            if (self.stackedWidget.currentIndex() == 5):
+                if (self.lStatisticStackedWidget.currentIndex() == 0):
+                    self.login(self.lStatPasswordLineEdit.text())
 
     # **************************** MS PAGE ****************************#
 
@@ -545,7 +533,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             self.additionalFileEntryNames.remove(entry.objectName())
         if entry.objectName() in self.additionalAlignmentNames:
             self.additionalAlignmentNames.remove(entry.objectName())
-        self.resize(self.width(), self.height() - 30)
+        # self.resize(self.width(), self.height() - 30)
 
     # **************************** CONVERTER PAGE ****************************#
 
