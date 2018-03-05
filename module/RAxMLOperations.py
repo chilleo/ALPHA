@@ -284,16 +284,6 @@ class RAxMLOperations(QtCore.QThread):
                     # Delete float branch lengths, ":" and "\n" from newick string
                     topology = ((re.sub(float_pattern, '', topology)).replace(":", "")).replace("\n", "")
 
-                    # If rooting desired
-                    # if self.rooted:
-                    #     Create the tree object and root it
-                    # tree = Phylo.read(newick_file, "newick")
-                    # tree.rooted = True
-                    # tree.root_with_outgroup(outgroup)
-                    #
-                    # Write the newick string to a new file
-                    # Phylo.write(tree, topology_output_directory + "\Topology_bestTree." + file_number, "newick")
-
                     # Otherwise write the topology newick string to a file
                     # else:
                     if platform == 'win32':

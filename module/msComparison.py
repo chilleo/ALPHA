@@ -2,6 +2,7 @@ import os
 from natsort import natsorted
 import statisticCalculations as sc
 from PyQt4 import QtCore
+from sys import platform
 from ete3 import TreeNode
 from ete3 import Tree
 import matplotlib.pyplot as plt
@@ -113,6 +114,58 @@ class MsComparison(QtCore.QThread):
 
         return sites_to_newick
 
+    def rax_to_ms(self, sites_to_newick):
+        """
+        Creates an ms style output based on a raxml input
+
+        Input:
+            sites_to_newick --- a mapping of site indices to their corresponding best tree newick string
+        """
+
+        output_directory = "../MS_Formatted_RAxML_Files"
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
+
+        num = 0
+        file_name = "ms_formatted_RAxMl{0}.txt".format(num)
+        path = os.path.join(output_directory, file_name)
+        while os.path.exists(path):
+            num += 1
+            file_name = "ms_formatted_RAxML{0}.txt".format(num)
+
+        with open(file_name, "w") as text_file:
+            num_newicks = 0
+            prev_newick = sites_to_newick[0]
+
+            # Count the number of newicks that occur consecutively
+            for site in sites_to_newick:
+                newick = sites_to_newick[site]
+
+                if prev_newick == sites_to_newick[site]:
+                    num_newicks += 1
+
+                elif site != 0 and prev_newick != sites_to_newick[site]:
+                    prev_newick = newick
+                    output_str = "[{0}]{1}\n".format(num_newicks, newick)
+                    text_file.write(output_str)
+                    num_newicks = 1
+
+            output_str = "[{0}]{1}\n".format(num_newicks, newick)
+            text_file.write(output_str)
+            text_file.close()
+
+        # windows
+        if platform == "win32":
+            # Move RAxML output files into their own destination folder - Windows
+            os.rename("ms_formatted_RAxML{0}.txt".format(num),
+                      output_directory + "ms_formatted_RAxML{0}.txt".format(num))
+
+        # mac
+        elif platform == "darwin":
+            # Move RAxML output files into their own destination folder - Mac
+            os.rename("ms_formatted_RAxML{0}.txt".format(num),
+                      output_directory + "ms_formatted_RAxML{0}.txt".format(num))
+
     def sitesToRobinsonFouldsDistance(self, sites_to_newick_1,  sites_to_newick_2):
         """
             Creates a mapping of sites to both the unweighted and weighted Robinson-Foulds Distance
@@ -202,24 +255,29 @@ if __name__ == '__main__':  # if we're running file directly and not importing i
     ms = MsComparison()
     ms.statisticsCalculations.output_directory = '../RAxML_Files'
 
-    ms.msTruth = '../testFiles/fakeMS.txt'
-    ms.msFiles = []
-    ms.msFiles.append('../testFiles/fakeMS2.txt')
-    # ms.msFiles.append('../testFiles/fakeMS5.txt')
-    # ms.msFiles.append('../testFiles/fakeMS6.txt')
+    rax_dir = '../RAxML_Files'
+    ws, wo = 5000, 5000
+    stn = ms.sites_to_newick_rax(rax_dir, ws, wo)
+    ms.rax_to_ms(stn)
 
-    ms.robinsonFouldsBarPlot = False
-    ms.percentMatchingSitesBarPlot = False
-    ms.tmrcaLineGraph = True
-
-
-    def plot(weightedData, unweightedData, percentMatchingSitesWeighted, percentMatchingSitesUnweighted, msFiles):
-        # ms.statisticsCalculations.barPlot(weightedData, '../plots/WRFdifference.png', 'Weighted', '', 'IDK', groupLabels=msFiles, xTicks=True)
-        # ms.statisticsCalculations.barPlot(unweightedData, '../plots/UWRFdifference.png', 'Unweighted', '', 'IDK', groupLabels=msFiles)
-        # ms.statisticsCalculations.barPlot(percentMatchingSitesWeighted, '../plots/percentMatchingSitesWeighted', 'Percent Matching Sites Weighted', '', '% Matching Sites Weighted')
-        # ms.statisticsCalculations.barPlot(percentMatchingSitesUnweighted, '../plots/percentMatchingSitesUnweighted', 'Percent Matching Sites Unweighted', '', '% Matching Sites Unweighted')
-        # plt.show()
-        pass
-
-    ms.connect(ms, QtCore.SIGNAL('MS_COMPLETE'), plot)
-    ms.run()
+    # ms.msTruth = '../testFiles/fakeMS.txt'
+    # ms.msFiles = []
+    # ms.msFiles.append('../testFiles/fakeMS2.txt')
+    # # ms.msFiles.append('../testFiles/fakeMS5.txt')
+    # # ms.msFiles.append('../testFiles/fakeMS6.txt')
+    #
+    # ms.robinsonFouldsBarPlot = False
+    # ms.percentMatchingSitesBarPlot = False
+    # ms.tmrcaLineGraph = True
+    #
+    #
+    # def plot(weightedData, unweightedData, percentMatchingSitesWeighted, percentMatchingSitesUnweighted, msFiles):
+    #     # ms.statisticsCalculations.barPlot(weightedData, '../plots/WRFdifference.png', 'Weighted', '', 'IDK', groupLabels=msFiles, xTicks=True)
+    #     # ms.statisticsCalculations.barPlot(unweightedData, '../plots/UWRFdifference.png', 'Unweighted', '', 'IDK', groupLabels=msFiles)
+    #     # ms.statisticsCalculations.barPlot(percentMatchingSitesWeighted, '../plots/percentMatchingSitesWeighted', 'Percent Matching Sites Weighted', '', '% Matching Sites Weighted')
+    #     # ms.statisticsCalculations.barPlot(percentMatchingSitesUnweighted, '../plots/percentMatchingSitesUnweighted', 'Percent Matching Sites Unweighted', '', '% Matching Sites Unweighted')
+    #     # plt.show()
+    #     pass
+    #
+    # ms.connect(ms, QtCore.SIGNAL('MS_COMPLETE'), plot)
+    # ms.run()

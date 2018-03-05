@@ -438,7 +438,7 @@ def pattern_string_generator(patterns):
     return pattern_strings
 
 
-def site_pattern_generator(taxa_order, newick, outgroup):
+def site_pattern_generator(taxa_order, newick, outgroup, use_inverted=False):
     """
     Generate the appropriate AB list patterns
     Inputs:
@@ -626,23 +626,23 @@ def site_pattern_generator(taxa_order, newick, outgroup):
         else:
             duplicates.append(pattern)
 
-    # This may need to change double check with Chill Leo on this
-    # if clade_count > 1:
-
-    duplicates = finished_patterns
-
-    # Invert all duplicate patterns
-    inverted_patterns = pattern_inverter(duplicates)
-
-    # Iterate over the inverted patterns and add them to finished patterns
-    for pattern in inverted_patterns:
-
-        if pattern not in finished_patterns:
-            finished_patterns.append(pattern)
-
-    finished_patterns = pattern_string_generator(finished_patterns)
-
     return finished_patterns
+
+    # duplicates = finished_patterns
+    #
+    # # Invert all duplicate patterns
+    # if use_inverted:
+    #     inverted_patterns = pattern_inverter(duplicates)
+    #
+    #     # Iterate over the inverted patterns and add them to finished patterns
+    #     for pattern in inverted_patterns:
+    #
+    #         if pattern not in finished_patterns:
+    #             finished_patterns.append(pattern)
+    #
+    # finished_patterns = pattern_string_generator(finished_patterns)
+    #
+    # return finished_patterns
 
 
 def newicks_to_patterns_generator(taxa_order, newicks):
@@ -1648,13 +1648,17 @@ if __name__ == '__main__':
     else:
         alignments = ["C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim2\\seqfile.txt"]
 
+    # alignments = ["C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim5\\seqfile",
+    #               "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim6\\seqfile",
+    #               "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim8\\seqfile"]
+
     # print calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
 
     calculate_generalized(alignments, species_tree, r, 50000, 50000, True, 0.01, statistic=False, save=True)
     # calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, statistic=False, save=True)
     #
-    # save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt"
-    # plot_formatting(calculate_generalized(alignments, statistic=save_file))
+    # save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_11.txt"
+    # plot_formatting(calculate_generalized(alignments, statistic=save_file, verbose=True))
 
     # print calculate_generalized(alignments, statistic="C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_10.txt", verbose=True)
     # calculate_generalized(alignments, statistic="C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt")
