@@ -438,13 +438,14 @@ def pattern_string_generator(patterns):
     return pattern_strings
 
 
-def site_pattern_generator(taxa_order, newick, outgroup, use_inverted=False):
+def site_pattern_generator(taxa_order, newick, outgroup, use_inv):
     """
     Generate the appropriate AB list patterns
     Inputs:
     taxa_order --- the desired order of the taxa
     newick --- the newick string to generate site patterns for
     outgroup --- the outgroup of the tree
+    use_inv --- a boolean (defaulted to false) for if inverse site patterns are to be used
     Output:
     finished_patterns --- the list of site patterns generated for the newick string
     """
@@ -626,26 +627,25 @@ def site_pattern_generator(taxa_order, newick, outgroup, use_inverted=False):
         else:
             duplicates.append(pattern)
 
+    duplicates = finished_patterns
+
+    # Invert all duplicate patterns
+    if use_inv:
+        inverted_patterns = pattern_inverter(duplicates)
+
+        # Iterate over the inverted patterns and add them to finished patterns
+        for pattern in inverted_patterns:
+
+            if pattern not in finished_patterns:
+                finished_patterns.append(pattern)
+
+        print finished_patterns
+    finished_patterns = pattern_string_generator(finished_patterns)
+
     return finished_patterns
 
-    # duplicates = finished_patterns
-    #
-    # # Invert all duplicate patterns
-    # if use_inverted:
-    #     inverted_patterns = pattern_inverter(duplicates)
-    #
-    #     # Iterate over the inverted patterns and add them to finished patterns
-    #     for pattern in inverted_patterns:
-    #
-    #         if pattern not in finished_patterns:
-    #             finished_patterns.append(pattern)
-    #
-    # finished_patterns = pattern_string_generator(finished_patterns)
-    #
-    # return finished_patterns
 
-
-def newicks_to_patterns_generator(taxa_order, newicks):
+def newicks_to_patterns_generator(taxa_order, newicks, use_inv):
     """
     Generate the site patterns for each newick string and map the strings to their patterns
     Inputs:
@@ -662,7 +662,7 @@ def newicks_to_patterns_generator(taxa_order, newicks):
 
     # Iterate over the newick strings
     for newick in newicks:
-        newicks_to_patterns[newick] = site_pattern_generator(taxa_order, newick, outgroup)
+        newicks_to_patterns[newick] = site_pattern_generator(taxa_order, newick, outgroup, use_inv)
 
     return newicks_to_patterns
 
@@ -693,8 +693,6 @@ def calculate_pattern_probabilities(newicks_to_patterns, newicks_to_pgS, newicks
 
             # Initialize a probability for each pattern if it does not have one
             if pattern not in patterns_to_pgS:
-                # print "newicks to pgs", newicks_to_pgS
-                # print "newick", newick
 
                 # on mac all the newicks need to be wrapped in single quotes to run with the JAR
                 # so all the keys are wrapped in single quotes
@@ -711,7 +709,7 @@ def calculate_pattern_probabilities(newicks_to_patterns, newicks_to_pgS, newicks
     return patterns_to_pgS, patterns_to_pgN
 
 
-def determine_patterns(pattern_set, patterns_to_equality, patterns_to_pgN, patterns_to_pgS):
+def determine_patterns(pattern_set, patterns_to_equality, patterns_to_pgN, patterns_to_pgS, use_inv):
     """
     Determine which patterns are useful in determining introgression
     Inputs:
@@ -719,6 +717,7 @@ def determine_patterns(pattern_set, patterns_to_equality, patterns_to_pgN, patte
     patterns_to_equality --- a mapping of site patterns to site patterns with equivalent p(gt|st)
     patterns_to_pgN --- a mapping of site patterns to their total p(g|N) value for a network
     patterns_to_pgS --- a mapping of site patterns to their total p(g|st)
+    use_inv --- a boolean (defaulting to false) for if inverse site patterns should be used
     Outputs:
     terms1 --- a set of patterns to count and add to each other to determine introgression
     terms2 --- a set of other patterns to count and add to each other to determine introgression
@@ -748,29 +747,33 @@ def determine_patterns(pattern_set, patterns_to_equality, patterns_to_pgN, patte
                         terms1.add(pattern2)
                         terms2.add(pattern1)
 
-    inverted1 = pattern_inverter(terms1)
-    for pattern in inverted1:
-        terms1.add(''.join(pattern))
+    if use_inv:
+        inverted1 = pattern_inverter(terms1)
+        for pattern in inverted1:
+            terms1.add(''.join(pattern))
 
-    inverted2 = pattern_inverter(terms2)
-    for pattern in inverted2:
-        terms2.add(''.join(pattern))
-
-    # Fix the chunk of code below
+        inverted2 = pattern_inverter(terms2)
+        for pattern in inverted2:
+            terms2.add(''.join(pattern))
 
     if len(terms1) != len(terms2):
 
-        terms1, terms2 = resize_terms(terms1, terms2, patterns_to_pgS)
+        terms1, terms2 = resize_terms(terms1, terms2, patterns_to_pgS, use_inv)
 
     return terms1, terms2
 
-def resize_terms(terms1, terms2, patterns_to_pgS):
+def resize_terms(terms1, terms2, patterns_to_pgS, use_inv):
     """
-    
-    :param terms1: 
-    :param terms2: 
-    :param patterns_to_pgS: 
-    :return: 
+    Resize the terms to ensure that the probabilities are the same on both sides.
+    This is necessary to maintain the null hypothesis that D = 0 under no introgression.
+    Inputs:
+    terms1 --- a set of patterns to count and add to each other to determine introgression
+    terms2 --- a set of other patterns to count and add to each other to determine introgression
+    patterns_to_pgS --- a mapping of site patterns to their p(gt|st) values
+    use_inv --- a boolean (defaulting to false) for if inverse site patterns should be used
+    Outputs:
+    erms1 --- a set of patterns to count and add to each other to determine introgression
+    terms2 --- a set of other patterns to count and add to each other to determine introgression
     """
 
     terms1 = list(terms1)
@@ -821,20 +824,21 @@ def resize_terms(terms1, terms2, patterns_to_pgS):
 
             terms1_remove = False
 
-        # Remove site patterns and their inverses
-        rm = []
-        inv_rm = pattern_inverter(removed)
-        for pattern in inv_rm:
-            rm.append(''.join(pattern))
-        rm = rm + removed
+        if use_inv:
+            # Remove site patterns and their inverses
+            rm = []
+            inv_rm = pattern_inverter(removed)
+            for pattern in inv_rm:
+                rm.append(''.join(pattern))
+            rm = rm + removed
 
-        for pattern in rm:
+            for pattern in rm:
 
-            if terms1_remove:
-                terms1.remove(pattern)
+                if terms1_remove:
+                    terms1.remove(pattern)
 
-            else:
-                terms2.remove(pattern)
+                else:
+                    terms2.remove(pattern)
 
     terms1, terms2 = tuple(terms1), tuple(terms2)
 
@@ -988,12 +992,8 @@ def calculate_L(alignments, taxa_order, patterns_of_interest, verbose=False, alp
                     else:
                         site_pattern.append("B")
 
-                # Convert the site pattern to a string
-                # print "site pattern", site_pattern
-                # print "generator", pattern_string_generator([site_pattern])
-
                 sites = pattern_string_generator([site_pattern])
-                if sites != []:
+                if sites:
                     site_string = sites[0]
 
                     # If the site string is a pattern of interest add to its count for one of the terms
@@ -1279,7 +1279,7 @@ def approximately_equal(x, y, tol=0.0000000001):
 
     return abs(x - y) <= tol
 
-def equality_sets(species_trees, network, taxa):
+def equality_sets(species_trees, network, taxa, use_inv):
     """
     Create mappings of site patterns to patterns with equivalent probabilities
     Input:
@@ -1296,7 +1296,7 @@ def equality_sets(species_trees, network, taxa):
     outgroup = taxa[-1]
     gene_trees = generate_unique_trees(taxa, outgroup)
 
-    newick_patterns = newicks_to_patterns_generator(taxa, gene_trees)
+    newick_patterns = newicks_to_patterns_generator(taxa, gene_trees, use_inv)
 
     for st in species_trees:
         ts_to_pgS, ts_to_pgN = calculate_newicks_to_stats(st, network, gene_trees)
@@ -1415,8 +1415,6 @@ def concat_directory(directory_path):
         with open(input_file, 'r') as f:
             input_file_list = [l.rstrip() for l in list(f)]
 
-        # print input_file_list
-
         for j in range(len(input_file_list)):
             # if this is the first file
             if i == 0:
@@ -1442,7 +1440,7 @@ def concat_directory(directory_path):
 
 def calculate_generalized(alignments, species_tree=None, reticulations=None, window_size=100000000000,
                           window_offset=100000000000, verbose=False, alpha=0.01, useDir=False, directory="",
-                          statistic=False, save=False):
+                          statistic=False, save=False, use_inv=False):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1455,6 +1453,9 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         verbose --- a boolean for determining if extra information will be printed
         useDir --- a boolean for determining if the user wants to input an entire directory of alignments or only a single alignment
         directory --- a string path to the directory the use wants to use. NOTE: only necessary if useDir=True.
+        statistic --- a text file containing a saved statistic
+        save --- a boolean corresponding to save a statistic or not
+        use_inv --- a boolean for using inverse site patterns or not
     Output:
         l_stat --- the L statistic value
     """
@@ -1463,11 +1464,11 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
     if not statistic:
         st = re.sub("\:\d+\.\d+", "", species_tree)
         trees, taxa = branch_adjust(st)
-        newick_patterns = newicks_to_patterns_generator(taxa, trees)
+        newick_patterns = newicks_to_patterns_generator(taxa, trees, use_inv)
         network = generate_network_tree((0.1, 0.9), list(trees)[0], reticulations)
-        trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
+        trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa, use_inv)
         trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
-        increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN, patterns_pgS)
+        increase, decrease = determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN, patterns_pgS, use_inv)
 
         # If users want to save the statistic and speed up future runs
         if save:
@@ -1648,79 +1649,17 @@ if __name__ == '__main__':
     else:
         alignments = ["C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim2\\seqfile.txt"]
 
-    # alignments = ["C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim5\\seqfile",
-    #               "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim6\\seqfile",
-    #               "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim8\\seqfile"]
+    alignments = ["C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim5\\seqfile",
+                  "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim6\\seqfile",
+                  "C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim8\\seqfile"]
 
     # print calculate_generalized(alignments, species_tree, r, 1000, 1000, True)
 
-    calculate_generalized(alignments, species_tree, r, 50000, 50000, True, 0.01, statistic=False, save=True)
+    print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True, verbose=True)
     # calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, statistic=False, save=True)
     #
     # save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_11.txt"
     # plot_formatting(calculate_generalized(alignments, statistic=save_file, verbose=True))
 
-    # print calculate_generalized(alignments, statistic="C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_10.txt", verbose=True)
-    # calculate_generalized(alignments, statistic="C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt")
 
-    # python - c "from CalculateGeneralizedDStatistic import *; calculate_generalized(['C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip'], statistic='C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt')"
-
-    # species_tree, r = '(((P1,P2),(P3,(P4,P5))),O);', [('P1', 'P3')]
-    # alignments = ["C:\\Users\\travi\\Documents\\PhyloVis\\exampleFiles\\ExampleDFOIL.phylip"]
-    # alignments = ["C:\\Users\\travi\\Desktop\\sixtaxa.txt"]
-    # i = calculate_generalized(alignments, species_tree, r, 100000, 100000, True, save=True)
-
-    # for j in range(10):
-    #     k = calculate_generalized(alignments, species_tree, r, 100000, 100000, True, save=True)
-    #     if i != k:
-    #         print "FAIL"
-    #         print i
-    #         print k
-    #     print j
-
-
-    # print pattern_string_generator(['A', 'A', 'A', 'A', 'A'])
-
-    # Inputs for paper
-    # file = "C:\\Users\\travi\\Desktop\\concatFile.phylip.txt"
-    # species_tree = '((C,G),(((A,Q),L),R));'
-    #
-    # window_size, window_offset = 10000, 1000
-    # r = [('L', 'R')]
-    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-    # window_size, window_offset = 100000, 10000
-    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-    #
-    # window_size, window_offset = 10000, 1000
-    # r = [('Q', 'R')]
-    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-    # window_size, window_offset = 100000, 10000
-    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-    #
-    # window_size, window_offset = 10000, 1000
-    # r = [('Q', 'G')]
-    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-    # window_size, window_offset = 100000, 10000
-    # plot_formatting(calculate_generalized(file, species_tree, r, window_size, window_offset, True))
-
-    # concat_directory("/Users/Peter/PycharmProjects/ALPHA/test_phylip_dir")
-    # print calculate_generalized('/Users/Peter/PycharmProjects/ALPHA/CLFILE', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
-
-
-        # file = 'C:\\Users\\travi\\Desktop\\clphylipseq.txt'
-    # # r = [('L', 'R')]
-    # r = [('Q', 'R')]
-    # # r = [('Q', 'G')]
-    # print calculate_generalized(file , '((C,G),(((A,Q),L),R));', r, 100000, 100000, True)
-
-    # concat_directory("/Users/Peter/PycharmProjects/ALPHA/travy_test")
-    # print calculate_generalized('/Users/Peter/PycharmProjects/ALPHA/CLFILE', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
-
-    # plot_formatting(calculate_generalized(alignments, species_tree, r, 1000, 1000, True))
-    # # lstat, signif, windows_to_l = calculate_generalized(alignment, species_tree, r, 1000, 1000, True, 0.05)
-    # # plot_formatting((lstat, signif, windows_to_l))
-    # plot_formatting(calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P3', 'P1')], 1000, 1000, False, 0.99), False)
-
-    # print calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 50000, 50000, True)
-
-# python -c"from CalculateGeneralizedDStatistic import *; plot_formatting(calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 100000, 100000, True, 0.01), True)"
+    # python -c"from CalculateGeneralizedDStatistic import *; plot_formatting(calculate_generalized('C:\\Users\\travi\\Desktop\\seqfileNamed', '(((P1,P2),(P3,P4)),O);', [('P1', 'P3')], 100000, 100000, True, 0.01), True)"
