@@ -34,7 +34,7 @@ With D-statistic mode, users can compute Patterson’s D-statistic for determini
 
 ### Requirements
 
-ALPHA currently runs on both Mac and Windows operating systems and selects the proper operating system automatically. Python 2.7.13 and Java are required for this GUI, along with the additional libraries: [BioPython](http://biopython.org/wiki/Documentation), [DendroPy](https://www.dendropy.org/), [ETE](http://etetoolkit.org/), [Matplotlib](https://matplotlib.org/), [natsort](https://pypi.python.org/pypi/natsort), [PIL](http://www.pythonware.com/products/pil/), [PyQt4](http://pyqt.sourceforge.net/Docs/PyQt4/), [ReportLab](https://pypi.python.org/pypi/reportlab), [SciPy](https://www.scipy.org/), and [SVGUtils](https://pypi.python.org/pypi/svgutils). [RAxML](https://github.com/stamatak/standard-RAxML) is also required for performing analysis in RAxML mode.
+ALPHA currently runs on both Mac and Windows operating systems and selects the proper operating system automatically. Python 2.7.13 and Java are required for this GUI, along with the additional libraries: [BioPython](http://biopython.org/wiki/Documentation), [DendroPy](https://www.dendropy.org/), [ETE](http://etetoolkit.org/), [Matplotlib](https://matplotlib.org/), [natsort](https://pypi.python.org/pypi/natsort), [PIL](http://www.pythonware.com/products/pil/), [PyQt4](http://pyqt.sourceforge.net/Docs/PyQt4/), [ReportLab](https://pypi.python.org/pypi/reportlab), [SciPy](https://www.scipy.org/), [Statistics](https://pypi.python.org/pypi/statistics), and [SVGUtils](https://pypi.python.org/pypi/svgutils). [RAxML](https://github.com/stamatak/standard-RAxML) is also required for performing analysis in RAxML mode.
 
 Avoid special characters, such as diacritics, spaces, and punctuation other than dots (“.”) and underscores (“_”)  in the names of the ALPHA folder and all input files. 
 
@@ -337,7 +337,7 @@ For Windows:
    - Once you add the path(s) to your Environment Variables list and click 'OK,' close and reopen Command Prompt. The commands should now work correctly.
 
 ##### Installing Java
-If you are having issues with Java not being recognized as a command, install the newest version of [Java](https://java.com/en/download/) and use the above insructions to add it to your path if it is not automatically added. 
+If you are having issues with Java not being recognized as a command, install the newest version of [Java](https://java.com/en/download/) and use the above instructions to add it to your path if it is not automatically added. 
 
 ##### 'No module named SIP' or 'No module named PyQt4'
 If you receive this error, run the following in terminal:

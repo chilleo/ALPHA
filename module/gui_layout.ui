@@ -308,7 +308,7 @@
                <enum>Qt::WheelFocus</enum>
               </property>
               <property name="text">
-               <string>/Users/Peter/PycharmProjects/PhyloVis/testFiles/ChillLeo.phylip</string>
+               <string/>
               </property>
               <property name="alignment">
                <set>Qt::AlignJustify|Qt::AlignVCenter</set>
@@ -502,7 +502,7 @@
                             <set>Qt::ImhNone</set>
                            </property>
                            <property name="text">
-                            <string>50000</string>
+                            <string/>
                            </property>
                            <property name="placeholderText">
                             <string/>
@@ -570,7 +570,7 @@
                             <enum>Qt::WheelFocus</enum>
                            </property>
                            <property name="text">
-                            <string>50000</string>
+                            <string/>
                            </property>
                           </widget>
                          </item>
@@ -1312,8 +1312,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>638</width>
-               <height>405</height>
+               <width>726</width>
+               <height>741</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -3456,7 +3456,7 @@ Run RAxML -&gt; Advanced</string>
                        <x>0</x>
                        <y>0</y>
                        <width>702</width>
-                       <height>144</height>
+                       <height>134</height>
                       </rect>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_19">
@@ -3776,6 +3776,52 @@ Run RAxML -&gt; Advanced</string>
                        </item>
                       </layout>
                      </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_60">
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="QLabel" name="label_43">
+                         <property name="text">
+                          <string>Alpha:</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="lAlphaEntry">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>20</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>0.01</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_34">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </item>
                     </layout>
                    </item>
                   </layout>
@@ -3851,7 +3897,7 @@ Run RAxML -&gt; Advanced</string>
                    <x>0</x>
                    <y>0</y>
                    <width>726</width>
-                   <height>168</height>
+                   <height>159</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -3981,7 +4027,7 @@ Run RAxML -&gt; Advanced</string>
                        <x>0</x>
                        <y>0</y>
                        <width>702</width>
-                       <height>100</height>
+                       <height>90</height>
                       </rect>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_34">
