@@ -1136,8 +1136,18 @@ def calculate_L(alignments, taxa_order, patterns_of_interest, verbose, alpha, pa
 
         # Standard output
         else:
-            significant = calculate_significance(terms1_total, terms2_total, alpha)
-            alignments_to_d[alignment] = l_stat_resized, significant
+            significant = calculate_significance(terms1_total_resized, terms2_total_resized, verbose,
+                                                              alpha)
+            alignments_to_d_resized[
+                alignment] = l_stat_resized, significant
+
+            significant = calculate_significance(weighted_terms1_total, terms2_total, verbose, alpha)
+            alignments_to_d_pattern_coeff[
+                alignment] = l_stat_pattern_coeff, significant
+
+            significant = calculate_significance(overall_coefficient * terms1_total, terms2_total, verbose,alpha)
+            alignments_to_d_ovr_coeff[
+                alignment] = l_stat_ovr_coeff, significant
 
     return alignments_to_d_resized, alignments_to_d_pattern_coeff, alignments_to_d_ovr_coeff
 
@@ -1785,14 +1795,24 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
             print "Significant deviation from 0: {0}".format(significant)
 
     else:
-        for alignment in alignments_to_d:
-            l_stat, significant = alignments_to_d[alignment]
+        for alignment in alignments_to_d_resized:
+            l_stat_r, significant_r = alignments_to_d_resized[alignment]
+            l_stat_pc, significant_pc = alignments_to_d_pattern_coeff[alignment]
+            l_stat_oc, significant_oc = alignments_to_d_ovr_coeff[alignment]
+            print
             print alignment + ": "
             print
-            print "Windows to D value: ", alignments_to_windows_to_d[alignment]
+            # print "Windows to D value: ", alignments_to_windows_to_d[alignment]
+            # print
+            print "Final Overall D value using Block Resizing Method {0}".format(l_stat_r)
+            print "Significant deviation from 0: {0}".format(significant_r)
             print
-            print "Final Overall D value {0}".format(l_stat)
-            print "Significant deviation from 0: {0}".format(significant)
+            print "Final Overall D value using Pattern Coefficient Method {0}".format(l_stat_pc)
+            print "Significant deviation from 0: {0}".format(significant_pc)
+            print
+            print "Final Overall D value using Overall Coefficient Method {0}".format(l_stat_oc)
+            print "Significant deviation from 0: {0}".format(significant_oc)
+
 
     return alignments_to_d_resized, alignments_to_windows_to_d
 
@@ -1940,8 +1960,12 @@ if __name__ == '__main__':
     s = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_7.txt"
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
     #                             verbose=True, use_inv=False)
+
+    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
+    #                             verbose=True, use_inv=False)
+
     print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
-                                verbose=True, use_inv=False)
+                                verbose=False, use_inv=False)
     # calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, statistic=False, save=True)
     #
     # save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_11.txt"
