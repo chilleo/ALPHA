@@ -1804,13 +1804,13 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
             print
             # print "Windows to D value: ", alignments_to_windows_to_d[alignment]
             # print
-            print "Final Overall D value using Block Resizing Method {0}".format(l_stat_r)
+            print "Final Overall D value using Block Resizing Method: {0}".format(l_stat_r)
             print "Significant deviation from 0: {0}".format(significant_r)
             print
-            print "Final Overall D value using Pattern Coefficient Method {0}".format(l_stat_pc)
+            print "Final Overall D value using Pattern Coefficient Method: {0}".format(l_stat_pc)
             print "Significant deviation from 0: {0}".format(significant_pc)
             print
-            print "Final Overall D value using Overall Coefficient Method {0}".format(l_stat_oc)
+            print "Final Overall D value using Overall Coefficient Method: {0}".format(l_stat_oc)
             print "Significant deviation from 0: {0}".format(significant_oc)
 
 
