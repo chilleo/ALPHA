@@ -993,7 +993,7 @@ def calculate_L(alignments, taxa_order, patterns_of_interest, verbose, alpha, pa
         terms1_counts = defaultdict(int)
         terms2_counts = defaultdict(int)
 
-        terms1_counts_reiszed = defaultdict(int)
+        terms1_counts_resized = defaultdict(int)
         terms2_counts_resized = defaultdict(int)
 
         sequence_list = []
@@ -1072,7 +1072,7 @@ def calculate_L(alignments, taxa_order, patterns_of_interest, verbose, alpha, pa
                         terms2_counts[site_string] += 1
 
                     if site_string in terms1_resized:
-                        terms1_counts_reiszed[site_string] += 1
+                        terms1_counts_resized[site_string] += 1
 
                     if site_string in terms2_resized:
                         terms2_counts_resized[site_string] += 1
@@ -1083,7 +1083,7 @@ def calculate_L(alignments, taxa_order, patterns_of_interest, verbose, alpha, pa
         terms1_total = sum(terms1_counts.values())
         terms2_total = sum(terms2_counts.values())
 
-        terms1_total_resized = sum(terms1_counts_reiszed.values())
+        terms1_total_resized = sum(terms1_counts_resized.values())
         terms2_total_resized = sum(terms2_counts_resized.values())
 
         # Calculate the generalized d for the block resizing method
@@ -1122,9 +1122,9 @@ def calculate_L(alignments, taxa_order, patterns_of_interest, verbose, alpha, pa
 
         # Verbose output
         if verbose:
-            significant, chisq, pval = calculate_significance(terms1_total, terms2_total, verbose, alpha)
+            significant, chisq, pval = calculate_significance(terms1_total_resized, terms2_total_resized, verbose, alpha)
             alignments_to_d_resized[
-                alignment] = l_stat_resized, significant, terms1_counts, terms2_counts, num_ignored, chisq, pval
+                alignment] = l_stat_resized, significant, terms1_counts_resized, terms2_counts_resized, num_ignored, chisq, pval
 
             significant, chisq, pval = calculate_significance(weighted_terms1_total, terms2_total, verbose, alpha)
             alignments_to_d_pattern_coeff[
@@ -1751,17 +1751,7 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         print
         print "Information for each file: "
 
-        print
-        print "Information using block resizing method: "
-        display_alignment_info(alignments_to_d_resized, "Block Resize")
-
-        print
-        print "Information using pattern coefficient method: "
-        display_alignment_info(alignments_to_d_pattern_coeff, "Pattern Coefficient")
-
-        print
-        print "Information using overall coefficient method: "
-        display_alignment_info(alignments_to_d_ovr_coeff, "Overall Coefficient")
+        display_alignment_info(alignments_to_d_resized, alignments_to_d_pattern_coeff, alignments_to_d_ovr_coeff)
 
     elif verbose and statistic:
         print
@@ -1806,46 +1796,85 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
 
     return alignments_to_d_resized, alignments_to_windows_to_d
 
-def display_alignment_info(alignments_to_d, method):
+def display_alignment_info(alignments_to_d_resized, alignments_to_d_pattern_coeff, alignments_to_d_ovr_coeff):
     """
     Print information for an alignment to D mapping
     Inputs:
     alignments_to_d --- a mapping of alignment files to their D information
     """
 
-    for alignment in alignments_to_d:
-        coeff = False
-        if len(alignments_to_d[alignment]) == 8:
-            l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval, coeff = alignments_to_d[alignment]
-        else:
-            l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d[alignment]
+    for alignment in alignments_to_d_resized:
 
+        l_stat, significant, left_counts_res, right_counts_res, num_ignored, chisq, pval = alignments_to_d_resized[alignment]
+        output_resized = [("Final Overall D value using Block Resizing method: ", l_stat),
+                          ("Significant deviation from 0: ", significant),
+                          ("Overall p value: ", pval),
+                          ("Overall Chi-Squared statistic: ", chisq),
+                          ("", ""),
+                          ("Number of site ignored due to \"N\" or \"-\": ", num_ignored)]
+        l_stat, significant, left_counts_pcoeff, right_counts, num_ignored, chisq, pval = alignments_to_d_pattern_coeff[alignment]
+        output_pattern_coeff = [("Final Overall D value using Pattern Weighting method: ", l_stat),
+                          ("Significant deviation from 0: ", significant),
+                          ("Overall p value: ", pval),
+                          ("Overall Chi-Squared statistic: ", chisq),
+                          ("", ""),
+                          ("Number of site ignored due to \"N\" or \"-\": ", num_ignored)]
+        l_stat, significant, left_counts_ocoeff, right_counts, num_ignored, chisq, pval, coeff = alignments_to_d_ovr_coeff[alignment]
+        output_overall_coeff =  [("Final Overall D value using Overall Weighting method: ", l_stat),
+                          ("Significant deviation from 0: ", significant),
+                          ("Overall p value: ", pval),
+                          ("Overall Chi-Squared statistic: ", chisq),
+                          ("", ""),
+                          ("Number of site ignored due to \"N\" or \"-\": ", num_ignored)]
+
+        print
+        print
         print alignment + ": "
         print
-        print "Overall Chi-Squared statistic: ", chisq
-        print "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored)
-        print "Overall p value: ", pval
+
+        # Print output for resizing method
+        for output in output_resized:
+            print output[0], output[1]
+        print "Left term counts: "
+        for pattern in left_counts_res:
+            print pattern + ": {0}".format(left_counts_res[pattern])
+        print
+        print "Right term counts: "
+        for pattern in right_counts_res:
+            print pattern + ": {0}".format(right_counts_res[pattern])
+
+        print
         print
 
-        if coeff:
-            print "Overall Coefficient for weighting: {0}".format(coeff)
-            print "Left term counts after weighting: "
-            for pattern in left_counts:
-                print pattern + ": {0}".format(left_counts[pattern] * coeff)
-        else:
-            print "Left term counts after weighting: "
-            for pattern in left_counts:
-                print pattern + ": {0}".format(left_counts[pattern] * coeff)
-
+        # Print output for pattern coefficient method
+        for output in output_pattern_coeff:
+            print output[0], output[1]
+        print "Left term counts weighted by pattern probability: "
+        for pattern in left_counts_pcoeff:
+            print pattern + ": {0}".format(left_counts_pcoeff[pattern])
         print
         print "Right term counts: "
         for pattern in right_counts:
             print pattern + ": {0}".format(right_counts[pattern])
-        # print
-        # print "Windows to D value: ", alignments_to_windows_to_d[alignment]
+
         print
-        print "Final Overall D value using {0} method: {1}".format(method, l_stat)
-        print "Significant deviation from 0: {0}".format(significant)
+        print
+
+        # Print output for overall coefficient method
+        for output in output_overall_coeff:
+            print output[0], output[1]
+        print "Overall Coefficient for weighting: {0}".format(coeff)
+        print "Left term counts after weighting: "
+        for pattern in left_counts_ocoeff:
+            print pattern + ": {0}".format(left_counts_ocoeff[pattern] * coeff)
+        print
+        print "Right term counts: "
+        for pattern in right_counts:
+            print pattern + ": {0}".format(right_counts[pattern])
+
+
+
+
 
 def plot_formatting(info_tuple, verbose=False):
     """
