@@ -325,6 +325,10 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.calcGenD.useDir = self.lUseDirCB.isChecked()
         self.calcGenD.directory = ""
 
+        self.calcGenD.save_location = "DGenStatistic_"
+        if self.lStatSaveLocation.text().encode('utf-8') != "":
+            self.calcGenD.save_location = self.lStatSaveLocation.text().encode('utf-8')
+
         if self.lSpeciesTreeEntry.text().encode('utf-8') != "":
             self.calcGenD.species_tree = self.getLSpeciesTree()
         else:

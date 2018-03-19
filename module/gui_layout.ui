@@ -3730,6 +3730,20 @@ Run RAxML -&gt; Advanced</string>
                        </item>
                       </layout>
                      </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_72">
+                       <item>
+                        <widget class="QLabel" name="label_47">
+                         <property name="text">
+                          <string>Statistic Save Location:</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="lStatSaveLocation"/>
+                       </item>
+                      </layout>
+                     </item>
                     </layout>
                    </item>
                    <item>
@@ -4119,7 +4133,7 @@ Run RAxML -&gt; Advanced</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>98</width>
+                       <width>61</width>
                        <height>37</height>
                       </rect>
                      </property>
