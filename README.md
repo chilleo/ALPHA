@@ -158,6 +158,15 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         brew install sip
         brew install cartr/qt4/pyqt
         ```
+        
+    - Alternate method: Download the SIP source files, unzip and cd into the repo then run (with the virtual environment activated)
+        ```
+        python configure.py
+        make
+        make install
+        ```
+        
+
 
 5) Install [PIP](https://pip.pypa.io/en/stable/installing/).
     - In terminal run:  
@@ -165,14 +174,30 @@ For more information regarding the RAxML output files see the [RAxML manual](htt
         ```
         sudo easy_install pip
         ```
-
-6) Install remaining dependencies with PIP.
+        
+6) Install and create a virtual environment wrapper.
     - In terminal run:
     
         ```
-        pip install matplotlib pillow scipy natsort reportlab svgutils ete3 dendropy biopython statistics numpy virtualenv
+        pip install virtualenv          # install virtualenv 
+        virtualenv -p python2.7 .env    # create a new virtualenv with python 2.7
+        source /bin/activate            # activate your virtualenv
         ```
+    - Deactivation:
+        ```
+        deactivate  # deactivates current virtual environment
+        ```
+        
+    - NOTE: Make sure that your virtual environment is activated anytime you use the `pip` command or run the project (with the `python` command).
+    
 
+8) Install remaining dependencies with PIP.
+    - In terminal (with the virtual env activated) run:
+    
+        ```
+        pip install matplotlib pillow scipy natsort reportlab svgutils ete3 dendropy biopython statistics numpy
+        ```
+    
 7) Install ALPHA.
     - Download the source code of this repo as a zip.
     - Unzip the directory.
