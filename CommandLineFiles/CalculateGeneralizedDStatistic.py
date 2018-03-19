@@ -810,7 +810,7 @@ def resize_terms(terms1, terms2, patterns_to_pgS):
             num_remove = (count1 - count2) / 2
 
             for i in range(num_remove):
-                removed.append(sorted(list(pgtst_to_trees1[prob])).pop(0))
+                removed.append(list(pgtst_to_trees1[prob])).pop(0)
 
             terms1_remove = True
 
@@ -818,7 +818,7 @@ def resize_terms(terms1, terms2, patterns_to_pgS):
             num_remove = (count2 - count1) / 2
 
             for i in range(num_remove):
-                removed.append(sorted(list(pgtst_to_trees2[prob])).pop(0))
+                removed.append(list(pgtst_to_trees2[prob])).pop(0)
 
             terms1_remove = False
 
@@ -1941,11 +1941,10 @@ def plot_formatting(info_tuple, verbose=False):
 
 if __name__ == '__main__':
     r =[('P1', 'P3')]
-    species_tree = '(((P1,P2),P3),O);'
-    # species_tree = '(((P1,P2),(P3,P4)),O);'
+    # species_tree = '(((P1,P2),P3),O);'
+    species_tree = '(((P1,P2),(P3,P4)),O);'
     # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
 
-    #
     if platform == "darwin":
         alignments = ["/Users/Peter/PycharmProjects/ALPHA/exampleFiles/seqfile.txt"]
     else:
