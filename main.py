@@ -269,6 +269,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         self.runGenDStatBtn.clicked.connect(self.runGenD)
         self.connect(self.calcGenD, QtCore.SIGNAL('GEN_D_COMPLETE'), self.genDComplete)
+        self.connect(self.calcGenD, QtCore.SIGNAL('GEN_D_10'), lambda: self.lProgressBar.setValue(10))
+        self.connect(self.calcGenD, QtCore.SIGNAL('GEN_D_50'), lambda: self.lProgressBar.setValue(50))
 
         self.viewVerboseOutputBtn.clicked.connect(lambda: self.lOutputStacked.setCurrentIndex(1))
         self.viewRegularOutputBtn.clicked.connect(lambda: self.lOutputStacked.setCurrentIndex(0))
@@ -312,19 +314,26 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
     additionalAlignmentCounter = 0
 
     def genDValidInput(self):
-        self.calcGenD.species_tree = self.getLSpeciesTree()
         self.calcGenD.r = self.getReticulations()
         self.calcGenD.alignments = self.getAlignments()
         self.calcGenD.window_size = int(self.lWindowSizeEntry.text().encode('utf-8'))
         self.calcGenD.window_offset = int(self.lWindowOffsetEntry.text().encode('utf-8'))
         self.calcGenD.verbose = True
+        self.calcGenD.alpha = 0.01
         self.calcGenD.alpha = self.lAlphaEntry.text().encode('utf-8')
         self.calcGenD.save = True
         self.calcGenD.useDir = self.lUseDirCB.isChecked()
         self.calcGenD.directory = ""
+
+        if self.lSpeciesTreeEntry.text().encode('utf-8') != "":
+            self.calcGenD.species_tree = self.getLSpeciesTree()
+        else:
+            self.calcGenD.species_tree = self.lSpeciesTreeNewickEntry.text().encode('utf-8')
+
         if self.lUseDirCB.isChecked():
             self.calcGenD.directory = self.lAlignmentDirEntry.text().encode('utf-8')
         self.calcGenD.statistic = False
+
         if self.lStatisticFileCB.isChecked():
             self.calcGenD.statistic = self.lStatisticFileEntry.text().encode('utf-8')
         self.calcGenD.generatePlot = self.generatePlotCB.isChecked()

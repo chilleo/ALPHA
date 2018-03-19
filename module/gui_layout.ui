@@ -349,7 +349,7 @@
              <bool>true</bool>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="raxmlOptionsPage">
              <property name="enabled">
@@ -3456,7 +3456,7 @@ Run RAxML -&gt; Advanced</string>
                        <x>0</x>
                        <y>0</y>
                        <width>702</width>
-                       <height>134</height>
+                       <height>125</height>
                       </rect>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_19">
@@ -3742,7 +3742,7 @@ Run RAxML -&gt; Advanced</string>
                        <item>
                         <widget class="QLabel" name="label_41">
                          <property name="text">
-                          <string>Species Tree:</string>
+                          <string>Species Tree File:</string>
                          </property>
                         </widget>
                        </item>
@@ -3766,13 +3766,26 @@ Run RAxML -&gt; Advanced</string>
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_62">
+                      <widget class="QLabel" name="label_46">
+                       <property name="text">
+                        <string> or</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_61">
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
                        <item>
-                        <widget class="QCheckBox" name="generatePlotCB">
+                        <widget class="QLabel" name="label_45">
                          <property name="text">
-                          <string>Generate Plot</string>
+                          <string>Species Tree Newick:</string>
                          </property>
                         </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="lSpeciesTreeNewickEntry"/>
                        </item>
                       </layout>
                      </item>
@@ -3819,6 +3832,17 @@ Run RAxML -&gt; Advanced</string>
                           </size>
                          </property>
                         </spacer>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_62">
+                       <item>
+                        <widget class="QCheckBox" name="generatePlotCB">
+                         <property name="text">
+                          <string>Generate Plot</string>
+                         </property>
+                        </widget>
                        </item>
                       </layout>
                      </item>
@@ -3897,7 +3921,7 @@ Run RAxML -&gt; Advanced</string>
                    <x>0</x>
                    <y>0</y>
                    <width>726</width>
-                   <height>159</height>
+                   <height>128</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -4027,7 +4051,7 @@ Run RAxML -&gt; Advanced</string>
                        <x>0</x>
                        <y>0</y>
                        <width>702</width>
-                       <height>90</height>
+                       <height>76</height>
                       </rect>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_34">
@@ -4095,8 +4119,8 @@ Run RAxML -&gt; Advanced</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>702</width>
-                       <height>100</height>
+                       <width>98</width>
+                       <height>37</height>
                       </rect>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_28">

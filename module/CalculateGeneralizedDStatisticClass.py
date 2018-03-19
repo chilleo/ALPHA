@@ -1464,6 +1464,8 @@ denoting if the l_stat value is statistically significant
             l_stat --- the L statistic value
         """
 
+        self.emit(QtCore.SIGNAL('GEN_D_10'))
+
         # If the user does not have a specific statistic file to use
         if not statistic:
             st = re.sub("\:\d+\.\d+", "", species_tree)
@@ -1511,6 +1513,9 @@ denoting if the l_stat value is statistically significant
         alignments_to_d = self.calculate_L(alignments, taxa, (increase, decrease), verbose, alpha)
         alignments_to_windows_to_d = self.calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size,
                                                                  window_offset, verbose, alpha)
+
+        self.emit(QtCore.SIGNAL('GEN_D_50'))
+
         vout = ""
         rout = ""
         vout += str(alignments_to_d)
