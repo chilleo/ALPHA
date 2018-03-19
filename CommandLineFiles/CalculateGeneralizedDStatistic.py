@@ -748,6 +748,10 @@ def determine_patterns(pattern_set, patterns_to_equality, patterns_to_pgN, patte
     terms1_resized, terms2_resized = resize_terms(terms1, terms2, patterns_to_pgS)
     patterns_to_coefficients = scale_terms(terms1, terms2, patterns_to_pgS)
 
+    # If the patterns do not need to be rescaled
+    if len(terms1) == len(terms2):
+        terms1_resized, terms2_resized = terms1, terms2
+
     return terms1, terms2, terms1_resized, terms2_resized, patterns_to_coefficients
 
 def resize_terms(terms1, terms2, patterns_to_pgS):
@@ -1937,9 +1941,9 @@ def plot_formatting(info_tuple, verbose=False):
 
 if __name__ == '__main__':
     r =[('P1', 'P3')]
-    # species_tree = '(((P1,P2),P3),O);'
+    species_tree = '(((P1,P2),P3),O);'
     # species_tree = '(((P1,P2),(P3,P4)),O);'
-    species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
+    # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
 
     #
     if platform == "darwin":
@@ -1965,7 +1969,7 @@ if __name__ == '__main__':
     #                             verbose=True, use_inv=False)
 
     print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
-                                verbose=False, use_inv=False)
+                                verbose=True, use_inv=False)
     # calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, statistic=False, save=True)
     #
     # save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_11.txt"
