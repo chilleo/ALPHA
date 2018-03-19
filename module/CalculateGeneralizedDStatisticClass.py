@@ -1447,7 +1447,7 @@ denoting if the l_stat value is statistically significant
 
     def calculate_generalized(self, alignments, species_tree=None, reticulations=None, window_size=100000000000,
                               window_offset=100000000000, verbose=False, alpha=0.01, useDir=False, directory="",
-                              statistic=False, save=False):
+                              statistic=False, save=False, f="DGenStatistic_"):
         """
         Calculates the L statistic for the given alignment
         Input:
@@ -1464,6 +1464,8 @@ denoting if the l_stat value is statistically significant
             l_stat --- the L statistic value
         """
 
+        self.emit(QtCore.SIGNAL('GEN_D_10'))
+
         # If the user does not have a specific statistic file to use
         if not statistic:
             st = re.sub("\:\d+\.\d+", "", species_tree)
@@ -1477,7 +1479,7 @@ denoting if the l_stat value is statistically significant
             # If users want to save the statistic and speed up future runs
             if save:
                 num = 0
-                file_name = "DGenStatistic_{0}.txt".format(num)
+                file_name = f + "{0}.txt".format(num)
                 while os.path.exists(file_name):
                     num += 1
                     file_name = "DGenStatistic_{0}.txt".format(num)
@@ -1511,6 +1513,9 @@ denoting if the l_stat value is statistically significant
         alignments_to_d = self.calculate_L(alignments, taxa, (increase, decrease), verbose, alpha)
         alignments_to_windows_to_d = self.calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size,
                                                                  window_offset, verbose, alpha)
+
+        self.emit(QtCore.SIGNAL('GEN_D_50'))
+
         vout = ""
         rout = ""
         vout += str(alignments_to_d)
@@ -1670,7 +1675,7 @@ denoting if the l_stat value is statistically significant
                                  window_size=self.window_size, window_offset=self.window_offset,
                                  verbose=self.verbose,
                                  alpha=self.alpha,
-                                 useDir=self.useDir, directory=self.directory, statistic=self.statistic, save=self.save)
+                                 useDir=self.useDir, directory=self.directory, statistic=self.statistic, save=self.save, f=self.save_location)
 
         self.emit(QtCore.SIGNAL('GEN_D_COMPLETE'), None)
 
