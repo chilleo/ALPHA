@@ -1716,11 +1716,11 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
             with open(file_name, "w") as text_file:
                 output_str = "Taxa: {0}\n".format(taxa)
                 text_file.write(output_str)
-                output_str = "Left Terms: {0}\n".format(increase)
+                output_str = "Left Terms: {0}\n".format(increase_resized)
                 text_file.write(output_str)
-                output_str = "Right Terms: {0}\n".format(decrease)
+                output_str = "Right Terms: {0}\n".format(decrease_resized)
                 text_file.write(output_str)
-                output_str = "Statistic: {0}\n".format(generate_statistic_string((increase, decrease)))
+                output_str = "Statistic: {0}\n".format(generate_statistic_string((increase_resized, decrease_resized)))
                 text_file.write(output_str)
                 output_str = "Species Tree: {0}\n".format(species_tree)
                 text_file.write(output_str)
@@ -1962,8 +1962,8 @@ def plot_formatting(info_tuple, verbose=False):
 if __name__ == '__main__':
     r =[('P1', 'P3')]
     # species_tree = '(((P1,P2),P3),O);'
-    species_tree = '(((P1,P2),(P3,P4)),O);'
-    # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
+    # species_tree = '(((P1,P2),(P3,P4)),O);'
+    species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
 
     if platform == "darwin":
         alignments = ["/Users/Peter/PycharmProjects/ALPHA/exampleFiles/seqfile.txt"]
@@ -1980,11 +1980,11 @@ if __name__ == '__main__':
 
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True,
     #                             verbose=True, use_inv=False)
-    s = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_12.txt"
-    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
-    #                             verbose=True)
-    print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True,
-                                verbose=False)
+    s = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_0.txt"
+    print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
+                                verbose=True)
+    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True,
+    #                             verbose=False)
 
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save="C:\\Users\\travi\\Desktop\\new.txt",
     #                             verbose=True, use_inv=True)
