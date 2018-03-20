@@ -1962,8 +1962,8 @@ def plot_formatting(info_tuple, verbose=False):
 if __name__ == '__main__':
     r =[('P1', 'P3')]
     # species_tree = '(((P1,P2),P3),O);'
-    # species_tree = '(((P1,P2),(P3,P4)),O);'
-    species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
+    species_tree = '(((P1,P2),(P3,P4)),O);'
+    # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
 
     if platform == "darwin":
         alignments = ["/Users/Peter/PycharmProjects/ALPHA/exampleFiles/seqfile.txt"]
@@ -1983,11 +1983,11 @@ if __name__ == '__main__':
     s = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_12.txt"
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
     #                             verbose=True)
-    print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
+    print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True,
                                 verbose=False)
 
-    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save="C:\\Users\\travi\\Desktop\\save_test.txt",
-    #                             verbose=True, use_inv=False)
+    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save="C:\\Users\\travi\\Desktop\\new.txt",
+    #                             verbose=True, use_inv=True)
 
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
     #                             verbose=True, use_inv=False)
