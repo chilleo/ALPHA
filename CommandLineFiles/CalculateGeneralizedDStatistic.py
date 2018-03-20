@@ -627,6 +627,7 @@ def site_pattern_generator(taxa_order, newick, outgroup):
 
     # return pattern_string_generator(finished_patterns)
     # Invert all duplicate patterns
+
     inverted_patterns = pattern_inverter(duplicates)
 
     # Iterate over the inverted patterns and add them to finished patterns
@@ -810,7 +811,7 @@ def resize_terms(terms1, terms2, patterns_to_pgS):
             num_remove = (count1 - count2) / 2
 
             for i in range(num_remove):
-                removed.append(list(pgtst_to_trees1[prob])).pop(0)
+                removed.append(list(pgtst_to_trees1[prob]).pop(0))
 
             terms1_remove = True
 
@@ -818,7 +819,7 @@ def resize_terms(terms1, terms2, patterns_to_pgS):
             num_remove = (count2 - count1) / 2
 
             for i in range(num_remove):
-                removed.append(list(pgtst_to_trees2[prob])).pop(0)
+                removed.append(list(pgtst_to_trees2[prob]).pop(0))
 
             terms1_remove = False
 
@@ -960,8 +961,8 @@ def calculate_significance(left, right, verbose= False, alpha= 0.01):
         return signif
 
 
-def calculate_L(alignments, taxa_order, patterns_of_interest, verbose, alpha, patterns_of_interest_resized,
-                overall_coefficient, patterns_to_coefficients):
+def calculate_L(alignments, taxa_order, patterns_of_interest, verbose, alpha, patterns_of_interest_resized=False,
+                overall_coefficient=1, patterns_to_coefficients={}):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -983,8 +984,12 @@ def calculate_L(alignments, taxa_order, patterns_of_interest, verbose, alpha, pa
     terms2 = patterns_of_interest[1]
 
     # Do the same for the resized terms
-    terms1_resized = patterns_of_interest_resized[0]
-    terms2_resized = patterns_of_interest_resized[1]
+    if patterns_of_interest_resized:
+        terms1_resized = patterns_of_interest_resized[0]
+        terms2_resized = patterns_of_interest_resized[1]
+    else:
+        terms1_resized = terms1
+        terms2_resized = terms2
 
     # Create a mapping for each generalized D type
     alignments_to_d_resized = {}
@@ -1118,11 +1123,6 @@ def calculate_L(alignments, taxa_order, patterns_of_interest, verbose, alpha, pa
         else:
             l_stat_pattern_coeff = 0
 
-        # print
-        # print "Block Removal D:", l_stat_resized
-        # print "Pattern Coefficient D:", l_stat_pattern_coeff
-        # print "Overall Coefficient D:", l_stat_ovr_coeff
-        # print
 
         # Verbose output
         if verbose:
@@ -1169,16 +1169,21 @@ def weight_counts(term_counts, patterns_to_coeffiencents):
     weighted_counts = {}
 
     # Iterate over each pattern
-    for pattern in term_counts:
+    if patterns_to_coeffiencents:
+        for pattern in term_counts:
 
-        # Weight its count based on the coefficient
-        coefficient = patterns_to_coeffiencents[pattern]
-        count = term_counts[pattern]
-        weighted_counts[pattern] = count * coefficient
+            # Weight its count based on the coefficient
+            if patterns_to_coeffiencents:
+                coefficient = patterns_to_coeffiencents[pattern]
+                count = term_counts[pattern]
+                weighted_counts[pattern] = count * coefficient
 
-    weighted_total = sum(weighted_counts.values())
+        weighted_total = sum(weighted_counts.values())
 
-    return weighted_total, weighted_counts
+        return weighted_total, weighted_counts
+
+    else:
+        return sum(term_counts.values()), term_counts
 
 def calculate_windows_to_L(alignments, taxa_order, patterns_of_interest, window_size, window_offset, verbose= False, alpha=0.01):
     """
@@ -1673,6 +1678,12 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         network = generate_network_tree((0.1, 0.9), list(trees)[0], reticulations)
         trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
         trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
+        print trees_of_interest
+        print trees_to_equality
+        print patterns_pgN
+        print patterns_pgS
+
+
         increase, decrease, increase_resized, decrease_resized, patterns_to_coeff = determine_patterns(
             trees_of_interest, trees_to_equality, patterns_pgN, patterns_pgS)
 
@@ -1695,6 +1706,9 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
 
         # If users want to save the statistic and speed up future runs
         if save:
+
+            # os.rename("RAxML_bestTree." + file_number, output_directory + "\RAxML_bestTree." + file_number)
+
             num = 0
             file_name = "DGenStatistic_{0}.txt".format(num)
 
@@ -1739,8 +1753,7 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
 
 
     alignments_to_d_resized, alignments_to_d_pattern_coeff, alignments_to_d_ovr_coeff = calculate_L(
-        alignments, taxa, (increase, decrease), verbose, alpha, (increase_resized, decrease_resized),
-                overall_coefficient, patterns_to_coeff)
+        alignments, taxa, (increase, decrease), verbose, alpha)
 
     alignments_to_windows_to_d = calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size,
                                                         window_offset, verbose, alpha)
@@ -1777,13 +1790,17 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         print "Statistic: ", generate_statistic_string((increase, decrease))
         print
         print "Information for each file: "
-        for alignment in alignments_to_d:
-            l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d[alignment]
+        for alignment in alignments_to_d_resized:
+            l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d_resized[alignment]
+            print
             print alignment + ": "
             print
+            print "Final Overall D value {0}".format(l_stat)
+            print "Significant deviation from 0: {0}".format(significant)
             print "Overall Chi-Squared statistic: ", chisq
-            print "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored)
             print "Overall p value: ", pval
+            print
+            print "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored)
             print
             print "Left term counts: "
             for pattern in left_counts:
@@ -1793,12 +1810,11 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
             for pattern in right_counts:
                 print pattern + ": {0}".format(right_counts[pattern])
             print
-            print "Windows to D value: ", alignments_to_windows_to_d[alignment]
-            print
-            print "Final Overall D value {0}".format(l_stat)
-            print "Significant deviation from 0: {0}".format(significant)
+            # print "Windows to D value: ", alignments_to_windows_to_d[alignment]
+            # print
 
-    else:
+
+    elif not statistic:
         for alignment in alignments_to_d_resized:
             l_stat_r, significant_r = alignments_to_d_resized[alignment]
             l_stat_pc, significant_pc = alignments_to_d_pattern_coeff[alignment]
@@ -1816,6 +1832,18 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
             print
             print "Final Overall D value using Overall Coefficient Method: {0}".format(l_stat_oc)
             print "Significant deviation from 0: {0}".format(significant_oc)
+
+    else:
+        for alignment in alignments_to_d_resized:
+            l_stat_r, significant_r = alignments_to_d_resized[alignment]
+            print
+            print alignment + ": "
+            print
+            # print "Windows to D value: ", alignments_to_windows_to_d[alignment]
+            # print
+            print "Final Overall D value using Block Resizing Method: {0}".format(l_stat_r)
+            print "Significant deviation from 0: {0}".format(significant_r)
+
 
 
     return alignments_to_d_resized, alignments_to_windows_to_d
@@ -1941,8 +1969,8 @@ def plot_formatting(info_tuple, verbose=False):
 
 if __name__ == '__main__':
     r =[('P1', 'P3')]
-    # species_tree = '(((P1,P2),P3),O);'
-    species_tree = '(((P1,P2),(P3,P4)),O);'
+    species_tree = '(((P1,P2),P3),O);'
+    # species_tree = '(((P1,P2),(P3,P4)),O);'
     # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
 
     if platform == "darwin":
@@ -1960,15 +1988,17 @@ if __name__ == '__main__':
 
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True,
     #                             verbose=True, use_inv=False)
-    s = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_7.txt"
+    s = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_12.txt"
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
+    #                             verbose=True)
+    print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
+                                verbose=False)
+
+    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True,
     #                             verbose=True, use_inv=False)
 
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
     #                             verbose=True, use_inv=False)
-
-    print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
-                                verbose=True, use_inv=False)
     # calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, statistic=False, save=True)
     #
     # save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_11.txt"
