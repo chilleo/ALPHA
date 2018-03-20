@@ -1678,11 +1678,11 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         network = generate_network_tree((0.1, 0.9), list(trees)[0], reticulations)
         trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa)
         trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
-        print trees_of_interest
-        print trees_to_equality
-        print patterns_pgN
-        print patterns_pgS
 
+        # print trees_of_interest
+        # print trees_to_equality
+        # print patterns_pgN
+        # print patterns_pgS
 
         increase, decrease, increase_resized, decrease_resized, patterns_to_coeff = determine_patterns(
             trees_of_interest, trees_to_equality, patterns_pgN, patterns_pgS)
@@ -1707,19 +1707,8 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         # If users want to save the statistic and speed up future runs
         if save:
 
-            # os.rename("RAxML_bestTree." + file_number, output_directory + "\RAxML_bestTree." + file_number)
-
             num = 0
             file_name = "DGenStatistic_{0}.txt".format(num)
-
-            # If save is a location
-            if str(save) != "True":
-                file_name = os.path.join(save, file_name)
-
-            while os.path.exists(file_name):
-                num += 1
-                file_name = "DGenStatistic_{0}.txt".format(num)
-
 
             # THIS WILL NEED TO CHANGE WITH COEFFICIENTS
 
@@ -1738,6 +1727,9 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
                 output_str = "Reticulations: {0}\n".format(reticulations)
                 text_file.write(output_str)
                 text_file.close()
+
+            if str(save) != "True":
+                os.rename(file_name, save)
 
     # Users can specify a previously generated statistic to use for alignment counting
     else:
@@ -1969,9 +1961,9 @@ def plot_formatting(info_tuple, verbose=False):
 
 if __name__ == '__main__':
     r =[('P1', 'P3')]
-    species_tree = '(((P1,P2),P3),O);'
+    # species_tree = '(((P1,P2),P3),O);'
     # species_tree = '(((P1,P2),(P3,P4)),O);'
-    # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
+    species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
 
     if platform == "darwin":
         alignments = ["/Users/Peter/PycharmProjects/ALPHA/exampleFiles/seqfile.txt"]
@@ -1994,7 +1986,7 @@ if __name__ == '__main__':
     print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
                                 verbose=False)
 
-    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True,
+    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save="C:\\Users\\travi\\Desktop\\save_test.txt",
     #                             verbose=True, use_inv=False)
 
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
