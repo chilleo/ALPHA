@@ -34,13 +34,6 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # if 'plots' folder doesn't exist -> create it
         if not os.path.isdir('plots'):
             os.system("sudo mkdir plots")
-            # try:
-            #     original_umask = os.umask(0)
-                # os.makedir('./plots', mode=777)
-                # os.mkdir('plots', 0o777)
-            # finally:
-            #     os.umask(original_umask)
-
 
         # remove all files in plots folder
         for fileName in os.listdir('plots'):
@@ -56,13 +49,11 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.raxmlTaxonComboBoxes = [self.outgroupComboBox]
         self.speciesTreeComboBoxes = [self.speciesTreeComboBox]
 
-        # moves menu bar into application -- mac only windows sux
+        # moves menu bar into application (mac only)
         self.menubar.setNativeMenuBar(False)
 
         # set GUI icon
         self.setWindowIcon(QtGui.QIcon('imgs/alphaLogo.png'))
-
-        # self.welcomeLogoImage.setScaledContents(True)
         self.welcomeLogoImage.setPixmap(QtGui.QPixmap('imgs/alphaLogo.png'))
 
         # create new instance of RaxmlOperations class
