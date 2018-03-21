@@ -167,8 +167,7 @@ class RAxMLOperations(QtCore.QThread):
         if os.path.exists(output_folder):
             shutil.rmtree(output_folder)
 
-        # Use os.system instead of os.makedirs(output_folder) so that we can sudo and avoid permissions errors when deploying
-        os.system("sudo mkdir " + output_folder)
+        os.makedirs(output_folder)
 
         # Create a list for the output files
         output_files = []
@@ -239,15 +238,13 @@ class RAxMLOperations(QtCore.QThread):
         if os.path.exists(output_directory):
             shutil.rmtree(output_directory)
 
-        # Use os.system instead of os.makedirs(output_directory) so that we can sudo and avoid permissions errors when deploying
-        os.system("sudo mkdir " + output_directory)
+        os.makedirs(output_directory)
 
         # Delete the folder and remake it if it already exists
         if os.path.exists(topology_output_directory):
             shutil.rmtree(topology_output_directory)
 
-        # Use os.system instead of os.makedirs(topology_output_directory) so that we can sudo and avoid permissions errors when deploying
-        os.system("sudo mkdir " + topology_output_directory)
+        os.makedirs(topology_output_directory)
 
         percent_complete = 0
 
