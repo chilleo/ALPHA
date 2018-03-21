@@ -1,0 +1,6 @@
+Taxa: ['P1', 'P2', 'P3', 'P4', 'O']
+Left Terms: set(['AAABA', 'BBBAA', 'ABAAA', 'ABABA', 'BABAA', 'BABBA'])
+Right Terms: set(['ABBAA', 'AABAA', 'ABBBA', 'BBABA', 'BAAAA', 'BAABA'])
+Statistic: ((AAABA + ABAAA + ABABA + BABAA + BABBA + BBBAA) - (AABAA + ABBAA + ABBBA + BAAAA + BAABA + BBABA)) / ((AAABA + ABAAA + ABABA + BABAA + BABBA + BBBAA) + (AABAA + ABBAA + ABBBA + BAAAA + BAABA + BBABA))
+Species Tree: (((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);
+Reticulations: [('P3', 'P1')]
