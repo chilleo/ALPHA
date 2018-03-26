@@ -1961,9 +1961,9 @@ def plot_formatting(info_tuple, verbose=False):
 
 if __name__ == '__main__':
     r =[('P1', 'P3')]
-    # species_tree = '(((P1,P2),P3),O);'
+    species_tree = '(((P1,P2),P3),O);'
     # species_tree = '(((P1,P2),(P3,P4)),O);'
-    species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
+    # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
 
     if platform == "darwin":
         alignments = ["/Users/Peter/PycharmProjects/ALPHA/exampleFiles/seqfile.txt"]
