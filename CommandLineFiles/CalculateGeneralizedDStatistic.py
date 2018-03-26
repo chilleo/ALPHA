@@ -1645,7 +1645,7 @@ def b_count(pattern):
 
 def calculate_generalized(alignments, species_tree=None, reticulations=None, window_size=100000000000,
                           window_offset=100000000000, verbose=False, alpha=0.01, useDir=False, directory="",
-                          statistic=False, save=False, use_inv=False):
+                          statistic=False, save=False, use_inv=False, f="DGenStatistic_"):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1696,19 +1696,12 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         # If users want to save the statistic and speed up future runs
         if save:
             num = 0
-            file_name = "DGenStatistic_{0}.txt".format(num)
-
-            # If save is a location
-            if str(save) != "True":
-                file_name = os.path.join(save, file_name)
-
+            file_name = f + "{0}.txt".format(num)
             while os.path.exists(file_name):
                 num += 1
                 file_name = "DGenStatistic_{0}.txt".format(num)
 
-
             # THIS WILL NEED TO CHANGE WITH COEFFICIENTS
-
 
             with open(file_name, "w") as text_file:
                 output_str = "Taxa: {0}\n".format(taxa)
@@ -1968,9 +1961,9 @@ if __name__ == '__main__':
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
     #                             verbose=True, use_inv=False)
 
-    print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
-                                verbose=True, use_inv=False)
-    # calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, statistic=False, save=True)
+    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
+    #                             verbose=True, use_inv=False)
+    calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, statistic=False, save=True, f="C:\\Users\\travi\\Documents\\ALPHA\\ABBABABATest")
     #
     # save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_11.txt"
     # plot_formatting(calculate_generalized(alignments, statistic=save_file, verbose=True))
