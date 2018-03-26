@@ -961,7 +961,7 @@ def calculate_significance(left, right, verbose= False, alpha= 0.01):
 
 
 def calculate_L(alignments, taxa_order, patterns_of_interest, verbose, alpha, patterns_of_interest_resized,
-                overall_coefficient, patterns_to_coefficients):
+                overall_coefficient=1, patterns_to_coefficients={}):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1172,7 +1172,10 @@ def weight_counts(term_counts, patterns_to_coeffiencents):
     for pattern in term_counts:
 
         # Weight its count based on the coefficient
-        coefficient = patterns_to_coeffiencents[pattern]
+        if pattern in patterns_to_coeffiencents:
+            coefficient = patterns_to_coeffiencents[pattern]
+        else:
+            coefficient = 1
         count = term_counts[pattern]
         weighted_counts[pattern] = count * coefficient
 
@@ -1696,10 +1699,10 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         # If users want to save the statistic and speed up future runs
         if save:
             num = 0
-            file_name = f + "{0}.txt".format(num)
+            file_name = f + ".txt"
             while os.path.exists(file_name):
-                num += 1
                 file_name = "DGenStatistic_{0}.txt".format(num)
+                num += 1
 
             # THIS WILL NEED TO CHANGE WITH COEFFICIENTS
 
@@ -1725,6 +1728,10 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
             taxa = eval(lines[0].split(None, 1)[1])
             increase = eval(lines[1].split(None, 2)[2])
             decrease = eval(lines[2].split(None, 2)[2])
+            increase_resized = increase
+            decrease_resized = decrease
+            overall_coefficient = 1
+            patterns_to_coeff = {}
 
     if useDir:
         alignments = [concat_directory(directory)]
@@ -1770,8 +1777,8 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         print "Statistic: ", generate_statistic_string((increase, decrease))
         print
         print "Information for each file: "
-        for alignment in alignments_to_d:
-            l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d[alignment]
+        for alignment in alignments_to_d_resized:
+            l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d_resized[alignment]
             print alignment + ": "
             print
             print "Overall Chi-Squared statistic: ", chisq
@@ -1963,7 +1970,8 @@ if __name__ == '__main__':
 
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
     #                             verbose=True, use_inv=False)
-    calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, statistic=False, save=True, f="C:\\Users\\travi\\Documents\\ALPHA\\ABBABABATest")
+    # calculate_generalized(alignments, species_tree, r, 500000, 500000, True, 0.01, statistic=False, save=True, f="C:\\Users\\travi\\Documents\\ALPHA\\ABBABABATest")
+    print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic="C:\\Users\\travi\\Documents\\ALPHA\\ABBABABATest.txt", verbose=True)
     #
     # save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_11.txt"
     # plot_formatting(calculate_generalized(alignments, statistic=save_file, verbose=True))
