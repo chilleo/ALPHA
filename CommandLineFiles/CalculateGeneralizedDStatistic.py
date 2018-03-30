@@ -1777,7 +1777,7 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         alignments, taxa, (increase, decrease), verbose, alpha, (increase_resized, decrease_resized),
                 overall_coefficient, patterns_to_coeff)
 
-    alignments_to_windows_to_d = calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size,
+    alignments_to_windows_to_d = calculate_windows_to_L(alignments, taxa, (increase_resized, decrease_resized), window_size,
                                                         window_offset, verbose, alpha)
     if verbose and not statistic:
         # print
@@ -1810,8 +1810,6 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         print "Patterns that were formerly equal with increasing probability: ", increase
         print "Patterns that were formerly equal with decreasing probability: ", decrease
         print
-        print "Patterns of interest: ", increase, decrease
-        print
         print "Statistic: ", generate_statistic_string((increase, decrease))
         print
         print "Information for each file: "
@@ -1819,9 +1817,11 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
             l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d_resized[alignment]
             print alignment + ": "
             print
+            print "Final Overall D value using Block Resizing Method: {0}".format(l_stat)
+            print "Significant deviation from 0: {0}".format(significant)
             print "Overall Chi-Squared statistic: ", chisq
-            print "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored)
             print "Overall p value: ", pval
+            print "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored)
             print
             print "Left term counts: "
             for pattern in left_counts:
@@ -1977,33 +1977,41 @@ def plot_formatting(info_tuple, verbose=False):
 if __name__ == '__main__':
     r =[('P1', 'P3')]
     # species_tree = '(((P1,P2),P3),O);'
-    # species_tree = '(((P1,P2),(P3,P4)),O);' # DFOIL tree
+    species_tree = '(((P1,P2),(P3,P4)),O);' # DFOIL tree
     # species_tree = '((((P1,P2),P3),P4),O);' # Smallest asymmetrical tree
-    species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
-    #
+    # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
+
     if platform == "darwin":
         alignments = ["/Users/Peter/PycharmProjects/ALPHA/exampleFiles/seqfile.txt"]
     else:
         alignments = ["C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim2\\seqfile.txt"]
 
-    alignments = ["C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim5\\seqfile",
-                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim7\\seqfile",
-                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim4\\seqfile",
-                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim6\\seqfile",
-                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim8\\seqfile"]
+    # alignments = ["C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim5\\seqfile",
+    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim7\\seqfile",
+    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim4\\seqfile",
+    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim6\\seqfile",
+    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim8\\seqfile"]
 
     # alignments = ["C:\\Users\\travi\\Desktop\\390 Errors\\seqfileNames"]
-    import playsound
-    print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True,
-                                verbose=True, use_inv=False)
-    playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
-    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True,
-    #                             verbose=True, use_inv=True)
-    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+    #
+    #
+    # species_tree, r = '((((P1,P4),P3),P2),O);', [('P3', 'P2'),('P1', 'P2')]
 
-    s = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_84.txt"
-    print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
-                                verbose=True, use_inv=False)
+    import playsound
+
+    # species_tree, r = "(((P5,P6),((P1,P2),P3)),P4);", [('P3', 'P2')]
+    # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip"]
+    # species_tree, r = '((C,G),(((A,Q),L),R));', [('Q', 'G')]
+    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True,
+    #                             verbose=False, use_inv=False)
+
+    print calculate_generalized(alignments, species_tree, r, 1000, 1000, alpha=0.01, statistic=False, save=False,
+                                verbose=False, use_inv=True)
+
+    # s = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_85.txt"
+    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
+    #                             verbose=True, use_inv=False)
+    playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
 
 
 
