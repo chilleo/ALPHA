@@ -1997,7 +1997,7 @@ if __name__ == '__main__':
     #
     # species_tree, r = '((((P1,P4),P3),P2),O);', [('P3', 'P2'),('P1', 'P2')]
 
-    import playsound
+    # import playsound
 
     # species_tree, r = "(((P5,P6),((P1,P2),P3)),P4);", [('P3', 'P2')]
     # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip"]
@@ -2005,13 +2005,13 @@ if __name__ == '__main__':
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True,
     #                             verbose=False, use_inv=False)
 
-    print calculate_generalized(alignments, species_tree, r, 1000, 1000, alpha=0.01, statistic=False, save=False,
+    print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True,
                                 verbose=False, use_inv=True)
 
     # s = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_85.txt"
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
     #                             verbose=True, use_inv=False)
-    playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
 
 
 
