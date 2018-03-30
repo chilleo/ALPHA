@@ -1744,11 +1744,11 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
             with open(file_name, "w") as text_file:
                 output_str = "Taxa: {0}\n".format(taxa)
                 text_file.write(output_str)
-                output_str = "Left Terms: {0}\n".format(increase)
+                output_str = "Left Terms: {0}\n".format(increase_resized)
                 text_file.write(output_str)
-                output_str = "Right Terms: {0}\n".format(decrease)
+                output_str = "Right Terms: {0}\n".format(decrease_resized)
                 text_file.write(output_str)
-                output_str = "Statistic: {0}\n".format(generate_statistic_string((increase, decrease)))
+                output_str = "Statistic: {0}\n".format(generate_statistic_string((increase_resized, decrease_resized)))
                 text_file.write(output_str)
                 output_str = "Species Tree: {0}\n".format(species_tree)
                 text_file.write(output_str)
@@ -1986,11 +1986,11 @@ if __name__ == '__main__':
     else:
         alignments = ["C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim2\\seqfile.txt"]
 
-    # alignments = ["C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim5\\seqfile",
-    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim7\\seqfile",
-    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim4\\seqfile",
-    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim6\\seqfile",
-    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim8\\seqfile"]
+    alignments = ["C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim5\\seqfile",
+                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim7\\seqfile",
+                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim4\\seqfile",
+                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim6\\seqfile",
+                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim8\\seqfile"]
 
     # alignments = ["C:\\Users\\travi\\Desktop\\390 Errors\\seqfileNames"]
     import playsound
@@ -2001,9 +2001,9 @@ if __name__ == '__main__':
     #                             verbose=True, use_inv=True)
     # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
 
-    # s = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_7.txt"
-    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
-    #                             verbose=True, use_inv=False)
+    s = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_84.txt"
+    print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
+                                verbose=True, use_inv=False)
 
 
 
