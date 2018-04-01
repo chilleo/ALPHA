@@ -478,6 +478,10 @@ def site_pattern_generator(taxa_order, newick, outgroup, use_inv):
             # Add outgroup to the seen leaves
             seen_leaves.append(node)
 
+
+        elif outgroup not in seen_leaves:
+            pass
+
         # Else if the node is a leaf and is adjacent to the outgroup
         elif node != "" and seen_leaves[-1] == outgroup and outgroup in seen_leaves:
 
@@ -625,6 +629,10 @@ def site_pattern_generator(taxa_order, newick, outgroup, use_inv):
     finished_patterns = pattern_string_generator(finished_patterns)
     inverted_patterns = pattern_string_generator(inverted_patterns)
 
+    # print taxa_order
+    # print finished_patterns
+    # print newick
+
     return finished_patterns, inverted_patterns
 
 
@@ -760,10 +768,12 @@ def resize_terms(terms1, terms2, patterns_to_pgS, use_inv):
     pgtst_to_trees2 = defaultdict(set)
 
     for tree in terms1:
+        a = patterns_to_pgS[tree]
         prob = float(format(patterns_to_pgS[tree], '.15f'))
         pgtst_to_trees1[prob].add(tree)
 
     for tree in terms2:
+        b = patterns_to_pgS[tree]
         prob = float(format(patterns_to_pgS[tree], '.15f'))
         pgtst_to_trees2[prob].add(tree)
 
@@ -801,7 +811,7 @@ def resize_terms(terms1, terms2, patterns_to_pgS, use_inv):
                 # Get a pattern to remove and remove it from the possible removals
                 r = sorted(list(pgtst_to_trees1[prob])).pop(0)
                 pgtst_to_trees1[prob].remove(r)
-                removed.add(sorted(list(pgtst_to_trees1[prob])).pop(0))
+                removed.add(r)
 
             terms1_remove = True
 
@@ -1415,7 +1425,7 @@ def network_adjust(species_network):
 
     return adjusted_networks
 
-def approximately_equal(x, y, tol=0.0000000001):
+def approximately_equal(x, y, tol=0.00000000000001):
     """
     Determines if floats x and y are equal within a degree of uncertainty
     Inputs:
@@ -1709,18 +1719,14 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         st = re.sub("\:\d+\.\d+", "", species_tree)
         trees, taxa = branch_adjust(st)
 
-        newick_patterns, inverse_to_counts = newicks_to_patterns_generator(taxa, trees, use_inv)
         network = generate_network_tree((0.1, 0.9), list(trees)[0], reticulations)
         trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa, use_inv)
         trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
-        # #
+
         print trees_of_interest
         print trees_to_equality
         print patterns_pgN
         print patterns_pgS
-        # print
-        # print "Results: "
-
 
         increase, decrease, increase_resized, decrease_resized, patterns_to_coeff = determine_patterns(
             trees_of_interest, trees_to_equality, patterns_pgN, patterns_pgS, use_inv)
@@ -1729,7 +1735,10 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         inc_prob = calculate_total_term_prob(patterns_pgS, increase)
         dec_prob = calculate_total_term_prob(patterns_pgS, decrease)
 
-        overall_coefficient = dec_prob / inc_prob
+        if inc_prob != 0:
+            overall_coefficient = dec_prob / inc_prob
+        else:
+            overall_coefficient = 0
 
         # If users want to save the statistic and speed up future runs
         if save:
@@ -1975,9 +1984,9 @@ def plot_formatting(info_tuple, verbose=False):
 
 
 if __name__ == '__main__':
-    r =[('P1', 'P3')]
-    # species_tree = '(((P1,P2),P3),O);'
-    species_tree = '(((P1,P2),(P3,P4)),O);' # DFOIL tree
+    r =[('P3', 'P2')]
+    species_tree = '(((P1,P2),P3),O);'
+    # species_tree = '(((P1,P2),(P3,P4)),O);' # DFOIL tree
     # species_tree = '((((P1,P2),P3),P4),O);' # Smallest asymmetrical tree
     # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
 
@@ -1998,20 +2007,77 @@ if __name__ == '__main__':
     # species_tree, r = '((((P1,P4),P3),P2),O);', [('P3', 'P2'),('P1', 'P2')]
 
     # import playsound
+    #
+    # # 3 to 2
+    # calculate_generalized( ['C:\\Users\\travi\\Desktop\\390 Errors\\seqfileNames'], '(((P5,P6),((P1,P2),P3)),P4);', [('P3', 'P2')], 50000, 50000, True, save=True, f='stat_6tax_sub_3to2.txt')
+    # print "done"
+    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+    #
+    # calculate_generalized( ['C:\\Users\\travi\\Desktop\\390 Errors\\seqfileNames'], '(((P5,P6),((P1,P2),P3)),P4);', [('P3', 'P2')], 50000, 50000, True, save=True, f='stat_inv_6tax_sub_3to2.txt', use_inv=True)
+    # print "done with inverses"
+    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+    #
+    # # 4 to 3
+    # calculate_generalized( ['C:\\Users\\travi\\Desktop\\390 Errors\\seqfileNames'], '(((P5,P6),((P1,P2),P3)),P4);', [('P4', 'P3')], 50000, 50000, True, save=True, f='stat_6tax_sub_4to3.txt')
+    # print "done"
+    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+    #
+    # calculate_generalized( ['C:\\Users\\travi\\Desktop\\390 Errors\\seqfileNames'], '(((P5,P6),((P1,P2),P3)),P4);', [('P4', 'P3')], 50000, 50000, True, save=True, f='stat_inv_6tax_sub_4to3.txt', use_inv=True)
+    # print "done with inverses"
+    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+    #
+    # # both
+    # calculate_generalized(['C:\\Users\\travi\\Desktop\\390 Errors\\seqfileNames'], '(((P5,P6),((P1,P2),P3)),P4);', [('P3', 'P2'),('P4', 'P3')], 50000, 50000, True, save=True, f='stat_6tax_sub_3to2_4to3.txt')
+    # print "done"
+    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+    #
+    # calculate_generalized(['C:\\Users\\travi\\Desktop\\390 Errors\\seqfileNames'], '(((P5,P6),((P1,P2),P3)),P4);', [('P3', 'P2'),('P4', 'P3')], 50000, 50000, True, save=True, f='stat_inv_6tax_sub_3to2_4to3.txt', use_inv=True)
+    # print "done with inverses"
+    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
 
     # species_tree, r = "(((P5,P6),((P1,P2),P3)),P4);", [('P3', 'P2')]
     # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip"]
     # species_tree, r = '((C,G),(((A,Q),L),R));', [('Q', 'G')]
-    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True,
-    #                             verbose=False, use_inv=False)
+    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
+    #                             verbose=True, use_inv=False)
 
-    print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=True,
-                                verbose=False, use_inv=True)
+    # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip.txt"]
+    # alignments = ["C:\\Users\\travi\\Desktop\\3L\\3L\\3L.41960870.634.fa.phylip"]
+    #
+    # calculate_generalized(alignments , '((C,G),(((A,Q),L),R));', [('Q', 'G')], 50000, 50000, True, save=True, f='stat_QuaToGam.txt')
+    # print "Q to G done"
+    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+    #
+    # calculate_generalized(alignments, '((C,G),(((A,Q),L),R));', [('Q', 'G')], 50000, 50000, True, save=True, f='stat_inv_QuaToGam.txt', use_inv=True)
+    # print "Q to G done with inverses"
+    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+    #
+    # # next generate Q to R, the bottom right one in dingqiaos fig
+    # calculate_generalized(alignments , '((C,G),(((A,Q),L),R));', [('Q', 'R')], 50000, 50000, True, save=True, f='stat_QuaToMer.txt')
+    # print "Q to R done"
+    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+    #
+    # calculate_generalized(alignments , '((C,G),(((A,Q),L),R));', [('Q', 'R')], 50000, 50000, True, save=True, f='stat_inv_QuaToMer.txt', use_inv=True)
+    # print "Q to R done with inverses"
+    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+    #
+    # # last generate L to R, the top right one in dingqiaos fig
+    # calculate_generalized(alignments, '((C,G),(((A,Q),L),R));', [('L', 'R')], 50000, 50000, True, save=True, f='stat_MelToMer.txt')
+    # print "L to R done"
+    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+    #
+    # calculate_generalized(alignments , '((C,G),(((A,Q),L),R));', [('L', 'R')], 50000, 50000, True, save=True, f='stat_inv_MelToMer.txt', use_inv=True)
+    # print "L to R done with inverses"
+    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+
+    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
+    #                             verbose=True, use_inv=False)
 
     # s = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_85.txt"
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
     #                             verbose=True, use_inv=False)
-    # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
+
 
 
 
@@ -2131,3 +2197,5 @@ if __name__ == '__main__':
     #  'BBABAA': 0.09711892529790832, 'AAABBA': 0.03326665151921054, 'BAAABA': 0.006535941959806149,
     #  'BBAAAA': 0.12770454755739558, 'ABABAA': 0.010893236599676915, 'BABABA': 0.016339854899515373,
     #  'BAABBA': 0.016339854899515373}
+
+
