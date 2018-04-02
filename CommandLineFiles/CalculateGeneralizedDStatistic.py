@@ -432,6 +432,7 @@ def site_pattern_generator(taxa_order, newick, outgroup, use_inv):
 
     # Create a tree object
     tree = ete3.Tree(newick, format=1)
+    tree.set_outgroup(outgroup)
 
     # Initialize containers for the final patterns and patterns being altered
     final_site_patterns = []
@@ -464,9 +465,6 @@ def site_pattern_generator(taxa_order, newick, outgroup, use_inv):
     # Keep track of visited leaves
     seen_leaves = []
 
-    # Create a list of patterns that are duplicates
-    duplicates = []
-
     # Iterate over the order that the nodes occur beginning at the root
     for node_idx in range(len(nodes)):
 
@@ -482,7 +480,7 @@ def site_pattern_generator(taxa_order, newick, outgroup, use_inv):
         elif outgroup not in seen_leaves:
             pass
 
-        # Else if the node is a leaf and is adjacent to the outgroup
+        # Else if the node is a leaf and is after the outgroup
         elif node != "" and seen_leaves[-1] == outgroup and outgroup in seen_leaves:
 
             # If the next node is a leaf a clade has been found
@@ -499,9 +497,7 @@ def site_pattern_generator(taxa_order, newick, outgroup, use_inv):
 
                 clade_count += 1
 
-                # If there is a clade besides the first one then duplicate it in the list
                 final_site_patterns.append(pattern)
-                duplicates.append(pattern)
 
                 seen_leaves.append(node)
                 seen_leaves.append(node2)
@@ -525,6 +521,7 @@ def site_pattern_generator(taxa_order, newick, outgroup, use_inv):
                 break
 
     num_patterns = num_patterns + clade_count
+
     # All patterns can be derived from the pattern with the most B's
     working_patterns = [pattern for x in range(num_patterns)]
 
@@ -573,9 +570,7 @@ def site_pattern_generator(taxa_order, newick, outgroup, use_inv):
 
                 clade_count += 1
 
-                # If there is a clade besides the first one then duplicate it in the list
                 final_site_patterns.append(pattern)
-                duplicates.append(pattern)
 
                 # Get the index that final clade occurs at
                 end_idx = node_idx + 1
@@ -595,7 +590,6 @@ def site_pattern_generator(taxa_order, newick, outgroup, use_inv):
 
         # Add the altered pattern to the final site patterns
         final_site_patterns.append(pattern)
-        duplicates.append(pattern)
 
         # Update the working patterns to be the same as the most recent pattern
         working_patterns = [pattern for x in range(num_patterns - len(final_site_patterns))]
@@ -629,14 +623,10 @@ def site_pattern_generator(taxa_order, newick, outgroup, use_inv):
     finished_patterns = pattern_string_generator(finished_patterns)
     inverted_patterns = pattern_string_generator(inverted_patterns)
 
-    # print taxa_order
-    # print finished_patterns
-    # print newick
-
     return finished_patterns, inverted_patterns
 
 
-def newicks_to_patterns_generator(taxa_order, newicks, use_inv):
+def newicks_to_patterns_generator(taxa_order, newicks, outgroup, use_inv):
     """
     Generate the site patterns for each newick string and map the strings to their patterns
     Inputs:
@@ -645,9 +635,6 @@ def newicks_to_patterns_generator(taxa_order, newicks, use_inv):
     Output:
     newicks_to_patterns --- a mapping of newick strings to their site patterns
     """
-
-    # Determine the outgroup of the tree
-    outgroup = taxa_order[-1]
 
     newicks_to_patterns = {}
     inverse_to_counts = defaultdict(int)
@@ -964,7 +951,7 @@ def calculate_significance(left, right, verbose= False, alpha= 0.01):
         return signif
 
 
-def calculate_L(alignments, taxa_order, patterns_of_interest, verbose, alpha, patterns_of_interest_resized,
+def calculate_L(alignments, taxa_order, outgroup, patterns_of_interest, verbose, alpha, patterns_of_interest_resized,
                 overall_coefficient=1, patterns_to_coefficients={}):
     """
     Calculates the L statistic for the given alignment
@@ -1026,9 +1013,6 @@ def calculate_L(alignments, taxa_order, patterns_of_interest, verbose, alpha, pa
             taxon_list.append(taxon)
 
         length_of_sequences = len(min(sequence_list, key=len))
-
-        # The outgroup is the last taxa in taxa order
-        outgroup = taxa_order[-1]
 
         num_ignored = 0
 
@@ -1187,7 +1171,7 @@ def weight_counts(term_counts, patterns_to_coeffiencents):
 
     return weighted_total, weighted_counts
 
-def calculate_windows_to_L(alignments, taxa_order, patterns_of_interest, window_size, window_offset, verbose= False, alpha=0.01):
+def calculate_windows_to_L(alignments, taxa_order, outgroup, patterns_of_interest, window_size, window_offset, verbose= False, alpha=0.01):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1228,9 +1212,6 @@ def calculate_windows_to_L(alignments, taxa_order, patterns_of_interest, window_
             # Add each taxon to a list
             taxon = line.split()[0]
             taxon_list.append(taxon)
-
-        # The outgroup is the last taxa in taxa order
-        outgroup = taxa_order[-1]
 
         i = 0
         num_windows = 0
@@ -1436,7 +1417,7 @@ def approximately_equal(x, y, tol=0.00000000000001):
 
     return abs(x - y) <= tol
 
-def equality_sets(species_trees, network, taxa, use_inv):
+def equality_sets(species_trees, network, taxa, outgroup, use_inv):
     """
     Create mappings of site patterns to patterns with equivalent probabilities
     Input:
@@ -1450,10 +1431,9 @@ def equality_sets(species_trees, network, taxa, use_inv):
     trees_to_equality = {}
     trees_to_equality_N = {}
 
-    outgroup = taxa[-1]
     gene_trees = generate_unique_trees(taxa, outgroup)
 
-    newick_patterns, inverses_to_counts = newicks_to_patterns_generator(taxa, gene_trees, use_inv)
+    newick_patterns, inverses_to_counts = newicks_to_patterns_generator(taxa, gene_trees, outgroup, use_inv)
 
     # If inverses are not desired remove them
     if not use_inv:
@@ -1692,7 +1672,7 @@ def calculate_total_term_prob(patterns_pgS, term):
     return term_prob
 
 
-def calculate_generalized(alignments, species_tree=None, reticulations=None, window_size=100000000000,
+def calculate_generalized(alignments, species_tree=None, reticulations=None, outgroup=None, window_size=100000000000,
                           window_offset=100000000000, verbose=False, alpha=0.01, useDir=False, directory="",
                           statistic=False, save=False, use_inv=False, f="DGenStatistic_"):
     """
@@ -1720,13 +1700,13 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
         trees, taxa = branch_adjust(st)
 
         network = generate_network_tree((0.1, 0.9), list(trees)[0], reticulations)
-        trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa, use_inv)
+        trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = equality_sets(trees, network, taxa, outgroup, use_inv)
         trees_of_interest = set_of_interest(trees_to_equality, trees_to_equality_N)
 
-        print trees_of_interest
-        print trees_to_equality
-        print patterns_pgN
-        print patterns_pgS
+        # print trees_of_interest
+        # print trees_to_equality
+        # print patterns_pgN
+        # print patterns_pgS
 
         increase, decrease, increase_resized, decrease_resized, patterns_to_coeff = determine_patterns(
             trees_of_interest, trees_to_equality, patterns_pgN, patterns_pgS, use_inv)
@@ -1783,10 +1763,10 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, win
 
 
     alignments_to_d_resized, alignments_to_d_pattern_coeff, alignments_to_d_ovr_coeff = calculate_L(
-        alignments, taxa, (increase, decrease), verbose, alpha, (increase_resized, decrease_resized),
+        alignments, taxa, outgroup, (increase, decrease), verbose, alpha, (increase_resized, decrease_resized),
                 overall_coefficient, patterns_to_coeff)
 
-    alignments_to_windows_to_d = calculate_windows_to_L(alignments, taxa, (increase_resized, decrease_resized), window_size,
+    alignments_to_windows_to_d = calculate_windows_to_L(alignments, taxa, outgroup, (increase_resized, decrease_resized), window_size,
                                                         window_offset, verbose, alpha)
     if verbose and not statistic:
         # print
@@ -1985,10 +1965,18 @@ def plot_formatting(info_tuple, verbose=False):
 
 if __name__ == '__main__':
     r =[('P3', 'P2')]
-    species_tree = '(((P1,P2),P3),O);'
+    # species_tree = '(((P1,P2),P3),O);'
+    species_tree = '((P1,P2),(P3,O));'
     # species_tree = '(((P1,P2),(P3,P4)),O);' # DFOIL tree
     # species_tree = '((((P1,P2),P3),P4),O);' # Smallest asymmetrical tree
     # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
+
+    # n = '((P2,(P1,P3)),O);'
+    # n = '(((P1,P3),P2),O);'
+    # n = '((P1,(P2,(P3,P4))),O);'
+    # t = ["P1", "P2", "P3", "P4", "O"]
+    # o = "O"
+    # print site_pattern_generator(t, n, o, False)
 
     if platform == "darwin":
         alignments = ["/Users/Peter/PycharmProjects/ALPHA/exampleFiles/seqfile.txt"]
@@ -2039,8 +2027,8 @@ if __name__ == '__main__':
     # species_tree, r = "(((P5,P6),((P1,P2),P3)),P4);", [('P3', 'P2')]
     # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip"]
     # species_tree, r = '((C,G),(((A,Q),L),R));', [('Q', 'G')]
-    # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
-    #                             verbose=True, use_inv=False)
+    print calculate_generalized(alignments, species_tree, r, "O", 50000, 50000, alpha=0.01, statistic=False, save=False,
+                                verbose=True, use_inv=False)
 
     # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip.txt"]
     # alignments = ["C:\\Users\\travi\\Desktop\\3L\\3L\\3L.41960870.634.fa.phylip"]
@@ -2077,19 +2065,6 @@ if __name__ == '__main__':
     # s = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_85.txt"
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=s,
     #                             verbose=True, use_inv=False)
-
-
-
-
-
-    # n = '((P2,(P1,P3)),O);'
-    # n = '(((P1,P3),P2),O);'
-    # n = '((P1,(P2,(P3,P4))),O);'
-    # t = ["P1", "P2", "P3", "P4", "O"]
-    # o = "O"
-    # print site_pattern_generator(t, n, o, False)
-
-
 
     # print calculate_generalized(alignments, species_tree, r, 50000, 50000, alpha=0.01, statistic=False, save=False,
     #                             verbose=True, use_inv=False)
