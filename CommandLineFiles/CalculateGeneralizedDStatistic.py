@@ -428,11 +428,13 @@ def site_pattern_generator(taxa_order, newick, outgroup, use_inv):
     """
 
     # Reformat newick string
-    newick = newick_ladderize(newick)
+    # newick = newick_ladderize(newick)
 
     # Create a tree object
     tree = ete3.Tree(newick, format=1)
+    tree.ladderize(direction=1)
     tree.set_outgroup(outgroup)
+
 
     # Initialize containers for the final patterns and patterns being altered
     final_site_patterns = []
@@ -1594,10 +1596,6 @@ def remove_inverse(newick_patterns, inverses_to_counts):
     for newick in newick_patterns:
         d = d.union(set(newick_patterns[newick]))
 
-    l = len(d)
-
-
-
     #Map each pattern to its inverse
     for newick in newick_patterns:
 
@@ -1605,6 +1603,8 @@ def remove_inverse(newick_patterns, inverses_to_counts):
             # Represent the pattern as a list
             pattern_lst = [x for x in pattern]
             # Create the inverse pattern
+            if pattern_inverter([pattern_lst]) == []:
+                a= 1
             inv_lst = pattern_inverter([pattern_lst])[0]
             inverse = ''.join(inv_lst)
 
@@ -1697,6 +1697,10 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, out
     # If the user does not have a specific statistic file to use
     if not statistic:
         st = re.sub("\:\d+\.\d+", "", species_tree)
+        st = Tree(st)
+        st.set_outgroup(outgroup)
+        st.ladderize(direction=1)
+        st = st.write()
         trees, taxa = branch_adjust(st)
 
         network = generate_network_tree((0.1, 0.9), list(trees)[0], reticulations)
@@ -1769,17 +1773,17 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, out
     alignments_to_windows_to_d = calculate_windows_to_L(alignments, taxa, outgroup, (increase_resized, decrease_resized), window_size,
                                                         window_offset, verbose, alpha)
     if verbose and not statistic:
-        # print
-        # print "Newick strings with corresponding patterns: ", newick_patterns
-        # print
-        # print "Probability of gene tree patterns: ", patterns_pgS
-        # print
-        # print "Probability of species network patterns:", patterns_pgN
-        # print
+        print
+        print "Probability of gene tree patterns: ", patterns_pgS
+        print
+        print "Probability of species network patterns:", patterns_pgN
+        print
         print "Patterns that were formerly equal with increasing probability: ", increase
         print "Patterns that were formerly equal with decreasing probability: ", decrease
         print "Total p(gt|st) for increasing site patterns: ", inc_prob
         print "Total p(gt|st) for decreasing site patterns: ", dec_prob
+        print
+        print "Taxa order used for site patterns: ", taxa
         print "Statistic without coefficient weighting: ", generate_statistic_string((increase, decrease))
         print
         print "Increasing patterns after block resizing: ", increase_resized
@@ -1795,6 +1799,7 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, out
         display_alignment_info(alignments_to_d_resized, alignments_to_d_pattern_coeff, alignments_to_d_ovr_coeff)
 
     elif verbose and statistic:
+        print "Taxa order used for site patterns: ", taxa
         print
         print "Patterns that were formerly equal with increasing probability: ", increase
         print "Patterns that were formerly equal with decreasing probability: ", decrease
@@ -1965,8 +1970,8 @@ def plot_formatting(info_tuple, verbose=False):
 
 if __name__ == '__main__':
     r =[('P3', 'P2')]
-    # species_tree = '(((P1,P2),P3),O);'
-    species_tree = '((P1,P2),(P3,O));'
+    species_tree = '(((P1,P2),P3),O);'
+    # species_tree = '((P1,P2),(P3,O));'
     # species_tree = '(((P1,P2),(P3,P4)),O);' # DFOIL tree
     # species_tree = '((((P1,P2),P3),P4),O);' # Smallest asymmetrical tree
     # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
@@ -2027,7 +2032,7 @@ if __name__ == '__main__':
     # species_tree, r = "(((P5,P6),((P1,P2),P3)),P4);", [('P3', 'P2')]
     # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip"]
     # species_tree, r = '((C,G),(((A,Q),L),R));', [('Q', 'G')]
-    print calculate_generalized(alignments, species_tree, r, "O", 50000, 50000, alpha=0.01, statistic=False, save=False,
+    print calculate_generalized(alignments, species_tree, r, "P1", 50000, 50000, alpha=0.01, statistic=False, save=False,
                                 verbose=True, use_inv=False)
 
     # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip.txt"]
