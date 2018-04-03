@@ -1745,6 +1745,8 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, out
                 text_file.write(output_str)
                 output_str = "Species Tree: {0}\n".format(species_tree)
                 text_file.write(output_str)
+                output_str = "Outgroup: {0}\n".format(outgroup)
+                text_file.write(output_str)
                 output_str = "Reticulations: {0}\n".format(reticulations)
                 text_file.write(output_str)
                 text_file.close()
@@ -1756,6 +1758,7 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, out
             taxa = eval(lines[0].split(None, 1)[1])
             increase = eval(lines[1].split(None, 2)[2])
             decrease = eval(lines[2].split(None, 2)[2])
+            outgroup = lines[5].split(None, 1)[1].replace("\n", "")
             increase_resized = increase
             decrease_resized = decrease
             overall_coefficient = 1
@@ -1970,8 +1973,8 @@ def plot_formatting(info_tuple, verbose=False):
 
 if __name__ == '__main__':
     r =[('P3', 'P2')]
-    species_tree = '(((P1,P2),P3),O);'
-    # species_tree = '((P1,P2),(P3,O));'
+    # species_tree = '(((P1,P2),P3),O);'
+    species_tree = '((P1,P2),(P3,O));'
     # species_tree = '(((P1,P2),(P3,P4)),O);' # DFOIL tree
     # species_tree = '((((P1,P2),P3),P4),O);' # Smallest asymmetrical tree
     # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
@@ -1999,7 +2002,6 @@ if __name__ == '__main__':
     #
     # species_tree, r = '((((P1,P4),P3),P2),O);', [('P3', 'P2'),('P1', 'P2')]
 
-    # import playsound
     #
     # # 3 to 2
     # calculate_generalized( ['C:\\Users\\travi\\Desktop\\390 Errors\\seqfileNames'], '(((P5,P6),((P1,P2),P3)),P4);', [('P3', 'P2')], 50000, 50000, True, save=True, f='stat_6tax_sub_3to2.txt')
@@ -2032,7 +2034,7 @@ if __name__ == '__main__':
     # species_tree, r = "(((P5,P6),((P1,P2),P3)),P4);", [('P3', 'P2')]
     # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip"]
     # species_tree, r = '((C,G),(((A,Q),L),R));', [('Q', 'G')]
-    print calculate_generalized(alignments, species_tree, r, "P1", 50000, 50000, alpha=0.01, statistic=False, save=False,
+    print calculate_generalized(alignments, species_tree, r, "O", 50000, 50000, alpha=0.01, statistic="DGenStatistic_98.txt",
                                 verbose=True, use_inv=False)
 
     # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip.txt"]
