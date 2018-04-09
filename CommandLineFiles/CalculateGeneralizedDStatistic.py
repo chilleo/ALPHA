@@ -1674,7 +1674,7 @@ def calculate_total_term_prob(patterns_pgS, term):
 
 def calculate_generalized(alignments, species_tree=None, reticulations=None, outgroup=None, window_size=100000000000,
                           window_offset=100000000000, verbose=False, alpha=0.01, useDir=False, directory="",
-                          statistic=False, save=False, use_inv=False, f="DGenStatistic_"):
+                          statistic=False, save=False, use_inv=False, f="DGenStatistic_", plot=False, meta=False):
     """
     Calculates the L statistic for the given alignment
     Input:
@@ -1852,6 +1852,8 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, out
             print "Final Overall D value using Overall Coefficient Method: {0}".format(l_stat_oc)
             print "Significant deviation from 0: {0}".format(significant_oc)
 
+    if plot:
+        plot_formatting((alignments_to_d_resized, alignments_to_windows_to_d), plot, meta)
 
     return alignments_to_d_resized, alignments_to_windows_to_d
 
@@ -1932,50 +1934,51 @@ def display_alignment_info(alignments_to_d_resized, alignments_to_d_pattern_coef
             print pattern + ": {0}".format(right_counts[pattern])
 
 
-def plot_formatting(info_tuple, verbose=False):
+def plot_formatting(info_tuple, name, meta, verbose=False):
     """
     Reformats and writes the dictionary output to a text file to make plotting it in Excel easy
     Input:
-    info_tuple --- a triplet from the calculate_generalized output
+    info_tuple --- a tuple from the calculate_generalized output
     """
 
     alignments_to_d, alignments_to_windows_to_d = info_tuple
 
-    for alignment in alignments_to_d:
+    num = 0
+    file_name = "{0}_{1}.txt".format(name, num)
+    while os.path.exists(file_name):
+        num += 1
+        file_name = "{0}_{1}.txt".format(name, num)
 
-        l_stat, significant = alignments_to_d[alignment][0], alignments_to_d[alignment][1]
-        windows_to_l = alignments_to_windows_to_d[alignment]
+    with open(file_name, "w") as text_file:
 
-        num = 0
-        file_name = "DGenResults_{0}.txt".format(num)
-        while os.path.exists(file_name):
-            num += 1
-            file_name = "DGenResults_{0}.txt".format(num)
+        for alignment in alignments_to_d:
 
-        with open(file_name, "w") as text_file:
-            output_str = "Overall, {0}, {1} \n".format(l_stat, significant)
+            l_stat, significant = alignments_to_d[alignment][0], alignments_to_d[alignment][1]
+            significant = str(significant).upper()
+            windows_to_l = alignments_to_windows_to_d[alignment]
+
+            output_str = "{0}, {1}, {2} \n".format(l_stat, meta, significant)
             text_file.write(output_str)
-            for idx in windows_to_l:
-                info = windows_to_l[idx]
-                l_stat = info[0]
-                significant = info[1]
-                output_str = "{0}, {1}, {2} \n".format(idx, l_stat, significant)
+                # for idx in windows_to_l:
+                #     info = windows_to_l[idx]
+                #     l_stat = info[0]
+                #     significant = info[1]
+                #     output_str = "{0}, {1}, {2}, {3} \n".format(idx, l_stat, meta, significant)
 
-                if verbose:
-                    chisq = info[2]
-                    pval = info[3]
-                    output_str = "{0}, {1}, {2}, {3}, {4} \n".format(idx, l_stat, significant, chisq, pval)
+                    # if verbose:
+                    #     chisq = info[2]
+                    #     pval = info[3]
+                    #     output_str = "{0}, {1}, {2}, {3}, {4} \n".format(idx, l_stat, meta, significant, chisq, pval)
 
-                text_file.write(output_str)
-                text_file.close()
+    text_file.close()
 
 
 
 if __name__ == '__main__':
     r =[('P3', 'P2')]
     # species_tree = '(((P1,P2),P3),O);'
-    # species_tree = '((P1,P2),(P3,O));'
-    species_tree = '(((P1,P2),(P3,P4)),O);' # DFOIL tree
+    species_tree = '((P1,P2),(P3,O));'
+    # species_tree = '(((P1,P2),(P3,P4)),O);' # DFOIL tree
     # species_tree = '((((P1,P2),P3),P4),O);' # Smallest asymmetrical tree
     # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
 
@@ -1991,11 +1994,11 @@ if __name__ == '__main__':
     else:
         alignments = ["C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim2\\seqfile.txt"]
 
-    # alignments = ["C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim5\\seqfile",
-    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim7\\seqfile",
-    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim4\\seqfile",
-    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim6\\seqfile",
-    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim8\\seqfile"]
+    alignments = ["C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim5\\seqfile",
+                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim7\\seqfile",
+                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim4\\seqfile",
+                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim6\\seqfile",
+                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim8\\seqfile"]
 
     # alignments = ["C:\\Users\\travi\\Desktop\\390 Errors\\seqfileNames"]
     #
@@ -2034,8 +2037,7 @@ if __name__ == '__main__':
     # species_tree, r = "(((P5,P6),((P1,P2),P3)),P4);", [('P3', 'P2')]
     # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip"]
     # species_tree, r = '((C,G),(((A,Q),L),R));', [('Q', 'G')]
-    print calculate_generalized(alignments, species_tree, r, "O", 50000, 50000, alpha=0.01, statistic="DGenStatistic_99.txt",
-                                verbose=True, use_inv=False)
+    print calculate_generalized(alignments, species_tree, r, "O", 50000, 50000, alpha=0.01, verbose=True, use_inv=False, plot="poop", meta="1")
 
     # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip.txt"]
     # alignments = ["C:\\Users\\travi\\Desktop\\3L\\3L\\3L.41960870.634.fa.phylip"]
