@@ -1,6 +1,7 @@
 from collections import defaultdict
 from natsort import natsorted
 import os
+import math
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
@@ -55,12 +56,13 @@ class InformativeSites(QtCore.QThread):
         else:
             return 0
 
-    def calculate_informativeness(self, window_directory, window_offset):
+    def calculate_informativeness(self, window_directory, window_offset, percentage):
         """
         Calculates information about informative sites in an alignment
         Input:
         window_directory --- the location of the folder containing the phylip window files
         window_offset --- the offset that was used to create the windows
+        percentage --- the percent of the total alignment to look at the site index is scaled accordingly
         Output:
         sites_to_informative --- a mapping of each site in the alignment to 1 if informative 0 if not
         windows_to_informative_count --- a mapping of each window number to the number of informative sites it has
@@ -70,6 +72,9 @@ class InformativeSites(QtCore.QThread):
 
         # Initialize the site index to 0
         site_idx = 0
+
+        # Represent percentage as a decimal
+        percentage = float(percentage) / 100.0
 
         sites_to_informative = defaultdict(int)
         windows_to_informative_count = defaultdict(int)
@@ -103,6 +108,9 @@ class InformativeSites(QtCore.QThread):
                     sequence = line.split()[1]
                     sequence_list.append(sequence)
 
+                # Increment based on the percentage of the alignment desired
+                increment = math.ceil(length_of_sequences * percentage)
+
                 # Iterate over the indices in each window
                 for window_idx in range(length_of_sequences):
 
@@ -125,18 +133,23 @@ class InformativeSites(QtCore.QThread):
                     windows_to_informative_count[file_number] += informative
 
                     # Increment the site index
-                    site_idx += 1
+                    site_idx += increment
 
                 # Account for overlapping windows
                 site_idx += (window_offset - length_of_sequences)
 
                 # Map windows_to_informative_count to a percentage
-                windows_to_informative_pct[file_number] = windows_to_informative_count[file_number] * (100/float(length_of_sequences))
+                windows_to_informative_pct[file_number] = windows_to_informative_count[file_number] *\
+                                                          (100 / float(length_of_sequences))
 
                 total_window_size += length_of_sequences
 
         total_num_informative = sum(windows_to_informative_count.values())
-        pct_informative = float(total_num_informative * 100) / total_window_size
+
+        if total_window_size == 0:
+            pct_informative = 0
+        else:
+            pct_informative = float(total_num_informative * 100) / total_window_size
 
         return sites_to_informative, windows_to_informative_count, windows_to_informative_pct, pct_informative
 

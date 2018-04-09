@@ -751,7 +751,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # generate informative sites heatmap graph
         if self.checkboxHeatMap.isChecked():
             self.prevGeneratedFigures.add('Informative Sites Heat Map')
-            sites_to_informative, windows_to_informative_count, windows_to_informative_pct, pct_informative = self.informativeSites.calculate_informativeness('windows', self.raxmlOperations.windowOffset)
+            sites_to_informative, windows_to_informative_count, windows_to_informative_pct, pct_informative = self.informativeSites.calculate_informativeness('windows', self.raxmlOperations.windowOffset, self.heatmapPercentage.text())
             self.heatMapWindow = heatMapWindow.HeatMapWindow('Heat Map', sites_to_informative)
 
         # generate windows to informative sites line graph
@@ -956,8 +956,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             if require4Taxons:
                 # if there are not exactly 4 taxons
                 if len(taxonNames) != 4:
-                    self.message('Invalid File.', 'Need exactly 4 taxons.', textEntry.text())
-                    return
+                    self.message('Warning.', 'The D Statistic is meant to be run on a 4 taxa alignment.', textEntry.text())
 
             # clear each combo box
             for comboBox in comboBoxes:

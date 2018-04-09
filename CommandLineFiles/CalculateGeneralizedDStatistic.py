@@ -1974,8 +1974,8 @@ def plot_formatting(info_tuple, verbose=False):
 if __name__ == '__main__':
     r =[('P3', 'P2')]
     # species_tree = '(((P1,P2),P3),O);'
-    species_tree = '((P1,P2),(P3,O));'
-    # species_tree = '(((P1,P2),(P3,P4)),O);' # DFOIL tree
+    # species_tree = '((P1,P2),(P3,O));'
+    species_tree = '(((P1,P2),(P3,P4)),O);' # DFOIL tree
     # species_tree = '((((P1,P2),P3),P4),O);' # Smallest asymmetrical tree
     # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
 
@@ -2034,7 +2034,7 @@ if __name__ == '__main__':
     # species_tree, r = "(((P5,P6),((P1,P2),P3)),P4);", [('P3', 'P2')]
     # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip"]
     # species_tree, r = '((C,G),(((A,Q),L),R));', [('Q', 'G')]
-    print calculate_generalized(alignments, species_tree, r, "O", 50000, 50000, alpha=0.01, statistic="DGenStatistic_98.txt",
+    print calculate_generalized(alignments, species_tree, r, "O", 50000, 50000, alpha=0.01, statistic="DGenStatistic_99.txt",
                                 verbose=True, use_inv=False)
 
     # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip.txt"]
