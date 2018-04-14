@@ -186,12 +186,15 @@ class Plotter(QtCore.QThread):
         ax = plt.subplot(subplotPosition)
         ax.set_title(title, fontsize=15)
 
+        print mapping
+
         y = mapping.values()
         N = len(y)
-        x = range(N)
-        width = 30 * (N / float(20000))
+        x = mapping.keys()
+        width = 30 * (N / float(200))
 
-        plt.bar(x, y, width, color="black")
+        ax.set_xlim(0, max(x))
+        ax.bar(x, y, width, color="black")
 
         ax.spines['top'].set_position(("data", 1)) #Reposition top spine
         ax.spines['left'].set_bounds(0, 1) #Shorten left and right spines

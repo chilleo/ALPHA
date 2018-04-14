@@ -74,7 +74,7 @@ class InformativeSites(QtCore.QThread):
         site_idx = 0
 
         # Represent percentage as a decimal
-        percentage = float(percentage) / 100.0
+        pct = float(percentage) / 100
 
         sites_to_informative = defaultdict(int)
         windows_to_informative_count = defaultdict(int)
@@ -109,7 +109,7 @@ class InformativeSites(QtCore.QThread):
                     sequence_list.append(sequence)
 
                 # Increment based on the percentage of the alignment desired
-                increment = math.ceil(length_of_sequences * percentage)
+                increment = int(math.ceil((length_of_sequences * pct) / length_of_sequences))
 
                 # Iterate over the indices in each window
                 for window_idx in range(length_of_sequences):
@@ -126,7 +126,7 @@ class InformativeSites(QtCore.QThread):
                     informative = self.is_site_informative(site)
 
                     # If the site has not been visited before add to mappings (deals with overlapping windows)
-                    if site_idx not in sites_to_informative:
+                    if site_idx not in sites_to_informative and informative:
                         # If the site is informative add 1 to the mappings otherwise add 0
                         sites_to_informative[site_idx] += informative
 
@@ -145,6 +145,11 @@ class InformativeSites(QtCore.QThread):
                 total_window_size += length_of_sequences
 
         total_num_informative = sum(windows_to_informative_count.values())
+
+        # Add in the last site index if it is not already in the informative mapping
+        # This is useful for plotting reasons
+        if site_idx not in sites_to_informative:
+            sites_to_informative[site_idx] = 0
 
         if total_window_size == 0:
             pct_informative = 0
