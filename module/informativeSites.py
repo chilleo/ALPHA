@@ -109,10 +109,10 @@ class InformativeSites(QtCore.QThread):
                     sequence_list.append(sequence)
 
                 # Increment based on the percentage of the alignment desired
-                increment = int(math.ceil((length_of_sequences * pct) / length_of_sequences))
+                increment = int(math.ceil((1 / pct)))
 
                 # Iterate over the indices in each window
-                for window_idx in range(length_of_sequences):
+                for window_idx in range(0, length_of_sequences, increment):
 
                     site = []
 
