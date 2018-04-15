@@ -117,6 +117,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.lAlignmentTypeStacked.setCurrentIndex(0)
         self.resize(self.windowSizes['welcomePage']['x'], self.windowSizes['welcomePage']['y'])
         self.outputFileConverterEntry.setText(os.getcwd())
+        self.heatmapPercentage.setText("100")
 
         # open documentation
         self.actionDocumentation.triggered.connect(lambda: self.openURL('https://github.com/chilleo/ALPHA'))
