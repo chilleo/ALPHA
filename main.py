@@ -328,6 +328,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.calcGenD.useDir = self.lUseDirCB.isChecked()
         self.calcGenD.directory = ""
         self.calcGenD.o = self.lineEdit.text().encode('utf-8')
+        self.calcGenD.use_inv = self.checkBox.isChecked()
 
         self.calcGenD.save_location = "DGenStatistic_"
         if self.lStatSaveLocation.text().encode('utf-8') != "":
