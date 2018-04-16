@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>751</width>
+    <width>931</width>
     <height>1001</height>
    </rect>
   </property>
@@ -359,8 +359,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>509</width>
-               <height>386</height>
+               <width>579</width>
+               <height>418</height>
               </rect>
              </property>
              <attribute name="label">
@@ -1312,8 +1312,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>701</width>
-               <height>741</height>
+               <width>949</width>
+               <height>659</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -3484,8 +3484,8 @@ Run RAxML -&gt; Advanced</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>677</width>
-                       <height>108</height>
+                       <width>842</width>
+                       <height>104</height>
                       </rect>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_19">
@@ -3980,8 +3980,8 @@ Run RAxML -&gt; Advanced</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>701</width>
-                   <height>112</height>
+                   <width>864</width>
+                   <height>104</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -4110,8 +4110,8 @@ Run RAxML -&gt; Advanced</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>677</width>
-                       <height>76</height>
+                       <width>863</width>
+                       <height>85</height>
                       </rect>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_34">
@@ -4180,7 +4180,7 @@ Run RAxML -&gt; Advanced</string>
                        <x>0</x>
                        <y>0</y>
                        <width>98</width>
-                       <height>37</height>
+                       <height>48</height>
                       </rect>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_28">
@@ -4249,8 +4249,8 @@ Run RAxML -&gt; Advanced</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>751</width>
-     <height>22</height>
+     <width>931</width>
+     <height>26</height>
     </rect>
    </property>
    <property name="styleSheet">
