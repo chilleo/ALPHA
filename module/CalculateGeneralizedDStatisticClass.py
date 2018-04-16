@@ -22,7 +22,15 @@ Travis Benedict
 Peter Dulworth
 """
 
-GLOBAL_SET = {'BABAAA', 'ABABAA', 'BABBBA', 'ABAAAA', 'ABAABA', 'AABBAA', 'AAABAA', 'BBBBAA', 'ABABBA', 'BBBABA', 'BABABA', 'BBAABA', 'BABBAA', 'AAAABA'}
+
+"""
+Functions:
+
+~
+Chabrielle Allen
+Travis Benedict
+Peter Dulworth
+"""
 
 
 class CalculateGeneralizedDStatisticClass(QtCore.QThread):
@@ -34,14 +42,11 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         Creates a network tree based on the species tree
         and the two leaves to be connected.
         Inputs:
-        inheritance  -- inputted tuple containing inheritance
-                        probability ex. (0.7, 0.3)
-        species_tree -- generated or inputted file or newick
-                        string
-        network_map  -- inputted mapping of leaves where nodes
-                        will be added
-        Returns:
-        A newick string network with the added nodes.
+        inheritance  --- inputted tuple containing inheritance probability ex. (0.7, 0.3)
+        species_tree --- generated or inputted file or newick string
+        network_map  --- inputted mapping of leaves where nodes will be added
+        Output:
+        network --- a newick string network with the added nodes.
         """
 
         # check for a species tree file
@@ -64,9 +69,7 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
 
         return network
 
-
     ##### Generate all unique trees functions
-
 
     def genDistinct(self, n):
         """
@@ -92,7 +95,6 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
             dp.append(newset)
 
         return dp[-1]
-
 
     def generate_all_trees(self, taxa):
         """
@@ -144,7 +146,6 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
 
         return all_trees
 
-
     def generate_unique_trees(self, taxa, outgroup):
         """
         Generate the set of unique trees over a set of taxa with an outgroup
@@ -154,12 +155,6 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         Output:
         unique_newicks --- a set of all unique topologies over the given taxa
         """
-
-        # Regular expression for identifying floats
-        float_pattern = "([+-]?\\d*\\.\\d+)(?![-+0-9\\.])"
-        # Regular expressions for removing branch lengths and confidence values
-        pattern2 = "([\:][\\d])"
-        pattern3 = "([\)][\\d])"
 
         # Create a set for unique trees
         unique_trees = set([])
@@ -195,10 +190,7 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
             tree = tree.write()
 
             # Get rid of branch lengths in the newick strings
-            tree = (re.sub(float_pattern, '', tree))
-            tree = (re.sub(pattern2, '', tree)).replace(":", "")
-            tree = (re.sub(pattern3, ')', tree))
-
+            tree = self.branch_removal(tree)
             tree = self.outgroup_reformat(tree, outgroup)
 
             # Add the newick strings to the set of unique newick strings
@@ -206,9 +198,7 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
 
         return unique_newicks
 
-
     ###### Statistics Calculations Functions
-
 
     def calculate_pgtst(self, species_tree, gene_tree):
         """
@@ -220,8 +210,12 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         pgtst --- p(gt|st) or p(gt|sn)
         """
 
+        # Get the global path name to the jar file
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        j = os.path.join(dir_path, "Unstable.jar")
+
         # Run PhyloNet p(g|S) jar file
-        p = subprocess.Popen("java -jar unstable.jar {0} {1}".format(species_tree, gene_tree), stdout=subprocess.PIPE,
+        p = subprocess.Popen("java -jar {0} {1} {2}".format(j, species_tree, gene_tree), stdout=subprocess.PIPE,
                              shell=True)
 
         # Read output and convert to float
@@ -229,10 +223,9 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
 
         return pgtst
 
-
     def calculate_newicks_to_stats(self, species_tree, species_network, unique_trees):
         """
-        Compute p(g|S) and p(g|N) for each g in unique_trees and
+        Compute p(g|S) and p(g|N) for each g in unique_trees and 
         map the tree newick string to those values
         Inputs:
         species_tree --- the species tree newick string for the taxa
@@ -240,7 +233,7 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         unique_trees --- the set of all unique topologies over n taxa
         outgroup --- the outgroup
         Output:
-        trees_to_pgS--- a mapping of tree newick strings to their p(g|S) values
+        trees_to_pgS--- a mapping of tree newick strings to their p(g|S) values 
         trees_to_pgN--- a mapping of tree newick strings to their p(g|N) values
         """
 
@@ -248,8 +241,7 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         trees_to_pgN = {}
 
         if platform == 'darwin':
-            # IF YOU COMMENT THIS OUT AGAIN EVERYTHING WILL BREAK
-            # add quotes to the strings
+            # macs need single quotes for some reason
             species_tree = str(species_tree)
             species_tree = "'" + species_tree + "'"
             species_network = str(species_network)
@@ -258,97 +250,22 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         # Iterate over the trees
         for tree in unique_trees:
             if platform == 'darwin':
-                # IF YOU COMMENT THIS OUT AGAIN EVERYTHING WILL BREAK
-                # add quotes to the strings
+                # macs need single quotes for some reason
                 tree = "'" + tree + "'"
 
-            dir_path = os.path.dirname(os.path.realpath(__file__))
-            j = os.path.join(dir_path, "Unstable.jar")
-
-            # Run PhyloNet p(g|S) jar file
-            p = subprocess.Popen("java -jar {0} {1} {2}".format(j, species_tree, tree), stdout=subprocess.PIPE,
-                                 shell=True)
-
-            # Read output and convert to float
-            p_of_g_given_s = float(p.stdout.readline())
-
-            # Run PhyloNet p(g|N) jar file
-            p = subprocess.Popen("java -jar {0} {1} {2}".format(j, species_network, tree), stdout=subprocess.PIPE,
-                                 shell=True)
-
-            # Read output and convert to float
-            p_of_g_given_n = float(p.stdout.readline())
+            p_of_g_given_s = self.calculate_pgtst(species_tree, tree)
+            p_of_g_given_n = self.calculate_pgtst(species_network, tree)
 
             if platform == 'darwin':
-                # IF YOU COMMENT THIS OUT AGAIN EVERYTHING WILL BREAK
                 # remove the quotes from the tree before we add it to the mapping
                 tree = tree[1:-1]
 
             trees_to_pgS[tree] = p_of_g_given_s
             trees_to_pgN[tree] = p_of_g_given_n
 
-        return trees_to_pgS, trees_to_pgN  # , trees_to_pgS_noO, trees_to_pgN_noO
-
-
-    def determine_interesting_trees(self, trees_to_pgS, trees_to_pgN):
-        """
-        Get the subset of trees who are initially equal based on p(g|S) but unequal based on p(g|N)
-        Input:
-        trees_to_pgS--- a mapping of tree newick strings to their p(g|S) values
-        trees_to_pgN--- a mapping of tree newick strings to their p(g|N) values
-        Output:
-        interesting_trees --- the subset of tree topologies to look at for determining introgression
-        """
-
-        # Initialize a set to contain all tree that are equal based on p(g|S)
-        possible_trees = []
-
-        # Compare the probability of each tree to the probability of every other tree
-        for tree1 in trees_to_pgS:
-
-            equal_trees = set([])
-
-            for tree2 in trees_to_pgS:
-
-                if self.approximately_equal(trees_to_pgS[tree1], trees_to_pgS[tree2]):
-                    equal_trees.add(tree2)
-
-            if len(equal_trees) > 1:
-                # Add the equal trees to the set of possible trees
-                possible_trees.append(equal_trees)
-
-        valuable_trees = []
-
-        # Iterate over each set of equal trees
-        for equal_trees in possible_trees:
-
-            unequal_trees = set([])
-
-            # Compare the p(g|N) values
-            for tree1 in equal_trees:
-
-                for tree2 in equal_trees:
-
-                    if trees_to_pgN[tree1] != trees_to_pgN[tree2]:
-                        unequal_trees.add(tree1)
-                        unequal_trees.add(tree2)
-
-            if len(unequal_trees) > 0:
-                valuable_trees.append(unequal_trees)
-
-        minimal_size = float("inf")
-
-        # Get the minimal subset of interesting trees
-        for trees in valuable_trees:
-            if len(trees) < minimal_size:
-                minimal_size = len(trees)
-                interesting_trees = trees
-
-        return interesting_trees
-
+        return trees_to_pgS, trees_to_pgN
 
     ##### Site Pattern Functions
-
 
     def outgroup_reformat(self, newick, outgroup):
         """
@@ -356,6 +273,8 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         Inputs:
         newick --- a newick string to be reformatted
         outgroup --- the outgroup
+        Output:
+        newick --- the reformatted string
         """
 
         # Replace the outgroup and comma with an empty string
@@ -364,7 +283,6 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         newick = newick[:-2] + "," + outgroup + ");"
 
         return newick
-
 
     def pattern_inverter(self, patterns):
         """
@@ -407,11 +325,9 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
 
         return inverted
 
-
     def pattern_string_generator(self, patterns):
         """
         Creates a list of viable pattern strings that are easier to read
-
         Input:
             patterns --- a list of lists of individual characters e.g. [["A","B","B","A"],["B","A","B","A"]]
         Output:
@@ -442,6 +358,25 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
 
         return pattern_strings
 
+    def branch_removal(self, n):
+        """
+        Remove the branch lengths from an inputted newick string
+        Input:
+        n --- a newick string
+        Output:
+        n --- the reformatted string 
+        """
+
+        float_pattern = "([+-]?\\d*\\.\\d+)(?![-+0-9\\.])"
+        # Regular expressions for removing branch lengths and confidence values
+        pattern2 = "([\:][\\d])"
+        pattern3 = "([\)][\\d])"
+        # Get rid of branch lengths in the newick strings
+        n = (re.sub(float_pattern, '', n))
+        n = (re.sub(pattern2, '', n)).replace(":", "")
+        n = (re.sub(pattern3, ')', n))
+
+        return n
 
     def site_pattern_generator(self, taxa_order, newick, outgroup):
         """
@@ -453,8 +388,11 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         Output:
         finished_patterns --- the list of site patterns generated for the newick string
         """
+
         # Create a tree object
         tree = ete3.Tree(newick, format=1)
+        tree.ladderize(direction=1)
+        tree.set_outgroup(outgroup)
 
         # Initialize containers for the final patterns and patterns being altered
         final_site_patterns = []
@@ -470,25 +408,19 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
 
         # Create list of nodes in order of appearance
         nodes = []
-        for node in tree.traverse("postorder"):
+        for node in tree.traverse("preorder"):
             # Add node name to list of nodes
             nodes.append(node.name)
 
-        nodes = list(reversed(nodes))
-
+        # If there are internal nodes at the second and third position travel over the tree in postorder
         if nodes[2] == "" and nodes[3] == "":
             nodes = []
-            for node in tree.traverse("preorder"):
+            for node in tree.traverse("postorder"):
                 # Add node name to list of nodes
                 nodes.append(node.name)
 
-            nodes = list(reversed(nodes))
-
         # Keep track of visited leaves
         seen_leaves = []
-
-        # Create a list of patterns that are duplicates
-        duplicates = []
 
         # Iterate over the order that the nodes occur beginning at the root
         for node_idx in range(len(nodes)):
@@ -501,7 +433,10 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
                 # Add outgroup to the seen leaves
                 seen_leaves.append(node)
 
-            # Else if the node is a leaf and is adjacent to the outgroup
+            elif outgroup not in seen_leaves:
+                pass
+
+            # Else if the node is a leaf and is after the outgroup
             elif node != "" and seen_leaves[-1] == outgroup and outgroup in seen_leaves:
 
                 # If the next node is a leaf a clade has been found
@@ -518,9 +453,7 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
 
                     clade_count += 1
 
-                    # If there is a clade besides the first one then duplicate it in the list
                     final_site_patterns.append(pattern)
-                    duplicates.append(pattern)
 
                     seen_leaves.append(node)
                     seen_leaves.append(node2)
@@ -544,6 +477,7 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
                     break
 
         num_patterns = num_patterns + clade_count
+
         # All patterns can be derived from the pattern with the most B's
         working_patterns = [pattern for x in range(num_patterns)]
 
@@ -592,9 +526,7 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
 
                     clade_count += 1
 
-                    # If there is a clade besides the first one then duplicate it in the list
                     final_site_patterns.append(pattern)
-                    duplicates.append(pattern)
 
                     # Get the index that final clade occurs at
                     end_idx = node_idx + 1
@@ -614,7 +546,6 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
 
             # Add the altered pattern to the final site patterns
             final_site_patterns.append(pattern)
-            duplicates.append(pattern)
 
             # Update the working patterns to be the same as the most recent pattern
             working_patterns = [pattern for x in range(num_patterns - len(final_site_patterns))]
@@ -628,16 +559,16 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
             if pattern not in finished_patterns:
                 finished_patterns.append(pattern)
 
-            else:
-                duplicates.append(pattern)
+        # If a site pattern only has a single B consider it as the inverse
+        for pattern in finished_patterns:
 
-        # This may need to change double check with Chill Leo on this
-        # if clade_count > 1:
+            if self.b_count(pattern) == 1:
+                finished_patterns.remove(pattern)
+                new_pattern = self.pattern_inverter([pattern])[0]
+                finished_patterns.append(new_pattern)
 
-        duplicates = finished_patterns
-
-        # Invert all duplicate patterns
-        inverted_patterns = self.pattern_inverter(duplicates)
+        # Always do calculation with the inverse patterns
+        inverted_patterns = self.pattern_inverter(finished_patterns)
 
         # Iterate over the inverted patterns and add them to finished patterns
         for pattern in inverted_patterns:
@@ -646,11 +577,11 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
                 finished_patterns.append(pattern)
 
         finished_patterns = self.pattern_string_generator(finished_patterns)
+        inverted_patterns = self.pattern_string_generator(inverted_patterns)
 
-        return finished_patterns
+        return finished_patterns, inverted_patterns
 
-
-    def newicks_to_patterns_generator(self, taxa_order, newicks):
+    def newicks_to_patterns_generator(self, taxa_order, newicks, outgroup):
         """
         Generate the site patterns for each newick string and map the strings to their patterns
         Inputs:
@@ -660,63 +591,50 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         newicks_to_patterns --- a mapping of newick strings to their site patterns
         """
 
-        # Determine the outgroup of the tree
-        outgroup = taxa_order[-1]
-
         newicks_to_patterns = {}
+        inverse_to_counts = defaultdict(int)
 
         # Iterate over the newick strings
         for newick in newicks:
-            newicks_to_patterns[newick] = self.site_pattern_generator(taxa_order, newick, outgroup)
 
-        return newicks_to_patterns
+            # Get the total set of site patterns and the inverses
+            all_patterns, inverses = self.site_pattern_generator(taxa_order, newick, outgroup)
+            newicks_to_patterns[newick] = all_patterns
 
+            # Count the number of times a site pattern appears as an inverse
+            for pattern in inverses:
+                inverse_to_counts[pattern] += 1
+
+        return newicks_to_patterns, inverse_to_counts
 
     ##### Interesting sites functions
 
-
     def calculate_pattern_probabilities(self, newicks_to_patterns, newicks_to_pgS, newicks_to_pgN):
         """
-        Creates a mapping of site patterns to their total p(g|S) values across all gene trees and
+        Creates a mapping of site patterns to their total p(g|S) values across all gene trees and 
         a mapping of site patterns to their total p(g|N) values across all gene trees
         Inputs:
         newicks_to_patterns --- a mapping of tree newick strings to their site patterns
-        newicks_to_pgS--- a mapping of tree newick strings to their p(g|S) values
+        newicks_to_pgS--- a mapping of tree newick strings to their p(g|S) values 
         newicks_to_pgN--- a mapping of tree newick strings to their p(g|N) values
         Outputs:
         patterns_to_pgS --- a mapping of site patterns to their total p(g|S) value
         patterns_to_pgN --- a mapping of site patterns to their total p(g|N) value
         """
 
-        patterns_to_pgS = {}
-        patterns_to_pgN = {}
+        patterns_to_pgS = defaultdict(float)
+        patterns_to_pgN = defaultdict(float)
 
         # Iterate over each newick string
         for newick in newicks_to_patterns:
             # Iterate over each site pattern of a tree
             for pattern in newicks_to_patterns[newick]:
-
-                # Initialize a probability for each pattern if it does not have one
-                if pattern not in patterns_to_pgS:
-                    # print "newicks to pgs", newicks_to_pgS
-                    # print "newick", newick
-
-                    # on mac all the newicks need to be wrapped in single quotes to run with the JAR
-                    # so all the keys are wrapped in single quotes
-                    # if platform == "darwin":
-
-                    patterns_to_pgS[pattern] = newicks_to_pgS[newick]
-                    patterns_to_pgN[pattern] = newicks_to_pgN[newick]
-
-                # Otherwise add to the existing probability
-                else:
-                    patterns_to_pgS[pattern] += newicks_to_pgS[newick]
-                    patterns_to_pgN[pattern] += newicks_to_pgN[newick]
+                patterns_to_pgS[pattern] += newicks_to_pgS[newick]
+                patterns_to_pgN[pattern] += newicks_to_pgN[newick]
 
         return patterns_to_pgS, patterns_to_pgN
 
-
-    def determine_patterns(self, pattern_set, patterns_to_equality, patterns_to_pgN, patterns_to_pgS):
+    def determine_patterns(self, pattern_set, patterns_to_equality, patterns_to_pgN, patterns_to_pgS, use_inv):
         """
         Determine which patterns are useful in determining introgression
         Inputs:
@@ -725,8 +643,8 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         patterns_to_pgN --- a mapping of site patterns to their total p(g|N) value for a network
         patterns_to_pgS --- a mapping of site patterns to their total p(g|st)
         Outputs:
-        terms1 --- a set of patterns to count and add to each other to determine introgression
-        terms2 --- a set of other patterns to count and add to each other to determine introgression
+        terms1 --- set of patterns to count whose probabilities increase under introgression
+        terms2 --- set of patterns to count whose probabilities decrease under introgression
         """
 
         terms1 = set([])
@@ -742,7 +660,7 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
 
                     pat2_prob = patterns_to_pgN[pattern2]
 
-                    # Issues with randomness when values are close but not technically equal
+                    # Issues with randomness when very small values are close but not technically equal
                     if not self.approximately_equal(pat1_prob, pat2_prob):
 
                         if pat1_prob > pat2_prob:
@@ -753,29 +671,23 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
                             terms1.add(pattern2)
                             terms2.add(pattern1)
 
-        inverted1 = self.pattern_inverter(terms1)
-        for pattern in inverted1:
-            terms1.add(''.join(pattern))
+        terms1_resized, terms2_resized = self.resize_terms(terms1, terms2, patterns_to_pgS, use_inv)
+        patterns_to_coefficients = self.scale_terms(terms1, terms2, patterns_to_pgS)
 
-        inverted2 = self.pattern_inverter(terms2)
-        for pattern in inverted2:
-            terms2.add(''.join(pattern))
+        return terms1, terms2, terms1_resized, terms2_resized, patterns_to_coefficients
 
-        # Fix the chunk of code below
-
-        if len(terms1) != len(terms2):
-            terms1, terms2 = self.resize_terms(terms1, terms2, patterns_to_pgS)
-
-        return terms1, terms2
-
-
-    def resize_terms(self, terms1, terms2, patterns_to_pgS):
+    def resize_terms(self, terms1, terms2, patterns_to_pgS, use_inv):
         """
-
-        :param terms1:
-        :param terms2:
-        :param patterns_to_pgS:
-        :return:
+        Resize the terms to ensure that the probabilities are the same on both sides.
+        This is necessary to maintain the null hypothesis that D = 0 under no introgression.
+        Inputs:
+        terms1 --- a set of patterns to count and add to each other to determine introgression
+        terms2 --- a set of other patterns to count and add to each other to determine introgression
+        use_inv --- boolean for determining if inverse site patterns will be used
+        patterns_to_pgS --- a mapping of site patterns to their p(gt|st) values
+        Outputs:
+        terms1 --- a set of patterns to count and add to each other to determine introgression
+        terms2 --- a set of other patterns to count and add to each other to determine introgression
         """
 
         terms1 = list(terms1)
@@ -784,6 +696,106 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         # Create a mapping of pgtst to trees for each term
         pgtst_to_trees1 = defaultdict(set)
         pgtst_to_trees2 = defaultdict(set)
+
+        for tree in terms1:
+            # Round the probability to the 15th digit to prevent the randomness issues with small values
+            prob = float(format(patterns_to_pgS[tree], '.15f'))
+            pgtst_to_trees1[prob].add(tree)
+
+        for tree in terms2:
+            # Round the probability to the 15th digit to prevent the randomness issues with small values
+            prob = float(format(patterns_to_pgS[tree], '.15f'))
+            pgtst_to_trees2[prob].add(tree)
+
+        # Balance terms
+        terms1_prob_counts = defaultdict(int)
+        terms2_prob_counts = defaultdict(int)
+
+        # Round each probability and count the number of times it occurs
+        for tree in terms1:
+            prob = float(format(patterns_to_pgS[tree], '.15f'))
+            terms1_prob_counts[prob] += 1
+
+        for tree in terms2:
+            prob = float(format(patterns_to_pgS[tree], '.15f'))
+            terms2_prob_counts[prob] += 1
+
+        # Iterate over each probability
+        for prob in terms1_prob_counts:
+
+            # Get the number of times each probability occurs
+            count1, count2 = terms1_prob_counts[prob], terms2_prob_counts[prob]
+            removed = set([])
+
+            # The number of site patterns to remove is the difference in counts
+            num_remove = abs(count2 - count1)
+
+            if use_inv:
+                # If not using inverses remove the inverse along with the normal pattern
+                num_remove = num_remove / 2
+
+            # If probabilities do not occur an equal number of times remove site patterns until they do
+            if count1 > count2:
+
+                for i in range(num_remove):
+                    # Get a pattern to remove and remove it from the possible removals
+                    r = sorted(list(pgtst_to_trees1[prob])).pop(0)
+                    pgtst_to_trees1[prob].remove(r)
+                    removed.add(r)
+
+                terms1_remove = True
+
+            if count1 < count2:
+
+                for i in range(num_remove):
+                    # Get a pattern to remove and remove it from the possible removals
+                    r = sorted(list(pgtst_to_trees2[prob])).pop(0)
+                    pgtst_to_trees2[prob].remove(r)
+                    removed.add(r)
+
+                terms1_remove = False
+
+            if use_inv:
+                # Remove site patterns and their inverses
+                rm = set([])
+                inv_rm = self.pattern_inverter(removed)
+                for pattern in inv_rm:
+                    rm.add(''.join(pattern))
+                removed = removed.union(rm)
+
+            # Iterate over each pattern to be removed and remove it
+            for pattern in removed:
+
+                if terms1_remove:
+                    terms1.remove(pattern)
+
+                else:
+                    terms2.remove(pattern)
+
+        terms1, terms2 = tuple(terms1), tuple(terms2)
+
+        return terms1, terms2
+
+    def scale_terms(self, terms1, terms2, patterns_to_pgS):
+        """
+        Multiply the terms by a scalar to ensure that the probabilities are the same on both sides.
+        This is necessary to maintain the null hypothesis that D = 0 under no introgression.
+        Inputs:
+        terms1 --- a set of patterns to count and add to each other to determine introgression
+        terms2 --- a set of other patterns to count and add to each other to determine introgression
+        patterns_to_pgS --- a mapping of site patterns to their p(gt|st) values
+        Outputs:
+        patterns_to_coefficient --- a mapping of site patterns to a coefficent to multiply their counts by
+        """
+
+        terms1 = list(terms1)
+        terms2 = list(terms2)
+
+        # Create a mapping of pgtst to trees for each term
+        pgtst_to_trees1 = defaultdict(set)
+        pgtst_to_trees2 = defaultdict(set)
+
+        patterns_to_coefficient = {}
 
         for tree in terms1:
             prob = float(format(patterns_to_pgS[tree], '.15f'))
@@ -797,6 +809,7 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         terms1_prob_counts = defaultdict(int)
         terms2_prob_counts = defaultdict(int)
 
+        # Round each probability and count the number of times it occurs
         for tree in terms1:
             prob = float(format(patterns_to_pgS[tree], '.15f'))
             terms1_prob_counts[prob] += 1
@@ -805,46 +818,20 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
             prob = float(format(patterns_to_pgS[tree], '.15f'))
             terms2_prob_counts[prob] += 1
 
+        # Iterate over each probability
         for prob in terms1_prob_counts:
 
+            # Get the number of times each probability occurs
             count1, count2 = terms1_prob_counts[prob], terms2_prob_counts[prob]
-            removed = []
 
-            if count1 > count2:
-                num_remove = (count1 - count2) / 2
+            # Get the patterns in the left set of terms corresponding the probability
+            patterns1 = pgtst_to_trees1[prob]
 
-                for i in range(num_remove):
-                    removed.append(pgtst_to_trees1[prob].pop())
+            # Multiply each term in terms1 by count2 / count1
+            for pattern in patterns1:
+                patterns_to_coefficient[pattern] = float(count2) / count1
 
-                terms1_remove = True
-
-            if count1 < count2:
-                num_remove = (count2 - count1) / 2
-
-                for i in range(num_remove):
-                    removed.append(pgtst_to_trees2[prob].pop())
-
-                terms1_remove = False
-
-            # Remove site patterns and their inverses
-            rm = []
-            inv_rm = self.pattern_inverter(removed)
-            for pattern in inv_rm:
-                rm.append(''.join(pattern))
-            rm = rm + removed
-
-            for pattern in rm:
-
-                if terms1_remove:
-                    terms1.remove(pattern)
-
-                else:
-                    terms2.remove(pattern)
-
-        terms1, terms2 = tuple(terms1), tuple(terms2)
-
-        return terms1, terms2
-
+        return patterns_to_coefficient
 
     def generate_statistic_string(self, patterns_of_interest):
         """
@@ -871,16 +858,16 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
 
         return L_statistic
 
-
     ##### Function for calculating statistic
 
-
-    def calculate_significance(self, left, right, verbose=False, alpha=0.01):
+    def calculate_significance(self, left, right, verbose, alpha):
         """
         Determines statistical significance based on a chi-squared goodness of fit test
         Input:
         left --- the total count for site patterns in the left term of the statistic
         right --- the total count for site patterns in the right term of the statistic
+        verbose --- a boolean corresponding to a verbose output
+        alpha --- the significance level
         Output:
         significant --- a boolean corresponding to whether or not the result is statistically significant
         """
@@ -891,7 +878,7 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         else:
             chisq = 0
 
-        # Calculate the p-value based on a chi square distribtion with df = 1
+        # Calculate the p-value based on a chi square distribution with df = 1
         pval = 1 - stats.chi2.cdf(chisq, 1)
 
         if pval < alpha:
@@ -904,33 +891,46 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
         else:
             return signif
 
-
-    def calculate_L(self, alignments, taxa_order, patterns_of_interest, verbose=False, alpha=0.01):
+    def calculate_L(self, alignments, taxa_order, outgroup, patterns_of_interest, verbose, alpha,
+                    patterns_of_interest_resized,
+                    overall_coefficient=1, patterns_to_coefficients={}):
         """
         Calculates the L statistic for the given alignment
         Input:
         alignments --- a list of sequence alignment in phylip format
         taxa_order --- the desired order of the taxa
         patterns_of_interest --- a tuple containing the sets of patterns used for determining a statistic
-        window_size --- the desired window size
-        window_offset --- the desired offset between windows
+        verbose --- a booolean if more output information is desired
+        alpha --- the significance value
+        patterns_of_interest_resized --- the patterns of interest after block resizing
+        overall_coefficient --- the probability coefficient used to maintain the null hypothesis
+        patterns _to_coefficients --- a mapping of site patterns to coefficients needed to maintain the null 
         Output:
         l_stat --- the L statistic value
-        significant --- a boolean Built a python application for visualizing evolutionary diversity across genomes  ALPHA : a toolkit for Automated Local PHylogenomic Analyses, that provides an intuitive user interface for phylogenetic analyses and data-viz.
-denoting if the l_stat value is statistically significant
+        significant --- a boolean denoting if the l_stat value is statistically significant
         """
 
         # Separate the patterns of interest into their two terms
         terms1 = patterns_of_interest[0]
         terms2 = patterns_of_interest[1]
 
-        alignments_to_d = {}
+        # Do the same for the resized terms
+        terms1_resized = patterns_of_interest_resized[0]
+        terms2_resized = patterns_of_interest_resized[1]
+
+        # Create a mapping for each generalized D type
+        alignments_to_d_resized = {}
+        alignments_to_d_pattern_coeff = {}
+        alignments_to_d_ovr_coeff = {}
 
         for alignment in alignments:
 
             # Initialize these things for all files
             terms1_counts = defaultdict(int)
             terms2_counts = defaultdict(int)
+
+            terms1_counts_resized = defaultdict(int)
+            terms2_counts_resized = defaultdict(int)
 
             sequence_list = []
             taxon_list = []
@@ -954,9 +954,6 @@ denoting if the l_stat value is statistically significant
                 taxon_list.append(taxon)
 
             length_of_sequences = len(min(sequence_list, key=len))
-
-            # The outgroup is the last taxa in taxa order
-            outgroup = taxa_order[-1]
 
             num_ignored = 0
 
@@ -995,20 +992,22 @@ denoting if the l_stat value is statistically significant
                         else:
                             site_pattern.append("B")
 
-                    # Convert the site pattern to a string
-                    # print "site pattern", site_pattern
-                    # print "generator", pattern_string_generator([site_pattern])
-
                     sites = self.pattern_string_generator([site_pattern])
-                    if sites != []:
+                    if sites:
                         site_string = sites[0]
 
                         # If the site string is a pattern of interest add to its count for one of the terms
                         if site_string in terms1:
                             terms1_counts[site_string] += 1
 
-                        elif site_string in terms2:
+                        if site_string in terms2:
                             terms2_counts[site_string] += 1
+
+                        if site_string in terms1_resized:
+                            terms1_counts_resized[site_string] += 1
+
+                        if site_string in terms2_resized:
+                            terms2_counts_resized[site_string] += 1
 
                 elif "-" in bases or "N" in bases:
                     num_ignored += 1
@@ -1016,28 +1015,99 @@ denoting if the l_stat value is statistically significant
             terms1_total = sum(terms1_counts.values())
             terms2_total = sum(terms2_counts.values())
 
-            numerator = terms1_total - terms2_total
-            denominator = terms1_total + terms2_total
+            terms1_total_resized = sum(terms1_counts_resized.values())
+            terms2_total_resized = sum(terms2_counts_resized.values())
 
-            if denominator != 0:
-                l_stat = numerator / float(denominator)
+            # Calculate the generalized d for the block resizing method
+            numerator_resized = terms1_total_resized - terms2_total_resized
+            denominator_resized = terms1_total_resized + terms2_total_resized
+
+            if denominator_resized != 0:
+                l_stat_resized = numerator_resized / float(denominator_resized)
             else:
-                l_stat = 0
+                l_stat_resized = 0
+
+            # Calculate the generalized d for the total coefficient method
+            numerator_ovr_coeff = (overall_coefficient * terms1_total) - terms2_total
+            denominator_ovr_coeff = (overall_coefficient * terms1_total) + terms2_total
+
+            if denominator_ovr_coeff != 0:
+                l_stat_ovr_coeff = numerator_ovr_coeff / float(denominator_ovr_coeff)
+            else:
+                l_stat_ovr_coeff = 0
+
+            # Calculate the generalized d for the pattern coefficient method
+            weighted_terms1_total, weighted_counts = self.weight_counts(terms1_counts, patterns_to_coefficients)
+            numerator_pattern_coeff = weighted_terms1_total - terms2_total
+            denominator_pattern_coeff = weighted_terms1_total + terms2_total
+
+            if denominator_pattern_coeff != 0:
+                l_stat_pattern_coeff = numerator_pattern_coeff / float(denominator_pattern_coeff)
+            else:
+                l_stat_pattern_coeff = 0
 
             # Verbose output
             if verbose:
-                significant, chisq, pval = self.calculate_significance(terms1_total, terms2_total, verbose, alpha)
-                alignments_to_d[alignment] = l_stat, significant, terms1_counts, terms2_counts, num_ignored, chisq, pval,
+                significant, chisq, pval = self.calculate_significance(terms1_total_resized, terms2_total_resized, verbose,
+                                                                  alpha)
+                alignments_to_d_resized[
+                    alignment] = l_stat_resized, significant, terms1_counts_resized, terms2_counts_resized, num_ignored, chisq, pval
+
+                significant, chisq, pval = self.calculate_significance(weighted_terms1_total, terms2_total, verbose, alpha)
+                alignments_to_d_pattern_coeff[
+                    alignment] = l_stat_pattern_coeff, significant, weighted_counts, terms2_counts, num_ignored, chisq, pval
+
+                significant, chisq, pval = self.calculate_significance(overall_coefficient * terms1_total, terms2_total,
+                                                                  verbose, alpha)
+                alignments_to_d_ovr_coeff[
+                    alignment] = l_stat_ovr_coeff, significant, terms1_counts, terms2_counts, num_ignored, chisq, pval, overall_coefficient
 
             # Standard output
             else:
-                significant = self.calculate_significance(terms1_total, terms2_total, alpha)
-                alignments_to_d[alignment] = l_stat, significant
+                significant = self.calculate_significance(terms1_total_resized, terms2_total_resized, verbose,
+                                                     alpha)
+                alignments_to_d_resized[
+                    alignment] = l_stat_resized, significant
 
-        return alignments_to_d
+                significant = self.calculate_significance(weighted_terms1_total, terms2_total, verbose, alpha)
+                alignments_to_d_pattern_coeff[
+                    alignment] = l_stat_pattern_coeff, significant
 
+                significant = self.calculate_significance(overall_coefficient * terms1_total, terms2_total, verbose, alpha)
+                alignments_to_d_ovr_coeff[
+                    alignment] = l_stat_ovr_coeff, significant
 
-    def calculate_windows_to_L(self, alignments, taxa_order, patterns_of_interest, window_size, window_offset, verbose=False, alpha=0.01):
+        return alignments_to_d_resized, alignments_to_d_pattern_coeff, alignments_to_d_ovr_coeff
+
+    def weight_counts(self, term_counts, patterns_to_coefficients):
+        """
+        Inputs:
+        term_counts --- a mapping of terms to their counts
+        patterns_to_coefficients --- a mapping of site patterns to coefficients needed to maintain the null 
+        Output:
+        weighted_total --- the total counts for the site patterns weighted 
+        """
+
+        # Create a mapping of patterns to their weighted counts
+        weighted_counts = {}
+
+        # Iterate over each pattern
+        for pattern in term_counts:
+
+            # Weight its count based on the coefficient
+            if pattern in patterns_to_coefficients:
+                coefficient = patterns_to_coefficients[pattern]
+            else:
+                coefficient = 1
+            count = term_counts[pattern]
+            weighted_counts[pattern] = count * coefficient
+
+        weighted_total = sum(weighted_counts.values())
+
+        return weighted_total, weighted_counts
+
+    def calculate_windows_to_L(self, alignments, taxa_order, outgroup, patterns_of_interest, window_size, window_offset,
+                               verbose=False, alpha=0.01):
         """
         Calculates the L statistic for the given alignment
         Input:
@@ -1079,9 +1149,6 @@ denoting if the l_stat value is statistically significant
                 taxon = line.split()[0]
                 taxon_list.append(taxon)
 
-            # The outgroup is the last taxa in taxa order
-            outgroup = taxa_order[-1]
-
             i = 0
             num_windows = 0
             if window_size > length_of_sequences:
@@ -1089,7 +1156,7 @@ denoting if the l_stat value is statistically significant
                 window_size = length_of_sequences
             else:
                 # Determine the total number of windows needed
-                while (i + window_size - 1 < length_of_sequences):
+                while i + window_size - 1 < length_of_sequences:
                     i += window_offset
                     num_windows += 1
 
@@ -1141,7 +1208,7 @@ denoting if the l_stat value is statistically significant
 
                         # Convert the site pattern to a string
                         sites = self.pattern_string_generator([site_pattern])
-                        if sites != []:
+                        if sites:
                             site_string = sites[0]
 
                             # If the site string is a pattern of interest add to its count for one of the terms
@@ -1150,7 +1217,6 @@ denoting if the l_stat value is statistically significant
 
                             elif site_string in terms2:
                                 terms2_counts[site_string] += 1
-
 
                     elif "-" in bases or "N" in bases:
                         num_ignored += 1
@@ -1177,7 +1243,7 @@ denoting if the l_stat value is statistically significant
 
                 # Standard output
                 else:
-                    signif = self.calculate_significance(terms1_total, terms2_total)
+                    signif = self.calculate_significance(terms1_total, terms2_total, verbose, alpha)
                     windows_to_l[window] = (l_stat, signif)
 
                 # Account for overlapping windows
@@ -1187,9 +1253,7 @@ denoting if the l_stat value is statistically significant
 
         return alignments_to_windows_to_d
 
-
     ##### Functions for total ordering
-
 
     def branch_adjust(self, species_tree):
         """
@@ -1220,63 +1284,7 @@ denoting if the l_stat value is statistically significant
 
         return adjusted_trees, taxa
 
-
-    def network_branch_adjust(self, species_network):
-        """
-        Create all possible combinations of branch lengths for the given species network
-        Input:
-        species_tree --- a newick string containing the overall species network
-        Output:
-        adjusted_trees --- a set of trees with all combinations of branch lengths
-        """
-
-        branch_lengths = [.5, 1.0, 2.0, 4.0]
-        adjusted_trees = set([])
-
-        pattern = "((?<!\:)(\:\d+\.\d+))"
-        lengths = re.findall(pattern, species_network)
-
-        ############Adjust branch length stuff to account for all possible combinations
-
-        for b in branch_lengths:
-            new_t = species_network
-            for l in lengths:
-                new_t = new_t.replace(l[0], ":" + str(b))
-            adjusted_trees.add(new_t)
-
-        return list(adjusted_trees)
-
-
-    def network_adjust(self, species_network):
-        """
-        Create all possible combinations of inheritance probabilities for the given species network
-        Input:
-        species_network --- a newick string containing the overall species network
-        Output:
-        adjusted_networks --- a set of networks with all combinations of branch lengths
-        """
-        inheritance_probs = [0.1, 0.3]
-        adjusted_networks = set([])
-
-        pattern = "\:\:0\.\d+"
-        reticulations = re.findall(pattern, species_network)
-
-        for prob in inheritance_probs:
-            new_net = species_network
-            count = 0
-            for r in reticulations:
-                if count % 2 == 0:
-                    new_net = new_net.replace(r, "::{0}".format(str(prob)))
-                else:
-                    new_net = new_net.replace(r, "::{0}".format(str(1 - prob)))
-                count += 1
-            net_set = self.network_branch_adjust(new_net)
-            adjusted_networks = adjusted_networks.union(net_set)
-
-        return adjusted_networks
-
-
-    def approximately_equal(self, x, y, tol=0.0000000001):
+    def approximately_equal(self, x, y, tol=0.00000000000001):
         """
         Determines if floats x and y are equal within a degree of uncertainty
         Inputs:
@@ -1287,8 +1295,7 @@ denoting if the l_stat value is statistically significant
 
         return abs(x - y) <= tol
 
-
-    def equality_sets(self, species_trees, network, taxa):
+    def equality_sets(self, species_trees, network, taxa, outgroup, use_inv):
         """
         Create mappings of site patterns to patterns with equivalent probabilities
         Input:
@@ -1302,10 +1309,13 @@ denoting if the l_stat value is statistically significant
         trees_to_equality = {}
         trees_to_equality_N = {}
 
-        outgroup = taxa[-1]
         gene_trees = self.generate_unique_trees(taxa, outgroup)
 
-        newick_patterns = self.newicks_to_patterns_generator(taxa, gene_trees)
+        newick_patterns, inverses_to_counts = self.newicks_to_patterns_generator(taxa, gene_trees, outgroup)
+
+        # If inverses are not desired remove them
+        if not use_inv:
+            newick_patterns = self.remove_inverse(newick_patterns, inverses_to_counts)
 
         for st in species_trees:
             ts_to_pgS, ts_to_pgN = self.calculate_newicks_to_stats(st, network, gene_trees)
@@ -1355,7 +1365,6 @@ denoting if the l_stat value is statistically significant
 
         return trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN
 
-
     def set_of_interest(self, trees_to_equality, trees_to_equality_N):
         """
         Inputs:
@@ -1380,15 +1389,13 @@ denoting if the l_stat value is statistically significant
 
         return trees_of_interest
 
-
     def concat_directory(self, directory_path):
         """
-            Concatenates all the alignments in a given directory and returns a single file.
-
-            Input:
-                directory_path --- a string path to the directory the use wants to use.
-            Output:
-                file_path --- a string path to the file that was created as a result of the concatenation.
+        Concatenates all the alignments in a given directory and returns a single file.
+        Input:
+        directory_path --- a string path to the directory the use wants to use.
+        Output:
+        file_path --- a string path to the file that was created as a result of the concatenation.
         """
 
         # filter out hidden files
@@ -1423,8 +1430,6 @@ denoting if the l_stat value is statistically significant
             with open(input_file, 'r') as f:
                 input_file_list = [l.rstrip() for l in list(f)]
 
-            # print input_file_list
-
             for j in range(len(input_file_list)):
                 # if this is the first file
                 if i == 0:
@@ -1444,24 +1449,121 @@ denoting if the l_stat value is statistically significant
 
         return os.path.abspath(directory_path) + "/concatFile.phylip.txt"
 
+    def remove_inverse(self, newick_patterns, inverses_to_counts):
+        """
+        Remove inverse site patterns
+        Input:
+        term --- a tuple of site patterns and their inverses
+        Output:
+        term --- the original tuple with site patterns removed
+        """
 
-    def calculate_generalized(self, alignments, species_tree=None, reticulations=None, window_size=100000000000,
-                              window_offset=100000000000, verbose=False, alpha=0.01, useDir=False, directory="",
-                              statistic=False, save=False, f="DGenStatistic_"):
+        # Create a ,mapping of each site pattern to its inverse
+        patterns_to_inverse = {}
+
+        d = set([])
+
+        for newick in newick_patterns:
+            d = d.union(set(newick_patterns[newick]))
+
+        # Map each pattern to its inverse
+        for newick in newick_patterns:
+
+            for pattern in newick_patterns[newick]:
+                # Represent the pattern as a list
+                pattern_lst = [x for x in pattern]
+                # Create the inverse pattern
+                inv_lst = self.pattern_inverter([pattern_lst])[0]
+                inverse = ''.join(inv_lst)
+
+                # If the pattern is not already in the mapping map it
+                if pattern not in patterns_to_inverse.keys() and pattern not in patterns_to_inverse.values():
+                    patterns_to_inverse[pattern] = inverse
+
+        # Real inverses are the site patterns that appear as inverses more frequently
+        real_inverses = []
+
+        # Iterate over all possible patterns
+        for pat in patterns_to_inverse:
+            possible_inv = patterns_to_inverse[pat]
+
+            # If a pattern only has one B define it as the inverse
+            if self.b_count(pat) == 1:
+                real_inverses.append(pat)
+            elif self.b_count(possible_inv) == 1:
+                real_inverses.append(possible_inv)
+            # If a pattern appears as an inverse more often than its "inverse" then it is an inverse
+            elif inverses_to_counts[pat] > inverses_to_counts[possible_inv]:
+                real_inverses.append(pat)
+            # Otherwise the "inverse" is the true inverse
+            else:
+                real_inverses.append(possible_inv)
+
+        # Remove all real inverse
+        for newick in newick_patterns:
+
+            inverses_removed = list(newick_patterns[newick])
+
+            for p in newick_patterns[newick]:
+
+                if p in real_inverses:
+                    inverses_removed.remove(p)
+            newick_patterns[newick] = inverses_removed
+
+        return newick_patterns
+
+    def b_count(self, pattern):
+        """
+        Count the number of B's that occur in a site pattern
+        Input:
+        pattern --- a site pattern
+        Output:
+        num_b --- the number of B's in the site pattern 
+        """
+
+        num_b = 0
+
+        for char in pattern:
+            if char == "B":
+                num_b += 1
+
+        return num_b
+
+    def calculate_total_term_prob(self, patterns_pgS, term):
+        """
+        Calculate the total probability for a term
+        """
+        term_prob = 0
+        for pattern in term:
+            term_prob += patterns_pgS[pattern]
+        return term_prob
+
+    def calculate_generalized(self, alignments, species_tree=None, reticulations=None, outgroup=None,
+                              window_size=100000000000,
+                              window_offset=100000000000, verbose=False, alpha=0.01, use_inv=False, useDir=False,
+                              directory="",
+                              statistic=False, save=False, f="DGenStatistic_", plot=False, meta=False):
         """
         Calculates the L statistic for the given alignment
         Input:
             alignment --- a sequence alignment in phylip format
-            taxa --- a list of the taxa in the desired order
             species_tree --- the inputted species tree over the given taxa
             reticulations --- a tuple containing two dictionaries mapping the start leaves to end leaves
+            outgroup --- the desired root of the species tree
             window_size --- the desired window size
             window_offset --- the desired offset between windows
             verbose --- a boolean for determining if extra information will be printed
+            alpha --- the significance level
+            use_inv --- a boolean for using inverse site patterns or not
             useDir --- a boolean for determining if the user wants to input an entire directory of alignments or only a single alignment
             directory --- a string path to the directory the use wants to use. NOTE: only necessary if useDir=True.
+            statistic --- a text file containing a saved statistic
+            save --- a boolean corresponding to save a statistic or not, note that saving uses block resizing
+            f --- the desired save statistic file name
+            plot --- a boolean corresponding to using plot formatting for the output
+            meta --- a string of metadata added to the plot formatting output
         Output:
-            l_stat --- the L statistic value
+            l_stat --- the generalized d statistic value
         """
 
         self.emit(QtCore.SIGNAL('GEN_D_10'))
@@ -1469,31 +1571,50 @@ denoting if the l_stat value is statistically significant
         # If the user does not have a specific statistic file to use
         if not statistic:
             st = re.sub("\:\d+\.\d+", "", species_tree)
+            st = Tree(st)
+            st.set_outgroup(outgroup)
+            st.ladderize(direction=1)
+            st = st.write()
             trees, taxa = self.branch_adjust(st)
-            newick_patterns = self.newicks_to_patterns_generator(taxa, trees)
+
             network = self.generate_network_tree((0.1, 0.9), list(trees)[0], reticulations)
-            trees_to_equality, self.trees_to_equality_N, patterns_pgS, patterns_pgN = self.equality_sets(trees, network, taxa)
-            trees_of_interest = self.set_of_interest(trees_to_equality, self.trees_to_equality_N)
-            increase, decrease = self.determine_patterns(trees_of_interest, trees_to_equality, patterns_pgN, patterns_pgS)
+            trees_to_equality, trees_to_equality_N, patterns_pgS, patterns_pgN = self.equality_sets(trees, network, taxa,
+                                                                                               outgroup, use_inv)
+            trees_of_interest = self.set_of_interest(trees_to_equality, trees_to_equality_N)
+
+            increase, decrease, increase_resized, decrease_resized, patterns_to_coeff = self.determine_patterns(
+                trees_of_interest, trees_to_equality, patterns_pgN, patterns_pgS, use_inv)
+
+            # Calculate the total probabilities for creating a coefficient
+            inc_prob = self.calculate_total_term_prob(patterns_pgS, increase)
+            dec_prob = self.calculate_total_term_prob(patterns_pgS, decrease)
+
+            if inc_prob != 0:
+                overall_coefficient = dec_prob / inc_prob
+            else:
+                overall_coefficient = 0
 
             # If users want to save the statistic and speed up future runs
             if save:
                 num = 0
-                file_name = f + "{0}.txt".format(num)
+                file_name = f + ".txt"
                 while os.path.exists(file_name):
-                    num += 1
                     file_name = "DGenStatistic_{0}.txt".format(num)
+                    num += 1
 
                 with open(file_name, "w") as text_file:
                     output_str = "Taxa: {0}\n".format(taxa)
                     text_file.write(output_str)
-                    output_str = "Left Terms: {0}\n".format(increase)
+                    output_str = "Left Terms: {0}\n".format(increase_resized)
                     text_file.write(output_str)
-                    output_str = "Right Terms: {0}\n".format(decrease)
+                    output_str = "Right Terms: {0}\n".format(decrease_resized)
                     text_file.write(output_str)
-                    output_str = "Statistic: {0}\n".format(self.generate_statistic_string((increase, decrease)))
+                    output_str = "Statistic: {0}\n".format(
+                        self.generate_statistic_string((increase_resized, decrease_resized)))
                     text_file.write(output_str)
                     output_str = "Species Tree: {0}\n".format(species_tree)
+                    text_file.write(output_str)
+                    output_str = "Outgroup: {0}\n".format(outgroup)
                     text_file.write(output_str)
                     output_str = "Reticulations: {0}\n".format(reticulations)
                     text_file.write(output_str)
@@ -1506,157 +1627,238 @@ denoting if the l_stat value is statistically significant
                 taxa = eval(lines[0].split(None, 1)[1])
                 increase = eval(lines[1].split(None, 2)[2])
                 decrease = eval(lines[2].split(None, 2)[2])
+                outgroup = lines[5].split(None, 1)[1].replace("\n", "")
+                increase_resized = increase
+                decrease_resized = decrease
+                overall_coefficient = 1
+                patterns_to_coeff = {}
 
         if useDir:
             alignments = [self.concat_directory(directory)]
 
-        alignments_to_d = self.calculate_L(alignments, taxa, (increase, decrease), verbose, alpha)
-        alignments_to_windows_to_d = self.calculate_windows_to_L(alignments, taxa, (increase, decrease), window_size,
-                                                                 window_offset, verbose, alpha)
+        alignments_to_d_resized, alignments_to_d_pattern_coeff, alignments_to_d_ovr_coeff = self.calculate_L(
+            alignments, taxa, outgroup, (increase, decrease), verbose, alpha, (increase_resized, decrease_resized),
+            overall_coefficient, patterns_to_coeff)
+
+        alignments_to_windows_to_d = self.calculate_windows_to_L(alignments, taxa, outgroup,
+                                                            (increase_resized, decrease_resized), window_size,
+                                                            window_offset, verbose, alpha)
 
         self.emit(QtCore.SIGNAL('GEN_D_50'))
 
-        vout = ""
-        rout = ""
-        vout += str(alignments_to_d)
+        s = ""
+        v = ""
+        # Create the output string
         if verbose and not statistic:
-            vout += "\n"
-            vout += "Newick strings with corresponding patterns: {0}\n".format(newick_patterns)
-            vout += "\n"
-            vout += "Probability of gene tree patterns: {0}\n".format(patterns_pgS)
-            vout += "\n"
-            vout += "Probability of species network patterns: {0}\n".format(patterns_pgN)
-            vout += "\n"
-            vout += "Patterns that were formerly equal with increasing probability: {0}\n".format(increase)
-            vout += "Patterns that were formerly equal with decreasing probability: {0}\n".format(decrease)
-            vout += "\n"
-            vout += "Patterns of interest: {0} {1}\n".format(increase, decrease)
-            vout += "\n"
-            vout += "Statistic: {0}\n".format(self.generate_statistic_string((increase, decrease)))
-            vout += "\n"
+            s += "\n"
+            s += "Probability of gene tree patterns: " + str(patterns_pgS) + "\n"
+            s += "\n"
+            s += "Probability of species network patterns:" + str(patterns_pgN) + "\n"
+            s += "\n"
+            s += "Patterns that were formerly equal with increasing probability: " + str(increase) + "\n"
+            s += "Patterns that were formerly equal with decreasing probability: " + str(decrease) + "\n"
+            s += "Total p(gt|st) for increasing site patterns: " + str(inc_prob) + "\n"
+            s += "Total p(gt|st) for decreasing site patterns: " + str(dec_prob) + "\n"
+            s += "\n"
+            s += "Taxa order used for site patterns: " + str(taxa) + "\n"
+            s += "Statistic without coefficient weighting: " + str(
+                self.generate_statistic_string((increase, decrease))) + "\n"
+            s += "\n"
+            s += "Increasing patterns after block resizing: " + str(increase_resized) + "\n"
+            s += "Decreasing patterns after block resizing: " + str(decrease_resized) + "\n"
+            s += "Total p(gt|st) for resized increasing site patterns: " + str(
+                self.calculate_total_term_prob(patterns_pgS, increase_resized)) + "\n"
+            s += "Total p(gt|st) for resized decreasing site patterns: " + str(
+                self.calculate_total_term_prob(patterns_pgS, decrease_resized)) + "\n"
+            s += "Statistic using block resizing: " + str(
+                self.generate_statistic_string((increase_resized, decrease_resized))) + "\n"
+            s += "\n"
+            s += "\n"
+            s += "Information for each file: " + "\n"
 
-            inc_prob = 0
-            for pattern in increase:
-                inc_prob += patterns_pgS[pattern]
-            vout += "Total p(gt|st) for increasing site patterns: {0}\n".format(inc_prob)
-            dec_prob = 0
-            for pattern in decrease:
-                dec_prob += patterns_pgS[pattern]
-            vout += "Total p(gt|st) for decreasing site patterns: {0}\n".format(dec_prob)
-
-            vout += "\n"
-            vout += "Information for each file: \n"
-            for alignment in alignments_to_d:
-                l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d[alignment]
-                vout += str(alignment) + ": "
-                vout += "\n"
-                vout += "Overall Chi-Squared statistic: {0}\n".format(chisq)
-                vout += "Number of site ignored due to \"N\" or \"-\": {0}\n".format(num_ignored)
-                vout += "Overall p value: {0}\n".format(pval)
-                vout += "\n"
-                vout += "Left term counts: \n"
-                for pattern in left_counts:
-                    vout += str(pattern) + ": {0}\n".format(left_counts[pattern])
-                vout += "\n"
-                vout += "Right term counts: "
-                for pattern in right_counts:
-                    vout += str(pattern) + ": {0}\n".format(right_counts[pattern])
-                vout += "\n"
-                vout += "Windows to D value: {0}\n".format(alignments_to_windows_to_d[alignment])
-                vout += "\n"
-                vout += "Final Overall D value {0}\n".format(l_stat)
-                vout += "Significant deviation from 0: {0}\n".format(significant)
-
-                rout += "Alignment: " + alignment + "\n"
-                rout += "Final Overall D value {0}\n".format(l_stat)
-                rout += "Significant deviation from 0: {0}\n\n".format(significant)
+            v += self.display_alignment_info(alignments_to_d_resized, alignments_to_d_pattern_coeff,
+                                        alignments_to_d_ovr_coeff)
 
         elif verbose and statistic:
-            vout += "\n"
-            vout += "Patterns that were formerly equal with increasing probability: {0}\n".format(increase)
-            vout += "Patterns that were formerly equal with decreasing probability: {0}\n".format(decrease)
-            vout += "\n"
-            vout += "Patterns of interest: {0} {1}\n".format(increase, decrease)
-            vout += "\n"
-            vout += "Statistic: {0}\n".format(self.generate_statistic_string((increase, decrease)))
-            vout += "\n"
-            vout += "Information for each file: \n"
-            for alignment in alignments_to_d:
-                l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d[alignment]
-                vout += alignment + ": "
-                vout += "\n"
-                vout += "Overall Chi-Squared statistic: {0}\n".format(chisq)
-                vout += "Number of site ignored due to \"N\" or \"-\": {0}\n".format(num_ignored)
-                vout += "Overall p value: {0}\n".format(pval)
-                vout += "\n"
-                vout += "Left term counts: \n"
-                for pattern in left_counts:
-                    vout += pattern + ": {0}\n".format(left_counts[pattern])
-                vout += "\n"
-                vout += "Right term counts: \n"
-                for pattern in right_counts:
-                    vout += pattern + ": {0}\n".format(right_counts[pattern])
-                vout += "\n"
-                vout += "Windows to D value: {0}\n".format(alignments_to_windows_to_d[alignment])
-                vout += "\n"
-                vout += "Final Overall D value {0}\n".format(l_stat)
-                vout += "Significant deviation from 0: {0}\n".format(significant)
 
-                rout += "Alignment: " + alignment + "\n"
-                rout += "Final Overall D value {0}\n".format(l_stat)
-                rout += "Significant deviation from 0: {0}\n\n".format(significant)
+            s += "Taxa order used for site patterns: " + str(taxa) + "\n"
+            s += "\n"
+            s += "Patterns that were formerly equal with increasing probability: " + str(increase) + "\n"
+            s += "Patterns that were formerly equal with decreasing probability: " + str(decrease) + "\n"
+            s += "\n"
+            s += "Statistic: " + str(self.generate_statistic_string((increase, decrease))) + "\n"
+            s += "\n"
+            s += "Information for each file: " + "\n"
+
+            for alignment in alignments_to_d_resized:
+
+                l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d_resized[
+                    alignment]
+
+                s += alignment + ": "
+                s += "\n"
+                s += "Final Overall D value using Block Resizing Method: {0}".format(l_stat) + "\n"
+                s += "Significant deviation from 0: {0}".format(significant) + "\n"
+                s += "Overall Chi-Squared statistic: " + str(chisq) + "\n"
+                s += "Overall p value: " + str(pval) + "\n"
+                s += "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored) + "\n"
+                s += "\n"
+                s += "Left term counts: " + "\n"
+                for pattern in left_counts:
+                    s += pattern + ": {0}".format(left_counts[pattern]) + "\n"
+                s += "\n"
+                s += "Right term counts: " + "\n"
+                for pattern in right_counts:
+                    s += pattern + ": {0}".format(right_counts[pattern]) + "\n"
+                s += "\n"
+                s += "Windows to D value: " + str(alignments_to_windows_to_d[alignment]) + "\n"
+                s += "\n"
+                s += "Final Overall D value {0}".format(l_stat) + "\n"
+                s += "Significant deviation from 0: {0}".format(significant) + "\n"
 
         else:
-            for alignment in alignments_to_d:
-                l_stat, significant = alignments_to_d[alignment]
-                vout += alignment + ": \n"
-                vout += "\n"
-                vout += "Windows to D value: {0}\n".format(alignments_to_windows_to_d[alignment])
-                vout += "\n"
-                vout += "Final Overall D value {0}\n".format(l_stat)
-                vout += "Significant deviation from 0: {0}\n".format(significant)
 
-        self.emit(QtCore.SIGNAL("L_FINISHED"), alignments_to_d, alignments_to_windows_to_d, vout, rout)
+            for alignment in alignments_to_d_resized:
+                l_stat_r, significant_r = alignments_to_d_resized[alignment]
+                l_stat_pc, significant_pc = alignments_to_d_pattern_coeff[alignment]
+                l_stat_oc, significant_oc = alignments_to_d_ovr_coeff[alignment]
 
-        return alignments_to_d, alignments_to_windows_to_d
+                s += "\n"
+                s += alignment + ": " + "\n"
+                s += "\n"
+                s += "Windows to D value: " + str(alignments_to_windows_to_d[alignment]) + "\n"
+                s += "\n"
+                s += "Final Overall D value using Block Resizing Method: {0}".format(l_stat_r) + "\n"
+                s += "Significant deviation from 0: {0}".format(significant_r) + "\n"
+                s += "\n"
+                s += "Final Overall D value using Pattern Coefficient Method: {0}".format(l_stat_pc) + "\n"
+                s += "Significant deviation from 0: {0}".format(significant_pc) + "\n"
+                s += "\n"
+                s += "Final Overall D value using Overall Coefficient Method: {0}".format(l_stat_oc) + "\n"
+                s += "Significant deviation from 0: {0}".format(significant_oc) + "\n"
 
+        if plot:
+            self.plot_formatting((alignments_to_d_resized, alignments_to_windows_to_d), plot, meta)
 
-    def plot_formatting(self, info_tuple, verbose=False):
+        self.emit(QtCore.SIGNAL("L_FINISHED"), alignments_to_d_resized, alignments_to_windows_to_d, s, v)
+
+        return alignments_to_d_resized, alignments_to_windows_to_d
+
+    def display_alignment_info(self, alignments_to_d_resized, alignments_to_d_pattern_coeff, alignments_to_d_ovr_coeff):
+        """
+        Print information for an alignment to D mapping
+        Inputs:
+        alignments_to_d_resized --- a mapping of alignment files to their D information using block resizing
+        alignments_to_d_pattern_coeff --- a mapping of alignment files to their D information using pattern coefficient
+        alignments_to_d_ovr_coeff --- --- a mapping of alignment files to their D information using overall coefficient
+        Output:
+        s --- the output string
+        """
+
+        s = ""
+
+        for alignment in alignments_to_d_resized:
+
+            # Get the information for each alignment file
+            l_stat, significant, left_counts_res, right_counts_res, num_ignored, chisq, pval = alignments_to_d_resized[
+                alignment]
+            output_resized = [("Final Overall D value using Block Resizing method: ", l_stat),
+                              ("Significant deviation from 0: ", significant),
+                              ("Overall p value: ", pval),
+                              ("Overall Chi-Squared statistic: ", chisq),
+                              ("", ""),
+                              ("Number of site ignored due to \"N\" or \"-\": ", num_ignored)]
+            l_stat, significant, left_counts_pcoeff, right_counts, num_ignored, chisq, pval = \
+            alignments_to_d_pattern_coeff[alignment]
+            output_pattern_coeff = [("Final Overall D value using Pattern Weighting method: ", l_stat),
+                                    ("Significant deviation from 0: ", significant),
+                                    ("Overall p value: ", pval),
+                                    ("Overall Chi-Squared statistic: ", chisq),
+                                    ("", ""),
+                                    ("Number of site ignored due to \"N\" or \"-\": ", num_ignored)]
+            l_stat, significant, left_counts_ocoeff, right_counts, num_ignored, chisq, pval, coeff = \
+            alignments_to_d_ovr_coeff[alignment]
+            output_overall_coeff = [("Final Overall D value using Overall Weighting method: ", l_stat),
+                                    ("Significant deviation from 0: ", significant),
+                                    ("Overall p value: ", pval),
+                                    ("Overall Chi-Squared statistic: ", chisq),
+                                    ("", ""),
+                                    ("Number of site ignored due to \"N\" or \"-\": ", num_ignored)]
+
+            # Create the output string
+            s += "\n"
+            s += "\n"
+            s += alignment + ": "
+            s += "\n"
+
+            # Print output for resizing method
+            for output in output_resized:
+                s += str(output[0]) + str(output[1]) + "\n"
+            s += "Left term counts: " + "\n"
+            for pattern in left_counts_res:
+                s += pattern + ": {0}".format(left_counts_res[pattern]) + "\n"
+            s += "\n"
+            s += "Right term counts: " + "\n"
+            for pattern in right_counts_res:
+                s += pattern + ": {0}".format(right_counts_res[pattern]) + "\n"
+
+            s += "\n"
+            s += "\n"
+
+            # Print output for pattern coefficient method
+            for output in output_pattern_coeff:
+                s += str(output[0]) + str(output[1]) + "\n"
+            s += "Left term counts weighted by pattern probability: " + "\n"
+            for pattern in left_counts_pcoeff:
+                s += pattern + ": {0}".format(left_counts_pcoeff[pattern]) + "\n"
+            s += "\n"
+            s += "Right term counts: " + "\n"
+            for pattern in right_counts:
+                s += pattern + ": {0}".format(right_counts[pattern]) + "\n"
+
+            s += "\n"
+            s += "\n"
+
+            # Print output for overall coefficient method
+            for output in output_overall_coeff:
+                s += str(output[0]) + str(output[1]) + "\n"
+            s += "Overall Coefficient for weighting: {0}".format(coeff) + "\n"
+            s += "Left term counts after weighting: " + "\n"
+            for pattern in left_counts_ocoeff:
+                s += pattern + ": {0}".format(left_counts_ocoeff[pattern] * coeff) + "\n"
+                s += "\n"
+            s += "Right term counts: " + "\n"
+            for pattern in right_counts:
+                s += pattern + ": {0}".format(right_counts[pattern]) + "\n"
+
+        return s
+
+    def plot_formatting(self, info_tuple, name, meta):
         """
         Reformats and writes the dictionary output to a text file to make plotting it in Excel easy
         Input:
-        info_tuple --- a triplet from the calculate_generalized output
+        info_tuple --- a tuple from the calculate_generalized output
         """
 
         alignments_to_d, alignments_to_windows_to_d = info_tuple
 
-        for alignment in alignments_to_d:
+        num = 0
+        file_name = "{0}_{1}.txt".format(name, num)
+        while os.path.exists(file_name):
+            num += 1
+            file_name = "{0}_{1}.txt".format(name, num)
 
-            l_stat, significant = alignments_to_d[alignment][0], alignments_to_d[alignment][1]
-            windows_to_l = alignments_to_windows_to_d[alignment]
+        with open(file_name, "w") as text_file:
 
-            num = 0
-            file_name = "DGenResults_{0}.txt".format(num)
-            while os.path.exists(file_name):
-                num += 1
-                file_name = "DGenResults_{0}.txt".format(num)
+            for alignment in alignments_to_d:
+                l_stat, significant = alignments_to_d[alignment][0], alignments_to_d[alignment][1]
+                significant = str(significant).upper()
+                windows_to_l = alignments_to_windows_to_d[alignment]
 
-            with open(file_name, "w") as text_file:
-                output_str = "Overall, {0}, {1} \n".format(l_stat, significant)
+                output_str = "{0}, {1}, {2} \n".format(l_stat, meta, significant)
                 text_file.write(output_str)
-                for idx in windows_to_l:
-                    info = windows_to_l[idx]
-                    l_stat = info[0]
-                    significant = info[1]
-                    output_str = "{0}, {1}, {2} \n".format(idx, l_stat, significant)
 
-                    if verbose:
-                        chisq = info[2]
-                        pval = info[3]
-                        output_str = "{0}, {1}, {2}, {3}, {4} \n".format(idx, l_stat, significant, chisq, pval)
-
-                    text_file.write(output_str)
-                    text_file.close()
+        text_file.close()
 
 
     def run(self):
@@ -1670,12 +1872,21 @@ denoting if the l_stat value is statistically significant
         #     return
 
         self.calculate_generalized(self.alignments,
-                                 species_tree=self.species_tree,
-                                 reticulations=self.r,
-                                 window_size=self.window_size, window_offset=self.window_offset,
-                                 verbose=self.verbose,
-                                 alpha=self.alpha,
-                                 useDir=self.useDir, directory=self.directory, statistic=self.statistic, save=self.save, f=self.save_location)
+                                   species_tree=self.species_tree,
+                                   reticulations=self.r,
+                                   outgroup=self.o,
+                                   window_size=self.window_size,
+                                   window_offset=self.window_offset,
+                                   verbose=self.verbose,
+                                   alpha=self.alpha,
+                                   use_inv=self.use_inv,
+                                   useDir=self.useDir,
+                                   directory=self.directory,
+                                   statistic=self.statistic,
+                                   save=self.save,
+                                   f=self.save_location,
+                                   plot=self.plot,
+                                   meta=self.meta)
 
         self.emit(QtCore.SIGNAL('GEN_D_COMPLETE'), None)
 
@@ -1683,9 +1894,9 @@ denoting if the l_stat value is statistically significant
 if __name__ == '__main__':
     gd = CalculateGeneralizedDStatisticClass()
 
-    # species_tree = '(((P1,P2),(P3,P4)),O);'
+    species_tree = '(((P1,P2),(P3,P4)),O);'
     # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
-    species_tree, r = '(((P1:0.01,P2:0.01):0.01,(P3:0.01,P4:0.01):0.01):0.01,O:0.01);', [('P3', 'P1')]
+    r = [('P3', 'P1')]
     alignments = ["exampleFiles/seqfile.txt"]
 
     if platform == "darwin":
@@ -1694,7 +1905,7 @@ if __name__ == '__main__':
         alignments = ["C:\\Users\\travi\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim2\\seqfile.txt"]
 
     # gd.calculate_generalized(alignments, species_tree, r, window_size=50000, window_offset=50000, verbose=True, alpha=0.01, save=True)
-    gd.calculate_generalized(alignments, species_tree, r, window_size=50000, window_offset=50000, statistic="/Users/Peter/PycharmProjects/ALPHA/CommandLineFiles/DGenStatistic_0.txt", verbose=True, alpha=0.01, save=True)
+    gd.calculate_generalized(alignments, species_tree, r, outgroup="O", window_size=50000, window_offset=50000, verbose=True, alpha=0.01, save=True)
 
     # save_file = "C:\\Users\\travi\\Documents\\ALPHA\\CommandLineFiles\\DGenStatistic_35.txt"
     # plot_formatting(calculate_generalized(alignments, statistic=save_file))

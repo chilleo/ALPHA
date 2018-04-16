@@ -10,8 +10,6 @@ from scipy import stats
 from ete3 import Tree
 from natsort import natsorted
 from Bio import AlignIO
-from Bio import Phylo
-from cStringIO import StringIO
 
 """
 Functions:
@@ -875,6 +873,8 @@ def calculate_significance(left, right, verbose, alpha):
     Input:
     left --- the total count for site patterns in the left term of the statistic
     right --- the total count for site patterns in the right term of the statistic
+    verbose --- a boolean corresponding to a verbose output
+    alpha --- the significance level
     Output:
     significant --- a boolean corresponding to whether or not the result is statistically significant
     """
@@ -1164,7 +1164,7 @@ def calculate_windows_to_L(alignments, taxa_order, outgroup, patterns_of_interes
             window_size = length_of_sequences
         else:
             # Determine the total number of windows needed
-            while (i + window_size - 1 < length_of_sequences):
+            while i + window_size - 1 < length_of_sequences:
                 i += window_offset
                 num_windows += 1
 
@@ -1225,7 +1225,6 @@ def calculate_windows_to_L(alignments, taxa_order, outgroup, patterns_of_interes
 
                         elif site_string in terms2:
                             terms2_counts[site_string] += 1
-
 
                 elif "-" in bases or "N" in bases:
                     num_ignored += 1
@@ -1294,31 +1293,6 @@ def branch_adjust(species_tree):
         adjusted_trees.add(new_t)
 
     return adjusted_trees, taxa
-
-
-def network_branch_adjust(species_network):
-    """
-    Create all possible combinations of branch lengths for the given species network
-    Input:
-    species_tree --- a newick string containing the overall species network
-    Output:
-    adjusted_trees --- a set of trees with all combinations of branch lengths
-    """
-
-    branch_lengths = [.5, 1.0, 2.0, 4.0]
-    adjusted_trees = set([])
-
-    pattern = "((?<!\:)(\:\d+\.\d+))"
-    lengths = re.findall(pattern, species_network)
-
-    for b in branch_lengths:
-        new_t = species_network
-        for l in lengths:
-            new_t = new_t.replace(l[0], ":" + str(b))
-        adjusted_trees.add(new_t)
-
-    return list(adjusted_trees)
-
 
 def approximately_equal(x, y, tol=0.00000000000001):
     """
@@ -1515,8 +1489,6 @@ def remove_inverse(newick_patterns, inverses_to_counts):
             # Represent the pattern as a list
             pattern_lst = [x for x in pattern]
             # Create the inverse pattern
-            if pattern_inverter([pattern_lst]) == []:
-                a= 1
             inv_lst = pattern_inverter([pattern_lst])[0]
             inverse = ''.join(inv_lst)
 

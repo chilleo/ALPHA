@@ -186,12 +186,10 @@ class Plotter(QtCore.QThread):
         ax = plt.subplot(subplotPosition)
         ax.set_title(title, fontsize=15)
 
-        print mapping
-
         y = mapping.values()
-        N = len(y)
         x = mapping.keys()
-        width = 30 * (N / float(200))
+        N = max(x)
+        width = 1.5 * (N / float(10000))
 
         ax.set_xlim(0, max(x))
         ax.bar(x, y, width, color="black")
