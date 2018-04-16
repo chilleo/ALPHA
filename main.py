@@ -250,6 +250,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.lAlignmentDirBtn.clicked.connect(lambda: self.openDirectory(self.lAlignmentDirEntry))
         self.lSpeciesTreeBtn.clicked.connect(lambda: self.getFileName(self.lSpeciesTreeEntry))
         self.lStatisticFileBtn.clicked.connect(lambda: self.getFileName(self.lStatisticFileEntry))
+        self.calcGenD.plot = False
+        self.calcGenD.meta = ""
 
         # when an alignment is selected update the combo boxes
         self.connect(self.lAlignmentEntry, QtCore.SIGNAL('FILE_SELECTED'), lambda: self.updateTaxonComboBoxes(self.lStatisticSourceComboBoxes, self.lAlignmentEntry))

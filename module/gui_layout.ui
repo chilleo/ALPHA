@@ -1313,7 +1313,7 @@
                <x>0</x>
                <y>0</y>
                <width>949</width>
-               <height>659</height>
+               <height>542</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -3896,7 +3896,17 @@ Run RAxML -&gt; Advanced</string>
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_62">
+                      <layout class="QHBoxLayout" name="horizontalLayout_74">
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="QCheckBox" name="checkBox">
+                         <property name="text">
+                          <string>Use Inverse</string>
+                         </property>
+                        </widget>
+                       </item>
                        <item>
                         <widget class="QCheckBox" name="generatePlotCB">
                          <property name="text">
@@ -4179,7 +4189,7 @@ Run RAxML -&gt; Advanced</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>98</width>
+                       <width>57</width>
                        <height>48</height>
                       </rect>
                      </property>
