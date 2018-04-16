@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1132</width>
+    <width>931</width>
     <height>1001</height>
    </rect>
   </property>
@@ -59,7 +59,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>5</number>
         </property>
         <widget class="QWidget" name="welcomePage">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -359,8 +359,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>1086</width>
-               <height>680</height>
+               <width>579</width>
+               <height>418</height>
               </rect>
              </property>
              <attribute name="label">
@@ -1312,8 +1312,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>1086</width>
-               <height>680</height>
+               <width>949</width>
+               <height>659</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -3484,7 +3484,7 @@ Run RAxML -&gt; Advanced</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>268</width>
+                       <width>842</width>
                        <height>104</height>
                       </rect>
                      </property>
@@ -3879,6 +3879,23 @@ Run RAxML -&gt; Advanced</string>
                       </layout>
                      </item>
                      <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_73">
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="QLabel" name="label_50">
+                         <property name="text">
+                          <string>Outgroup:</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="lineEdit"/>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
                       <layout class="QHBoxLayout" name="horizontalLayout_62">
                        <item>
                         <widget class="QCheckBox" name="generatePlotCB">
@@ -3963,7 +3980,7 @@ Run RAxML -&gt; Advanced</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>275</width>
+                   <width>864</width>
                    <height>104</height>
                   </rect>
                  </property>
@@ -4093,8 +4110,8 @@ Run RAxML -&gt; Advanced</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>35</width>
-                       <height>48</height>
+                       <width>863</width>
+                       <height>85</height>
                       </rect>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_34">
@@ -4162,7 +4179,7 @@ Run RAxML -&gt; Advanced</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>57</width>
+                       <width>98</width>
                        <height>48</height>
                       </rect>
                      </property>
@@ -4232,7 +4249,7 @@ Run RAxML -&gt; Advanced</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1132</width>
+     <width>931</width>
      <height>26</height>
     </rect>
    </property>
