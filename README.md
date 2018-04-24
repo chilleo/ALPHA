@@ -16,6 +16,7 @@
    - [File Converter](#file-converter-mode)
    - [MS Comparison Mode](#ms-comparison-mode)
    - [D-statistic Mode](#d-statistic-mode)
+- [Developer Notes](#developer-notes)
 - [FAQ](#frequently-asked-questions)   
 - [Contributors](#contributors)
 - [References](#references)
@@ -440,7 +441,7 @@ In this example, we generate a species tree by running RAxML over the entire ali
 After modifying these options to your preferences, click the Run RAxML button. The Generate Figures options will be available after you run RAxML.
 
 #### Generate Figures
-Select any number of the eight figures to generate. Some of the figures require inputs in the Graph Options and Species Tree sections, so their necessary parameters are defined below.
+Select any number of the eight figures to generate. Aside from the informative sites heatmap RAxML must be run before generating these figures. Some of the figures require inputs in the Graph Options and Species Tree sections, so their necessary parameters are defined below:
 
 For Top Topologies Tree Visualization, Windows to Top Topologies Scatter Plot, and Top Topologies Frequency Donut Plot:
 - To ensure that the color coding for these visuals is correct, generate the three figures together.
@@ -454,6 +455,8 @@ For p(GT|ST) Scatter Plot:
 - Input the Input the species tree by selecting a file or inputting a newick string under the Species Tree section. You can generate a species tree for this by following the steps in the Advanced mode of Run RAxML. The tree must be rooted to generate this plot.
 
 <img src="https://user-images.githubusercontent.com/25121486/30996686-310b25f6-a488-11e7-9c65-5e55d206dd05.png" alt="RAxML-Generate" width="400">
+
+The informative sites heatmap provides a visualization of informative sites across an inputted alignment. Users can reduce the total number of sites that are used for the heatmap in order to speed up runs on extremely large files.
 
 Once you have selected the desired figures to be generated, click the Generate Figures button. 
 
@@ -477,6 +480,8 @@ To save figures as images:
 - The save button allows users to save and export the figure window to a specified location. This functionality can also be accessed under “Save As…” in the “File” menu at the top of the output window.
 - All images can be exported to a desired save location, renamed and saved as one of the following file types: pdf, png, jpeg, tiff, svg, eps, rgba, pgf, and ps.
 
+##### Walkthrough with Example File
+Click the three dots on the line for alignment. This will bring up a file explorer in the ALPHA directory. From here choose the "exampleFiles" folder. In here you will find several files that are useful for learning about the usages of ALPHA. In this case select the "4TaxaExample.phylip" file. Before running RAxML you can generate a heatmap of the alignment's informative sites by clicking the checkbox next to "Informative Sites Heat Map" then clicking "Generate Figure". To run RAxML go to the "Run RAxML" tab here input a window size and offset. For this file we recommend 10000 and 10000. Click "Run RAxML" then go to the "Generate Figures" tab. Here you can select as many figures as you want then click "Generate Figures". 
 
 For more information on RAxML Mode and the figures it can generate, see the [RAxML](#raxml) section above.
 
@@ -498,7 +503,7 @@ To compare against a RAxML directory:
 - Input the preferred window size and offset.
 
 #### Compare Against MS File(s)
-To select more than one MS file to compare against, simply click the + button to add the number of files you want to compare. Then, select one MS file per box. To remove a file, click the - button on the left side of the file input box.
+To select more than one MS file to compare against, simply click the + button to add the number of files you want to compare. Then, select one MS file per box. To remove a file, click the - button on the left side of the file input box. In the "exampleFiles" folder there are two files, "ExampleMS" and "ExampleMS2". New users can use these files to get a better understanding of the MS Comparison functionality.
 
 #### Graphs
 Select any number of the three graphs to generate them.
@@ -515,9 +520,24 @@ Then, input the preferred window size and offset.
 
 Using the provided four taxa tree, select your desired topology. Click the Run button to generate the D Statistic and the Windows to D-statistic Scatter Plot.
 
+Users can subset from an alignment of more than 4 taxa. To get a better understanding of this use "6TaxaExample.txt" from the "exampleFiles" folder. 
+
 <img src="https://user-images.githubusercontent.com/25121486/30996748-a3291af8-a488-11e7-8389-4fd4515b64f4.png" alt="D-Statistic" width="400">
 
 For more information on the D-statistic and what it outputs, see the [D-statistic](#d-statistic) section above.
+
+## Developer Notes
+For users looking to modify ALPHA source code we recommend using the PyCharm IDE with a Python 2.7.13 interpreter.
+
+The user interface is created using PyQt4. More information on it can be found here: [PyQt4](http://pyqt.sourceforge.net/Docs/PyQt4/). Individuals looking to alter the GUI must use the Qt Designer interface for the file "gui_layout.ui" located in the "module" folder. Alterations to the .ui file must be pushed "gui_layout.py" file using the following command prompt command while in the "module" folder.
+    
+    ```
+    pyuic4 gui_layout.ui -o gui_layout.py
+    ```
+
+All functions are executed within the "module" folder. Each of these files roughly corresponds to a different analysis function of ALPHA.
+
+Plot outputs are each given their own window file where plot formatting and other aesthetics are dealt with. These files can be found in the "raxmlOutputWindows" folder and can be altered accordingly.
 
 ## Frequently Asked Questions
 
