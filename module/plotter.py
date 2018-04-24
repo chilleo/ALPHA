@@ -217,23 +217,17 @@ class Plotter(QtCore.QThread):
 
         y = mapping.values()
         x = mapping.keys()
-        N = max(x)
-        width = 1.5 * (N / float(1000))
 
         b = []
         order_of_mag = int(math.log10(len(y)))
-        # print "length", len(d)
-        # print "order", order_of_mag
+
+        # 7.5 is a scaling term can be changed to make prettier plots
         coeff = math.ceil(7.5 ** (order_of_mag - 1)) * 10 ** (-1 * order_of_mag)
-        # if order_of_mag > 1:
-        #     coeff *= 10
-        print coeff
+
         # Determine the step as an order of magnitude of the percentage
         step = int(math.floor(coeff * len(y)))
         step = 10 ** int(math.log10(step))
 
-        # step = int(math.log10(len(d) * 10**(-1*order_of_mag+1)))
-        print step
         for i in range(0, len(y), step):
             j = min(len(y), i + step)
             mu = sum(y[i:j]) / float(j - i)
@@ -245,18 +239,6 @@ class Plotter(QtCore.QThread):
 
         ax.imshow(np.transpose(m), cmap="binary", aspect="auto", extent=[0, len(m), 0, 1])
         ax.set_yticks([])
-
-        # plt.tight_layout()
-        # plt.show()
-
-        # ax.imshow(np.array(x), cmap="plasma", aspect="auto")
-        # ax.set_yticks([])
-
-        # ax.spines['top'].set_position(("data", 1)) #Reposition top spine
-        # ax.spines['left'].set_bounds(0, 1) #Shorten left and right spines
-        # ax.spines['right'].set_bounds(0, 1)
-        # cur_axes = plt.gca()
-        # cur_axes.axes.get_yaxis().set_visible(False)
 
         self.emit(QtCore.SIGNAL('HEATMAP_COMPLETE'))
 
