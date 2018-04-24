@@ -323,7 +323,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.calcGenD.window_offset = int(self.lWindowOffsetEntry.text().encode('utf-8'))
         self.calcGenD.verbose = True
         self.calcGenD.alpha = 0.01
-        self.calcGenD.alpha = self.lAlphaEntry.text().encode('utf-8')
+        self.calcGenD.alpha = float(self.lAlphaEntry.text().encode('utf-8'))
         self.calcGenD.save = True
         self.calcGenD.useDir = self.lUseDirCB.isChecked()
         self.calcGenD.directory = ""
@@ -533,7 +533,10 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
                 sigVec = []
                 for i in d:
                     windows_to_lvals[i] = (d[i])[0]
-                    sigVec.append((1 if (d[i])[1] else 0))
+                    if d[i][1]:
+                        sigVec.append(1)
+                    else:
+                        sigVec.append(0)
                 self.lStatisticWindow = lStatisticWindow.LStatisticWindow(windows_to_lvals, sigVec)
 
 

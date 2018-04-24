@@ -92,6 +92,35 @@ class Plotter(QtCore.QThread):
 
         return ax
 
+    def sorted_scatter(self, lWindows, sigArray, title, xlab, ylab, subplotPosition=111):
+        """
+            Creates a scatter plot showing the topology as the y-axis and the window as the x-axis.
+
+            Input:
+                i. wins_to_tops   -- window to topology mapping outputted by windows_to_newick()[0]
+                ii. scatter_colors -- list of colors outputted by topology_colors()[1]
+                iii. y          -- list of y-axis values outputted by topology_colors()[2]
+
+            Returns:
+                A scatter plot with topologies as the x-axis and windows as the y-axis.
+        """
+
+        ax = plt.subplot(subplotPosition)
+        ax.set_title(title, fontsize=15)
+
+        colormap = {1: 'green', 0: 'red'}
+
+        for i in range(len(lWindows)):
+            window = lWindows.keys()[i]
+            print sigArray[i]
+            ax.plot(window, lWindows[window], 'o', color=colormap[sigArray[i]])
+
+        # labels axes
+        ax.set_xlabel(xlab, fontsize=10)
+        ax.set_ylabel(ylab, fontsize=10)
+
+        return ax
+
     def stat_scatter(self, dataMap, title, xLabel, yLabel, subplotPosition=111):
         """
             Creates a scatter plot with the x-axis being the
@@ -189,16 +218,45 @@ class Plotter(QtCore.QThread):
         y = mapping.values()
         x = mapping.keys()
         N = max(x)
-        width = 1.5 * (N / float(10000))
+        width = 1.5 * (N / float(1000))
 
-        ax.set_xlim(0, max(x))
-        ax.bar(x, y, width, color="black")
+        b = []
+        order_of_mag = int(math.log10(len(y)))
+        # print "length", len(d)
+        # print "order", order_of_mag
+        coeff = math.ceil(7.5 ** (order_of_mag - 1)) * 10 ** (-1 * order_of_mag)
+        # if order_of_mag > 1:
+        #     coeff *= 10
+        print coeff
+        # Determine the step as an order of magnitude of the percentage
+        step = int(math.floor(coeff * len(y)))
+        step = 10 ** int(math.log10(step))
 
-        ax.spines['top'].set_position(("data", 1)) #Reposition top spine
-        ax.spines['left'].set_bounds(0, 1) #Shorten left and right spines
-        ax.spines['right'].set_bounds(0, 1)
-        cur_axes = plt.gca()
-        cur_axes.axes.get_yaxis().set_visible(False)
+        # step = int(math.log10(len(d) * 10**(-1*order_of_mag+1)))
+        print step
+        for i in range(0, len(y), step):
+            j = min(len(y), i + step)
+            mu = sum(y[i:j]) / float(j - i)
+            for k in range(j - i):
+                b.append(mu)
+
+        b = np.array(b)
+        m = b.reshape(len(b), 1)
+
+        ax.imshow(np.transpose(m), cmap="binary", aspect="auto", extent=[0, len(m), 0, 1])
+        ax.set_yticks([])
+
+        # plt.tight_layout()
+        # plt.show()
+
+        # ax.imshow(np.array(x), cmap="plasma", aspect="auto")
+        # ax.set_yticks([])
+
+        # ax.spines['top'].set_position(("data", 1)) #Reposition top spine
+        # ax.spines['left'].set_bounds(0, 1) #Shorten left and right spines
+        # ax.spines['right'].set_bounds(0, 1)
+        # cur_axes = plt.gca()
+        # cur_axes.axes.get_yaxis().set_visible(False)
 
         self.emit(QtCore.SIGNAL('HEATMAP_COMPLETE'))
 

@@ -1695,26 +1695,26 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
                 l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d_resized[
                     alignment]
 
-                s += alignment + ": "
-                s += "\n"
-                s += "Final Overall D value using Block Resizing Method: {0}".format(l_stat) + "\n"
-                s += "Significant deviation from 0: {0}".format(significant) + "\n"
-                s += "Overall Chi-Squared statistic: " + str(chisq) + "\n"
-                s += "Overall p value: " + str(pval) + "\n"
-                s += "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored) + "\n"
-                s += "\n"
-                s += "Left term counts: " + "\n"
+                v += alignment + ": "
+                v += "\n"
+                v += "Final Overall D value using Block Resizing Method: {0}".format(l_stat) + "\n"
+                v += "Significant deviation from 0: {0}".format(significant) + "\n"
+                v += "Overall Chi-Squared statistic: " + str(chisq) + "\n"
+                v += "Overall p value: " + str(pval) + "\n"
+                v += "Number of site ignored due to \"N\" or \"-\": {0}".format(num_ignored) + "\n"
+                v += "\n"
+                v += "Left term counts: " + "\n"
                 for pattern in left_counts:
-                    s += pattern + ": {0}".format(left_counts[pattern]) + "\n"
-                s += "\n"
-                s += "Right term counts: " + "\n"
+                    v += pattern + ": {0}".format(left_counts[pattern]) + "\n"
+                v += "\n"
+                v += "Right term counts: " + "\n"
                 for pattern in right_counts:
-                    s += pattern + ": {0}".format(right_counts[pattern]) + "\n"
-                s += "\n"
-                s += "Windows to D value: " + str(alignments_to_windows_to_d[alignment]) + "\n"
-                s += "\n"
-                s += "Final Overall D value {0}".format(l_stat) + "\n"
-                s += "Significant deviation from 0: {0}".format(significant) + "\n"
+                    v += pattern + ": {0}".format(right_counts[pattern]) + "\n"
+                v += "\n"
+                v += "Windows to D value: " + str(alignments_to_windows_to_d[alignment]) + "\n"
+                v += "\n"
+                v += "Final Overall D value {0}".format(l_stat) + "\n"
+                v += "Significant deviation from 0: {0}".format(significant) + "\n"
 
         else:
 

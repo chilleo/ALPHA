@@ -126,7 +126,7 @@ class InformativeSites(QtCore.QThread):
                     informative = self.is_site_informative(site)
 
                     # If the site has not been visited before add to mappings (deals with overlapping windows)
-                    if site_idx not in sites_to_informative and informative:
+                    if site_idx not in sites_to_informative:
                         # If the site is informative add 1 to the mappings otherwise add 0
                         sites_to_informative[site_idx] += informative
 

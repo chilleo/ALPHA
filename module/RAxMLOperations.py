@@ -185,6 +185,8 @@ class RAxMLOperations(QtCore.QThread):
             # Initialize a count for the total number of windows
             num_windows = 0
 
+            window_size = min(length_of_sequences, window_size)
+
             # Determine the total number of windows needed
             while (i + window_size - 1 < length_of_sequences):
                 i += step_size
