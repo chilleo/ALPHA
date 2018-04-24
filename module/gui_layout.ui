@@ -59,7 +59,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>5</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="welcomePage">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -328,6 +328,67 @@
            </layout>
           </item>
           <item>
+           <layout class="QVBoxLayout" name="verticalLayout_35">
+            <property name="bottomMargin">
+             <number>10</number>
+            </property>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_62">
+              <property name="bottomMargin">
+               <number>10</number>
+              </property>
+              <item>
+               <widget class="QCheckBox" name="checkboxHeatMap">
+                <property name="font">
+                 <font>
+                  <pointsize>13</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Informative Sites Heat Map</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_35">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="heatmapPercentage"/>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_48">
+                <property name="text">
+                 <string>% of sites to use</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="heatmapGenerate">
+              <property name="text">
+               <string>Generate Figure</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
            <widget class="QToolBox" name="raxmlToolBox">
             <property name="enabled">
              <bool>true</bool>
@@ -359,8 +420,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>579</width>
-               <height>418</height>
+               <width>885</width>
+               <height>620</height>
               </rect>
              </property>
              <attribute name="label">
@@ -1313,7 +1374,7 @@
                <x>0</x>
                <y>0</y>
                <width>949</width>
-               <height>542</height>
+               <height>558</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -1505,54 +1566,7 @@
                        </layout>
                       </item>
                       <item>
-                       <layout class="QHBoxLayout" name="heatMapHL">
-                        <item>
-                         <widget class="QCheckBox" name="checkboxHeatMap">
-                          <property name="font">
-                           <font>
-                            <pointsize>13</pointsize>
-                            <weight>50</weight>
-                            <bold>false</bold>
-                           </font>
-                          </property>
-                          <property name="text">
-                           <string>Informative Sites Heat Map</string>
-                          </property>
-                          <property name="checked">
-                           <bool>false</bool>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item>
-                       <widget class="QGroupBox" name="horizontalGroupBox">
-                        <layout class="QHBoxLayout" name="horizontalLayout_75">
-                         <item>
-                          <spacer name="horizontalSpacer_35">
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>40</width>
-                             <height>20</height>
-                            </size>
-                           </property>
-                          </spacer>
-                         </item>
-                         <item>
-                          <widget class="QLineEdit" name="heatmapPercentage"/>
-                         </item>
-                         <item>
-                          <widget class="QLabel" name="label_48">
-                           <property name="text">
-                            <string>% of sites to use</string>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
+                       <layout class="QHBoxLayout" name="heatMapHL"/>
                       </item>
                       <item>
                        <layout class="QHBoxLayout" name="horizontalLayout_47">

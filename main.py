@@ -160,7 +160,9 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.lStatisticFileCB.stateChanged.connect(lambda: self.toggleEnabled(self.lStatisticFileEntry))
         self.lStatisticFileCB.stateChanged.connect(lambda: self.toggleEnabled(self.lStatisticFileLabel))
 
+        self.heatmapGenerate.clicked.connect(self.generateHeatmap)
         self.generateFiguresBtn.clicked.connect(self.generateFigures)
+
 
         # RAxML Events
         self.connect(self.inputFileEntry, QtCore.SIGNAL('FILE_SELECTED'), lambda: self.updateTaxonComboBoxes(self.raxmlTaxonComboBoxes, self.inputFileEntry))
@@ -700,6 +702,9 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         return requestedFigures
 
+    def generateHeatmap(self):
+        self.updatedDisplayWindows()
+
     def generateFigures(self):
         if self.runComplete:
             if self.raxmlInputErrorHandling():
@@ -759,7 +764,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # generate informative sites heatmap graph
         if self.checkboxHeatMap.isChecked():
             self.prevGeneratedFigures.add('Informative Sites Heat Map')
-            sites_to_informative, windows_to_informative_count, windows_to_informative_pct, pct_informative = self.informativeSites.calculate_informativeness('windows', self.raxmlOperations.windowOffset, self.heatmapPercentage.text())
+            sites_to_informative, windows_to_informative_count, windows_to_informative_pct, pct_informative = self.informativeSites.calculate_informativeness('windows', 0, self.heatmapPercentage.text(),alignment=self.inputFileEntry.text())
             self.heatMapWindow = heatMapWindow.HeatMapWindow('Heat Map', sites_to_informative)
 
         # generate windows to informative sites line graph

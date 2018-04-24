@@ -56,13 +56,14 @@ class InformativeSites(QtCore.QThread):
         else:
             return 0
 
-    def calculate_informativeness(self, window_directory, window_offset, percentage):
+    def calculate_informativeness(self, window_directory, window_offset, percentage, alignment=False):
         """
         Calculates information about informative sites in an alignment
         Input:
         window_directory --- the location of the folder containing the phylip window files
         window_offset --- the offset that was used to create the windows
         percentage --- the percent of the total alignment to look at the site index is scaled accordingly
+        alignment --- an alignment file
         Output:
         sites_to_informative --- a mapping of each site in the alignment to 1 if informative 0 if not
         windows_to_informative_count --- a mapping of each window number to the number of informative sites it has
@@ -81,80 +82,132 @@ class InformativeSites(QtCore.QThread):
         windows_to_informative_pct = {}
         total_window_size = 0
 
-        # Iterate over each folder in the given directory in numerical order
-        for filename in natsorted(os.listdir(window_directory)):
+        if alignment:
+            with open(alignment) as f:
 
-            # If file is a phylip file get the number of the window
-            if filename.endswith(".phylip"):
-                file_number = filename.replace("window", "")
-                file_number = int(file_number.replace(".phylip", ""))
+                # Create a list of each line in the file
+                lines = f.readlines()
 
-                input_file = os.path.join(window_directory, filename)
+                # First line contains the number and length of the sequences
+                first_line = lines[0].split()
+                number_of_sequences = int(first_line[0])
+                length_of_sequences = int(first_line[1])
 
-                sequence_list = []
+            sequence_list = []
 
-                with open(input_file) as f:
+            for line in lines[1:]:
+                # Add each sequence to a list
+                sequence = line.split()[1]
+                sequence_list.append(sequence)
 
-                    # Create a list of each line in the file
-                    lines = f.readlines()
+            # Increment based on the percentage of the alignment desired
+            increment = int(math.ceil((1 / pct)))
 
-                    # First line contains the number and length of the sequences
-                    first_line = lines[0].split()
-                    number_of_sequences = int(first_line[0])
-                    length_of_sequences = int(first_line[1])
+            # Iterate over the indices in each window
+            for window_idx in range(0, length_of_sequences, increment):
 
-                for line in lines[1:]:
-                    # Add each sequence to a list
-                    sequence = line.split()[1]
-                    sequence_list.append(sequence)
+                site = []
 
-                # Increment based on the percentage of the alignment desired
-                increment = int(math.ceil((1 / pct)))
+                # Iterate over each sequence in the alignment
+                for sequence in sequence_list:
+                    # Add each base in a site to a list
+                    site.append(sequence[window_idx])
 
-                # Iterate over the indices in each window
-                for window_idx in range(0, length_of_sequences, increment):
+                # Determine if a site is informative
+                informative = self.is_site_informative(site)
 
-                    site = []
+                # If the site has not been visited before add to mappings (deals with overlapping windows)
+                if site_idx not in sites_to_informative:
+                    # If the site is informative add 1 to the mappings otherwise add 0
+                    sites_to_informative[site_idx] += informative
 
-                    # Iterate over each sequence in the alignment
-                    for sequence in sequence_list:
+                # Increment the site index
+                site_idx += increment
 
-                        # Add each base in a site to a list
-                        site.append(sequence[window_idx])
+            total_window_size += length_of_sequences
 
-                    # Determine if a site is informative
-                    informative = self.is_site_informative(site)
+            total_num_informative = sum(windows_to_informative_count.values())
 
-                    # If the site has not been visited before add to mappings (deals with overlapping windows)
-                    if site_idx not in sites_to_informative:
-                        # If the site is informative add 1 to the mappings otherwise add 0
-                        sites_to_informative[site_idx] += informative
+            if total_window_size == 0:
+                pct_informative = 0
+            else:
+                pct_informative = float(total_num_informative * 100) / total_window_size
 
-                    windows_to_informative_count[file_number] += informative
-
-                    # Increment the site index
-                    site_idx += increment
-
-                # Account for overlapping windows
-                site_idx += (window_offset - length_of_sequences)
-
-                # Map windows_to_informative_count to a percentage
-                windows_to_informative_pct[file_number] = windows_to_informative_count[file_number] *\
-                                                          (100 / float(length_of_sequences))
-
-                total_window_size += length_of_sequences
-
-        total_num_informative = sum(windows_to_informative_count.values())
-
-        # Add in the last site index if it is not already in the informative mapping
-        # This is useful for plotting reasons
-        if site_idx not in sites_to_informative:
-            sites_to_informative[site_idx] = 0
-
-        if total_window_size == 0:
-            pct_informative = 0
         else:
-            pct_informative = float(total_num_informative * 100) / total_window_size
+            # Iterate over each folder in the given directory in numerical order
+            for filename in natsorted(os.listdir(window_directory)):
+
+                # If file is a phylip file get the number of the window
+                if filename.endswith(".phylip"):
+                    file_number = filename.replace("window", "")
+                    file_number = int(file_number.replace(".phylip", ""))
+
+                    input_file = os.path.join(window_directory, filename)
+
+                    sequence_list = []
+
+                    with open(input_file) as f:
+
+                        # Create a list of each line in the file
+                        lines = f.readlines()
+
+                        # First line contains the number and length of the sequences
+                        first_line = lines[0].split()
+                        number_of_sequences = int(first_line[0])
+                        length_of_sequences = int(first_line[1])
+
+                    for line in lines[1:]:
+                        # Add each sequence to a list
+                        sequence = line.split()[1]
+                        sequence_list.append(sequence)
+
+                    # Increment based on the percentage of the alignment desired
+                    increment = int(math.ceil((1 / pct)))
+
+                    # Iterate over the indices in each window
+                    for window_idx in range(0, length_of_sequences, increment):
+
+                        site = []
+
+                        # Iterate over each sequence in the alignment
+                        for sequence in sequence_list:
+
+                            # Add each base in a site to a list
+                            site.append(sequence[window_idx])
+
+                        # Determine if a site is informative
+                        informative = self.is_site_informative(site)
+
+                        # If the site has not been visited before add to mappings (deals with overlapping windows)
+                        if site_idx not in sites_to_informative:
+                            # If the site is informative add 1 to the mappings otherwise add 0
+                            sites_to_informative[site_idx] += informative
+
+                        windows_to_informative_count[file_number] += informative
+
+                        # Increment the site index
+                        site_idx += increment
+
+                    # Account for overlapping windows
+                    site_idx += (window_offset - length_of_sequences)
+
+                    # Map windows_to_informative_count to a percentage
+                    windows_to_informative_pct[file_number] = windows_to_informative_count[file_number] *\
+                                                              (100 / float(length_of_sequences))
+
+                    total_window_size += length_of_sequences
+
+            total_num_informative = sum(windows_to_informative_count.values())
+
+            # Add in the last site index if it is not already in the informative mapping
+            # This is useful for plotting reasons
+            if site_idx not in sites_to_informative:
+                sites_to_informative[site_idx] = 0
+
+            if total_window_size == 0:
+                pct_informative = 0
+            else:
+                pct_informative = float(total_num_informative * 100) / total_window_size
 
         return sites_to_informative, windows_to_informative_count, windows_to_informative_pct, pct_informative
 

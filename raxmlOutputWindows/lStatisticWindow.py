@@ -14,7 +14,7 @@ class LStatisticWindow(Window):
     def __init__(self, lWindows, sigArray):
         Window.__init__(self, windowTitle='L Statistic Window')
 
-        self.plotter.sorted_scatter(lWindows, sigArray, 'Windows to L Statistic', 'Windows', 'L Statistic values')
+        self.plotter.sorted_scatter(lWindows, sigArray, 'Windows to Generalized D', 'Windows', 'Generalized D Values')
         self.show()
 
 
