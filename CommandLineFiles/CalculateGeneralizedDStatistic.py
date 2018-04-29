@@ -1659,6 +1659,7 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, out
                                                         window_offset, verbose, alpha)
 
     s = ""
+    n = ""
     # Create the output string
     if verbose and not statistic:
         s += "\n"
@@ -1696,9 +1697,11 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, out
         s += "Statistic: " + str(generate_statistic_string((increase, decrease))) + "\n"
         s += "\n"
         s += "Information for each file: " + "\n"
+        n += "Information for each file: " + "\n"
         for alignment in alignments_to_d_resized:
             l_stat, significant, left_counts, right_counts, num_ignored, chisq, pval = alignments_to_d_resized[alignment]
             s += alignment + ": "
+            n += alignment + ": " + "\n"
             s += "\n"
             s += "Final Overall D value using Block Resizing Method: {0}".format(l_stat) + "\n"
             s += "Significant deviation from 0: {0}".format(significant) + "\n"
@@ -1718,6 +1721,8 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, out
             s += "\n"
             s += "Final Overall D value {0}".format(l_stat) + "\n"
             s += "Significant deviation from 0: {0}".format(significant) + "\n"
+            n += "Final Overall D value {0}".format(l_stat) + "\n"
+            n += "Significant deviation from 0: {0}".format(significant) + "\n"
 
         print s
 
@@ -1746,7 +1751,8 @@ def calculate_generalized(alignments, species_tree=None, reticulations=None, out
     if plot:
         plot_formatting((alignments_to_d_resized, alignments_to_windows_to_d), plot, meta)
 
-    return alignments_to_d_resized, alignments_to_windows_to_d
+    return alignments_to_d_resized, alignments_to_windows_to_d, n, s
+
 
 def display_alignment_info(alignments_to_d_resized, alignments_to_d_pattern_coeff, alignments_to_d_ovr_coeff):
     """
@@ -1760,6 +1766,7 @@ def display_alignment_info(alignments_to_d_resized, alignments_to_d_pattern_coef
     """
 
     s = ""
+    n = ""
 
     for alignment in alignments_to_d_resized:
 
@@ -1791,10 +1798,13 @@ def display_alignment_info(alignments_to_d_resized, alignments_to_d_pattern_coef
         s += "\n"
         s += alignment + ": "
         s += "\n"
+        n += "\n" + "\n" + alignment + ": " + "\n"
 
         # Print output for resizing method
         for output in output_resized:
             s += str(output[0]) + str(output[1]) + "\n"
+            n += str(output[0]) + str(output[1]) + "\n"
+
         s += "Left term counts: " + "\n"
         for pattern in left_counts_res:
             s += pattern + ": {0}".format(left_counts_res[pattern]) + "\n"
@@ -1866,9 +1876,9 @@ def plot_formatting(info_tuple, name, meta):
 
 
 if __name__ == '__main__':
-    r =[('P3', 'P2')]
-    # species_tree = '(((P1,P2),P3),O);'
-    species_tree = '((P1,P2),(P3,O));'
+    r = [('P3', 'P2')]
+    species_tree = '(((P1,P2),P3),O);'
+    # species_tree = '((P1,P2),(P3,O));'
     # species_tree = '(((P1,P2),(P3,P4)),O);' # DFOIL tree
     # species_tree = '((((P1,P2),P3),P4),O);' # Smallest asymmetrical tree
     # species_tree = '(((P1,P2),(P3,(P4,P5))),O);'
@@ -1885,11 +1895,14 @@ if __name__ == '__main__':
     else:
         alignments = ["C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim2\\seqfile.txt"]
 
-    alignments = ["C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim5\\seqfile",
-                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim7\\seqfile",
-                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim4\\seqfile",
-                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim6\\seqfile",
-                  "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim8\\seqfile"]
+    # alignments = ["C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim5\\seqfile",
+    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim7\\seqfile",
+    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim4\\seqfile",
+    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim6\\seqfile",
+    #               "C:\\Users\\travi\\Desktop\\dFoilStdPlusOneFar50kbp\\dFoilStdPlusOneFar50kbp\\sim8\\seqfile"]
+
+    print calculate_generalized(alignments, species_tree, r, "O", 500000, 500000,
+                                alpha=0.01, verbose=False, use_inv=False)
 
     # alignments = ["C:\\Users\\travi\\Desktop\\390 Errors\\seqfileNames"]
     #
@@ -1926,9 +1939,10 @@ if __name__ == '__main__':
     # playsound.playsound("C:\\Users\\travi\\Downloads\\app-5.mp3")
 
     # species_tree, r = "(((P5,P6),((P1,P2),P3)),P4);", [('P3', 'P2')]
-    # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip"]
+    # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip.txt"]
     # species_tree, r = '((C,G),(((A,Q),L),R));', [('Q', 'G')]
-    print calculate_generalized(alignments, species_tree, r, "O", 50000, 50000, alpha=0.01, verbose=False, use_inv=False)
+
+    # print calculate_generalized(alignments, 500000, 500000, statistic="C:\\Users\\travi\\Desktop\\stat_mosqSubset.txt", alpha=0.01, verbose=False, use_inv=False)
 
     # alignments = ["C:\\Users\\travi\\Desktop\\MosquitoConcat.phylip.txt"]
     # alignments = ["C:\\Users\\travi\\Desktop\\3L\\3L\\3L.41960870.634.fa.phylip"]

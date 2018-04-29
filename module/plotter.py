@@ -112,7 +112,6 @@ class Plotter(QtCore.QThread):
 
         for i in range(len(lWindows)):
             window = lWindows.keys()[i]
-            print sigArray[i]
             ax.plot(window, lWindows[window], 'o', color=colormap[sigArray[i]])
 
         # labels axes
