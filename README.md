@@ -529,7 +529,7 @@ For more information on the D-statistic and what it outputs, see the [D-statisti
 ## Developer Notes
 For users looking to modify ALPHA source code we recommend using the PyCharm IDE with a Python 2.7.13 interpreter.
 
-The user interface is created using PyQt4. More information on it can be found here: [PyQt4](http://pyqt.sourceforge.net/Docs/PyQt4/). Individuals looking to alter the GUI must use the Qt Designer interface for the file "gui_layout.ui" located in the "module" folder. Alterations to the .ui file must be pushed "gui_layout.py" file using the following command prompt command while in the "module" folder.
+The user interface is created using PyQt4. More information on it can be found here: [PyQt4](http://pyqt.sourceforge.net/Docs/PyQt4/). Individuals looking to alter the GUI must use the Qt Designer interface for the file "gui_layout.ui" located in the "module" folder. Alterations to the .ui file must be saved in the Qt Designer then pushed to the "gui_layout.py" file using the following command prompt command while in the "module" folder. If the command is not run then any changes made in the Qt Designer will not be updated properly.
     
     ```
     pyuic4 gui_layout.ui -o gui_layout.py
