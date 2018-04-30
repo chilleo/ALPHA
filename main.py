@@ -79,6 +79,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         self.topologyPlotter.num = None
 
+        # ADD NEW PAGE INFORMATION BELOW
+
         # mapping from: windows --> page index
         self.windows = {'welcomePage': 0, 'inputPageRax': 1, 'inputPageFileConverter': 2, 'inputPageMS': 3, 'inputPageDStatistic': 4, 'inputPageLStatistic': 5}
         # mapping from: windows --> dictionary of page dimensions
@@ -92,6 +94,9 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # if users os is windows, use different sizes for each page
         if sys.platform == 'win32':
             self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 925, 'y': 688}, 'inputPageFileConverter': {'x': 630, 'y': 375}, 'inputPageMS': {'x': 675, 'y': 815}, 'inputPageDStatistic': {'x': 600, 'y': 570}, 'inputPageLStatistic': {'x': 600, 'y': 570}}
+
+        # ADD NEW PAGE INFORMATION ABOVE
+
         # set of previously generated RAxML Figures
         self.prevGeneratedFigures = set()
 
@@ -133,7 +138,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.setValidator(self.dWindowSizeEntry, 'Int')
         self.setValidator(self.dWindowOffsetEntry, 'Int')
 
-        # **************************** RAXML PAGE ****************************#
+        # **************************** CHANGE MODE ****************************#
 
         # selecting a mode in the menu bar -> deselects all other modes first
         # change the input mode based on which mode is selected in the menu bar
@@ -252,6 +257,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.lAlignmentDirBtn.clicked.connect(lambda: self.openDirectory(self.lAlignmentDirEntry))
         self.lSpeciesTreeBtn.clicked.connect(lambda: self.getFileName(self.lSpeciesTreeEntry))
         self.lStatisticFileBtn.clicked.connect(lambda: self.getFileName(self.lStatisticFileEntry))
+        self.saveDirButton.clicked.connect(lambda: self.openDirectory(self.lStatSaveLocation))
         self.calcGenD.plot = False
         self.calcGenD.meta = ""
 

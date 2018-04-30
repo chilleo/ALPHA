@@ -59,7 +59,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="welcomePage">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -147,6 +147,11 @@
               <item>
                <property name="text">
                 <string>(BETA) L Statistic</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Hello World!</string>
                </property>
               </item>
              </widget>
@@ -421,7 +426,7 @@
                <x>0</x>
                <y>0</y>
                <width>885</width>
-               <height>620</height>
+               <height>579</height>
               </rect>
              </property>
              <attribute name="label">
@@ -3785,6 +3790,13 @@ Run RAxML -&gt; Advanced</string>
                        <item>
                         <widget class="QLineEdit" name="lStatSaveLocation"/>
                        </item>
+                       <item>
+                        <widget class="QToolButton" name="saveDirButton">
+                         <property name="text">
+                          <string>...</string>
+                         </property>
+                        </widget>
+                       </item>
                       </layout>
                      </item>
                     </layout>
@@ -4348,6 +4360,19 @@ Run RAxML -&gt; Advanced</string>
    </property>
    <property name="text">
     <string>(BETA) L Statistic</string>
+   </property>
+  </action>
+  <action name="actionHello_world">
+   <property name="text">
+    <string>hello world</string>
+   </property>
+  </action>
+  <action name="actionHello_World">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Hello World!</string>
    </property>
   </action>
  </widget>

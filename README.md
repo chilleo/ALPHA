@@ -557,11 +557,11 @@ selection is highlighted. Click the plus button and type in Hello World Save the
 
 Next we will alter ALPHA to allow us to access the Hello World page using ALPHA's navigation bar.
 
-8) Open command line, cd into the module folder in ALPHA. Then enter the command "pyuic4 gui_layout.ui -o gui_layout.py". This
+10) Open command line, cd into the module folder in ALPHA. Then enter the command "pyuic4 gui_layout.ui -o gui_layout.py". This
 pushes the changes from our PyQt ui file to the python file that main.py interacts with.
-9) Open main.py in a text editor or IDE (we recommend using PyCharm for this). Find the section of code that says 
+11) Open main.py in a text editor or IDE (we recommend using PyCharm for this). Find the section of code that says 
 "ADD NEW PAGE INFORMATION BELOW" (at the time of writing this was line 83).
-10) Update the six dictionaries in this section of code by adding a comma then using the following code in order: 
+12) Update the six dictionaries in this section of code by adding a comma then using the following code in order: 
 ```
 'inputPageHelloWorld': 6
 'inputPageHelloWorld': {'x': 800, 'y': 900}
@@ -570,7 +570,7 @@ pushes the changes from our PyQt ui file to the python file that main.py interac
 'Hello World': self.actionHello_World
 'inputPageHelloWorld': {'x': 600, 'y': 570}
 ```
-11) Finally find the section of code with the header "CHANGE MODE" (at the time of writing this was line 141). Add the following
+13) Finally find the section of code with the header "CHANGE MODE" (at the time of writing this was line 141). Add the following
 line of code:
 ```
 self.actionHello_World.triggered.connect(lambda: self.ensureSingleModeSelected(self.actionHello_World, 'inputPageHelloWorld'))
