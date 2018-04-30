@@ -539,6 +539,53 @@ All functions are executed within the "module" folder. Each of these files rough
 
 Plot outputs are each given their own window file where plot formatting and other aesthetics are dealt with. These files can be found in the "raxmlOutputWindows" folder and can be altered accordingly.
 
+### Add a New Page Walkthrough
+
+1) Open Qt Designer this should have been installed along with PyQt and sip
+2) Click the file tab in the top left corner, click open and select the gui_layout.ui file in the Module folder of ALPHA
+3) On the right in the object inspector the fourth tab is "stackedWidget" 
+right click and click "insert page" choose the if you want the page to be before or after the current page
+Note: you can change the current page being edited using the left and right arrows on the top right corner of the ALPHA gui page
+4) Scroll to the top of the widget box on the left side click and drag Vertical Layout onto the UI. Reposition and rescale as desired.
+5) Scroll to the bottom of the widget box and find Label. Click and drag this into the box created by your vertical layout.
+6) Double click TextLabel then type in "Hello World". To change the alignment of the text in the Property Editor section in the bottom right scroll down to QLabel. Click the arrow
+next to alignment next to Horizontal click AlignLeft then use the drop down menu to select the desired alignment type.
+7) Click the Mode tab on the ALPHA interface then click Type Here and enter “Hello World”
+8) While still selecting the text from step 8 got to the Property Editor in the bottom right corner and click the checkbox next to "checkable"
+9) Use the arrows in the top right to ALPHA's home page. Double click the drop down menu. Then click the down arrow until the bottom 
+selection is highlighted. Click the plus button and type in Hello World Save the ui file using the file tab.
+
+Next we will alter ALPHA to allow us to access the Hello World page using ALPHA's navigation bar.
+
+8) Open command line, cd into the module folder in ALPHA. Then enter the command "pyuic4 gui_layout.ui -o gui_layout.py". This
+pushes the changes from our PyQt ui file to the python file that main.py interacts with.
+9) Open main.py in a text editor or IDE (we recommend using PyCharm for this). Find the section of code that says 
+"ADD NEW PAGE INFORMATION BELOW" (at the time of writing this was line 83).
+10) Update the six dictionaries in this section of code by adding a comma then using the following code in order: 
+```
+'inputPageHelloWorld': 6
+'inputPageHelloWorld': {'x': 800, 'y': 900}
+'inputPageHelloWorld': {'x': 450, 'y': 75}
+'Hello World': 'inputPageHelloWorld,
+'Hello World': self.actionHello_World
+'inputPageHelloWorld': {'x': 600, 'y': 570}
+```
+11) Finally find the section of code with the header "CHANGE MODE" (at the time of writing this was line 141). Add the following
+line of code:
+```
+self.actionHello_World.triggered.connect(lambda: self.ensureSingleModeSelected(self.actionHello_World, 'inputPageHelloWorld'))
+```
+
+Run main.py to and select Hello World from the menu to view your new page.
+
+Tip: It is recommended developers rename widgets and page that they add in order to make variable names more informative.
+This can be done using the Object Inspector section in the top right corner of the page. Currently selected widgets will be 
+highlighted in blue. Right click the desired widget then select Change Object Name. 
+
+Tip: If you add a widget at any point and it is initially too small to rescale using the cursor use the property editor in the 
+bottom right corner of the screen. 
+
+
 ## Frequently Asked Questions
 
 Q: Any click in a text box in the main window of the software leads to the following comment in the terminal:
