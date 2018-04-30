@@ -553,12 +553,14 @@ next to alignment next to Horizontal click AlignLeft then use the drop down menu
 7) Click the Mode tab on the ALPHA interface then click Type Here and enter “Hello World”
 8) While still selecting the text from step 8 got to the Property Editor in the bottom right corner and click the checkbox next to "checkable"
 9) Use the arrows in the top right to ALPHA's home page. Double click the drop down menu. Then click the down arrow until the bottom 
-selection is highlighted. Click the plus button and type in Hello World Save the ui file using the file tab.
+selection is highlighted. Click the plus button and type in "Hello World". Save the ui file using the file tab.
 
-Next we will alter ALPHA to allow us to access the Hello World page using ALPHA's navigation bar.
+Next we will alter ALPHA's python code to allow us to access the Hello World page using ALPHA's navigation bar.
 
-10) Open command line, cd into the module folder in ALPHA. Then enter the command "pyuic4 gui_layout.ui -o gui_layout.py". This
-pushes the changes from our PyQt ui file to the python file that main.py interacts with.
+10) Open command line, cd into the module folder in ALPHA. Then enter the command below. This pushes the changes from our PyQt ui file to the python file that main.py interacts with.
+```
+pyuic4 gui_layout.ui -o gui_layout.py"
+```
 11) Open main.py in a text editor or IDE (we recommend using PyCharm for this). Find the section of code that says 
 "ADD NEW PAGE INFORMATION BELOW" (at the time of writing this was line 83).
 12) Update the six dictionaries in this section of code by adding a comma then using the following code in order: 
