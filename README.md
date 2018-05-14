@@ -6,6 +6,7 @@
       - [File Converter](#file-converter)
       - [MS Comparison](#ms-comparison)
       - [D-statistic](#d-statistic)
+      - [Generalized D-statistic](#d-gen-statistic)
     - [Output Files](#output-files)
 - [Installation](#installation)
    - [Mac Installation](#mac-instructions)
@@ -105,6 +106,10 @@ For further reading on the D Statistic and its usage see: \
 [Green et al. (2010)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5100745/#SD1), 
 [Durand et al. (2011)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3144383/),
 [Martin et al. (2014)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4271521/) 
+
+#### D-gen-statistic
+
+In Beta. The password is "loveluay"
 
 ### Output Files
 
