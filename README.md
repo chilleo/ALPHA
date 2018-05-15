@@ -109,7 +109,7 @@ For further reading on the D Statistic and its usage see: \
 
 #### D-gen-statistic
 
-In Beta. The password is "loveluay"
+In Beta. If prompted, the password to access is "loveluay". More documentation coming very soon.
 
 ### Output Files
 
