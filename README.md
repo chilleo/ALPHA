@@ -546,7 +546,7 @@ Plot outputs are each given their own window file where plot formatting and othe
 
 ### Add a New Page Walkthrough
 
-1) Open Qt Designer this should have been installed along with PyQt and sip
+1) Open Qt Designer this should have been installed along with PyQt and sip. A nice tutorial on the basics of Qt Designer as well as an alternative installation route via anaconda can be found at http://pythonforengineers.com/your-first-gui-app-with-python-and-pyqt/
 2) Click the file tab in the top left corner, click open and select the gui_layout.ui file in the Module folder of ALPHA
 3) On the right in the object inspector the fourth tab is "stackedWidget" 
 right click and click "insert page" choose the if you want the page to be before or after the current page
