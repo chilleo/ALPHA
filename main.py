@@ -241,8 +241,11 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         # **************************** L STATISTIC PAGE **************************** #
 
         # set default L-statistic page to ask for password
-        self.lStatisticStackedWidget.setCurrentIndex(0)
-        self.lStatLoginBtn.clicked.connect(lambda: self.login(self.lStatPasswordLineEdit.text()))
+        #self.lStatisticStackedWidget.setCurrentIndex(0)
+        #self.lStatLoginBtn.clicked.connect(lambda: self.login(self.lStatPasswordLineEdit.text()))
+
+        #not asking for password any more, just set current index to 1
+        self.lStatisticStackedWidget.setCurrentIndex(1)
 
         # list of combo boxes containing the taxa from the alignment for the L statistic
         self.lStatisticSourceComboBoxes = [ self.reticulationSource0 ]
