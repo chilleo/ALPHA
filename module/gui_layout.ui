@@ -59,7 +59,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="welcomePage">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -146,12 +146,12 @@
               </item>
               <item>
                <property name="text">
-                <string>(BETA) L Statistic</string>
+                <string>Generalized D Statistic</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Hello World!</string>
+                <string>(Add Tab Example)</string>
                </property>
               </item>
              </widget>
