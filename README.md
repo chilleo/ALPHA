@@ -177,7 +177,7 @@ Meta:
 	Command line - a string corresponding to any metadata that a user may wish to include in their plot formatted output (see “plot”). This parameter must be used with plot
 	GUI - this feature is not available in the ALPHA GUI.
 
-Finally, if you have already generated and saved a DGEN statistic, simply launch the dgen tool and select an alignment you wish to analyze. Then select the "Load Previously Generated Statistic" checkbox along with selecting the statistic file itself at the location it has been saved on your computer. Then set the window size and offset and optionally change the alpha significance cutoff parameter.
+Finally, if you have already generated and saved a DGEN statistic, simply launch the dgen tool and select an alignment you wish to analyze. Then select the "Load Previously Generated Statistic" checkbox along with selecting the statistic file itself at the location it has been saved on your computer. Then set the window size and offset and optionally change the alpha significance cutoff parameter. To see a graphical output of a plot of the generalized D value versus the windows along the alignment, simply check the "generate plot" checkbox.
 
 ### Output Files
 
