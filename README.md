@@ -632,7 +632,7 @@ Next we will alter ALPHA's python code to allow us to access the Hello World pag
 
 10) Open command line, cd into the module folder in ALPHA. Then enter the command below. This pushes the changes from our PyQt ui file to the python file that main.py interacts with.
 ```
-pyuic4 gui_layout.ui -o gui_layout.py"
+pyuic4 gui_layout.ui -o gui_layout.py
 ```
 11) Open main.py in a text editor or IDE (we recommend using PyCharm for this). Find the section of code that says 
 "ADD NEW PAGE INFORMATION BELOW" (at the time of writing this was line 83).
