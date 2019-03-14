@@ -1,0 +1,12 @@
+Taxa: ['Cdec','Ceja','Cfus','Cgui','Cmam','Sgui',]
+Species Tree: (((Cfus,(Cdec,Ceja)),(Cmam,Cgui)),Sgui);
+Species Network: (((Cfus,(Cdec,(#H1:0::0.1,Ceja))),((Cmam)#H1:0::0.9,Cgui)),Sgui);
+Outgroup: Sgui
+Tree Invariant Followed By Network Invariants: [['AABABA','AABBAA'],['AABABA'],['AABBAA']]
+Tree Invariant Followed By Network Invariants: [['ABAABA','ABABAA','BAAABA','BAABAA'],['ABAABA'],['ABABAA'],['BAAABA'],['BAABAA']]
+Tree Invariant Followed By Network Invariants: [['ABABBA','BAABBA'],['ABABBA'],['BAABBA']]
+Tree Invariant Followed By Network Invariants: [['ABBAAA','BABAAA'],['ABBAAA'],['BABAAA']]
+Tree Invariant Followed By Network Invariants: [['ABBABA','ABBBAA','BABABA','BABBAA'],['ABBABA'],['ABBBAA'],['BABABA'],['BABBAA']]
+Tree Invariant Followed By Network Invariants: [['ABBBBA','BABBBA'],['ABBBBA'],['BABBBA']]
+Tree Invariant Followed By Network Invariants: [['BBAABA','BBABAA'],['BBAABA'],['BBABAA']]
+Tree Invariant Followed By Network Invariants: [['BBBABA','BBBBAA'],['BBBABA'],['BBBBAA']]

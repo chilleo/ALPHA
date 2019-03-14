@@ -2,6 +2,7 @@ from PyQt4 import QtCore
 
 from sys import *
 import os
+import subprocess
 
 # if platform == 'win32':
 #     path.insert(0, "../CommandLineFiles")
@@ -10,6 +11,9 @@ import os
 
 # import CalculateGeneralizedDStatistic
 import sys
+
+from CommandLineFiles.RunDGEN import run_saved_dgen, Create_Network_Helper
+
 sys.path.append('..\\')
 
 from CommandLineFiles import CalculateGeneralizedDStatistic
@@ -30,15 +34,80 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
 
     def calculate_generalized(self, alignments, species_tree=None, reticulations=None, outgroup=None, window_size=100000000000,
                           window_offset=100000000000, verbose=False, alpha=0.01, use_inv=False, useDir=False,
-                 directory="", statistic=False, save=False,  f="DGenStatistic_", plot=False, meta=False):
+                 directory="", statistic=False, save=False,  f="DGenStatistic_", plot=False, meta=False, useAlreadyGeneratedStat=True):
 
         self.emit(QtCore.SIGNAL('GEN_D_10'))
 
-        alignments_to_d_resized, alignments_to_windows_to_d, standard_o, verbose_o = CalculateGeneralizedDStatistic.calculate_generalized\
-            (alignments, species_tree, reticulations, outgroup, window_size, window_offset, verbose, alpha, use_inv,
-                                                             useDir, directory, statistic, save, f, plot, meta)
+        if(useAlreadyGeneratedStat == False): #generate a dgen stat
+            # run the java jar lines goes here
 
-        self.emit(QtCore.SIGNAL("L_FINISHED"), alignments_to_d_resized, alignments_to_windows_to_d, standard_o, verbose_o)
+            # FOR REFERENCE, THE ARGS AND JAVA COMMAND
+            # String treeString = args[0];
+            # String networkString = args[1];
+            # String outGroupName = args[2];
+            # String saveStatHere = args[3];
+            # int numberOfRandomRuns = Integer.parseInt(args[4]);
+            # GenerateDgenStatistic(treeString, networkString, outGroupName, saveStatHere, numberOfRandomRuns);
+
+            # Get the global path name to the jar file
+            dir_path = os.path.dirname(os.path.realpath(__file__))
+            jarPath = os.path.join(dir_path, "DGEN2.jar")
+
+            # Run PhyloNet dgen maker jar file
+            numberRandomRuns = 100
+            networkString = Create_Network_Helper(species_tree, reticulations, 0.9)
+            #species tree and network string need 's to work properly
+            species_tree = "'"+species_tree+"'"
+            networkString = "'"+networkString+"'"
+            jarRunOutput = subprocess.Popen("java -jar {0} {1} {2} {3} {4} {5}".format(jarPath, species_tree, networkString, outgroup, statistic, numberRandomRuns), stdout=subprocess.PIPE,
+                                 shell=True)
+
+            # Read output and convert to float
+            #pgtst = float(p.stdout.readline())
+
+
+        self.emit(QtCore.SIGNAL('GEN_D_50'))
+
+        #and then always run the statistic on data (just doing it this way for now to save time. could be chagned later to be slightly more user friendly. but also all users should want to analyze data probably)
+        #run the dstat. making temp variables just to keep clear on what is named what (cuz i am changing some things around without messing with some of the code rewriting)
+        runInVerboseMode = use_inv
+        saveResultsHere = f
+        resultsString = run_saved_dgen(statistic, alignments, window_size=window_size, window_offset=window_offset, verbose=runInVerboseMode, alpha=alpha)
+
+        #line here to save results string to file saveResultsHere (do i want to do this or just output to screen?
+        # If users want to save the statistic and speed up future runs
+        if len(saveResultsHere) > 0:
+            num = 0
+            file_name = saveResultsHere + ".txt"
+            while os.path.exists(file_name):
+                file_name = "DGenResults_{0}.txt".format(num)
+                num += 1
+
+            with open(file_name, "w") as text_file:
+                #output_str = "Taxa: {0}\n".format(taxa)
+                #text_file.write(output_str)
+                #output_str = "Statistic: {0}\n".format(generate_statistic_string((increase_resized, decrease_resized)))
+                #text_file.write(output_str)
+                text_file.write(resultsString)
+                text_file.close()
+
+        #put a line to either print results or to save em to a file. printing to screen done here
+        #self.emit(QtCore.SIGNAL('GEN_D_COMPLETE'))
+        self.emit(QtCore.SIGNAL('GEN_D_100'))
+        self.emit(QtCore.SIGNAL('DGEN2_FINISHED'), resultsString)
+
+        debugHere = 0
+
+        #run_saved_dgen(?,
+        #               ['/Users/leo/rice/res/data/cichlid/alignment/cichlid6tax.phylip-sequential.txt'],
+        #               verbose=True, plot='/Users/leo/rice/res/data/dgen/tmp/figC/plot_figCVerbose', meta='Dgen')
+
+        # OLD WAY
+        # alignments_to_d_resized, alignments_to_windows_to_d, standard_o, verbose_o = CalculateGeneralizedDStatistic.calculate_generalized\
+        #     (alignments, species_tree, reticulations, outgroup, window_size, window_offset, verbose, alpha, use_inv,
+        #                                                     useDir, directory, statistic, save, f, plot, meta)
+
+        # self.emit(QtCore.SIGNAL("L_FINISHED"), alignments_to_d_resized, alignments_to_windows_to_d, standard_o, verbose_o)
 
     def run(self):
         """
@@ -65,9 +134,10 @@ class CalculateGeneralizedDStatisticClass(QtCore.QThread):
                                    save=self.save,
                                    f=self.save_location,
                                    plot=self.plot,
-                                   meta=self.meta)
+                                   meta=self.meta,
+                                   useAlreadyGeneratedStat=self.useAlreadyGeneratedStat)
 
-        self.emit(QtCore.SIGNAL('GEN_D_COMPLETE'), None)
+        #self.emit(QtCore.SIGNAL('GEN_D_COMPLETE'), None)
 
 if __name__ == '__main__':
     gd = CalculateGeneralizedDStatisticClass()

@@ -161,9 +161,17 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.checkBoxCustomRaxml.stateChanged.connect(lambda: self.toggleEnabled(self.customRaxmlCommandEntry))
         self.checkboxSpeciesTreeRooted.stateChanged.connect(lambda: self.toggleEnabled(self.speciesTreeOutGroupGroupBox))
         self.checkboxSpeciesTreeUseCustomRax.stateChanged.connect(lambda: self.toggleEnabled(self.speciesTreeRaxmlCommandEntry))
-        self.lStatisticFileCB.stateChanged.connect(lambda: self.toggleEnabled(self.lStatisticFileBtn))
-        self.lStatisticFileCB.stateChanged.connect(lambda: self.toggleEnabled(self.lStatisticFileEntry))
-        self.lStatisticFileCB.stateChanged.connect(lambda: self.toggleEnabled(self.lStatisticFileLabel))
+        # enable / disable save location (now you always have save location so commented)
+        #self.lStatisticFileCB.stateChanged.connect(lambda: self.toggleEnabled(self.lStatisticFileBtn))
+        #self.lStatisticFileCB.stateChanged.connect(lambda: self.toggleEnabled(self.lStatisticFileEntry))
+        #self.lStatisticFileCB.stateChanged.connect(lambda: self.toggleEnabled(self.lStatisticFileLabel))
+        # now these are enabled by default
+        self.lStatisticFileBtn.setEnabled(True)
+        self.lStatisticFileEntry.setEnabled(True)
+        self.lStatisticFileLabel.setEnabled(True)
+        #self.lStatistic.setText("Hi")
+        self.lStatisticFileCB.setChecked(True)
+
 
         self.heatmapGenerate.clicked.connect(self.generateHeatmap)
         self.generateFiguresBtn.clicked.connect(self.generateFigures)
@@ -281,10 +289,11 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.connect(self.reticulationScrollArea.verticalScrollBar(), QtCore.SIGNAL("rangeChanged(int,int)"), lambda: self.reticulationScrollArea.verticalScrollBar().setValue(self.reticulationScrollArea.verticalScrollBar().maximum()))
         self.connect(self.lAlignmentScrollArea.verticalScrollBar(), QtCore.SIGNAL("rangeChanged(int,int)"), lambda: self.lAlignmentScrollArea.verticalScrollBar().setValue(self.lAlignmentScrollArea.verticalScrollBar().maximum()))
 
-        self.runGenDStatBtn.clicked.connect(self.runGenD)
+        self.runGenDStatBtn.clicked.connect(self.runGenD2)
         self.connect(self.calcGenD, QtCore.SIGNAL('GEN_D_COMPLETE'), self.genDComplete)
         self.connect(self.calcGenD, QtCore.SIGNAL('GEN_D_10'), lambda: self.lProgressBar.setValue(10))
         self.connect(self.calcGenD, QtCore.SIGNAL('GEN_D_50'), lambda: self.lProgressBar.setValue(50))
+        self.connect(self.calcGenD, QtCore.SIGNAL('GEN_D_100'), lambda: self.lProgressBar.setValue(100))
 
         self.viewVerboseOutputBtn.clicked.connect(lambda: self.lOutputStacked.setCurrentIndex(1))
         self.viewRegularOutputBtn.clicked.connect(lambda: self.lOutputStacked.setCurrentIndex(0))
@@ -292,6 +301,8 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.lUseDirCB.stateChanged.connect(lambda: self.lAlignmentTypeStacked.setCurrentIndex(1 if self.lUseDirCB.isChecked() else 0))
 
         self.connect(self.calcGenD, QtCore.SIGNAL('L_FINISHED'), self.displayLStatistic)
+
+        self.connect(self.calcGenD, QtCore.SIGNAL('DGEN2_FINISHED'), self.displayDGEN2)
 
     # **************************** WELCOME PAGE **************************** #
 
@@ -354,8 +365,11 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             self.calcGenD.directory = self.lAlignmentDirEntry.text().encode('utf-8')
         self.calcGenD.statistic = False
 
+        #changed. now i always require the statistic save location, but i have a new bool to set
+        self.calcGenD.useAlreadyGeneratedStat = False
         if self.lStatisticFileCB.isChecked():
-            self.calcGenD.statistic = self.lStatisticFileEntry.text().encode('utf-8')
+            self.calcGenD.useAlreadyGeneratedStat = True
+        self.calcGenD.statistic = self.lStatisticFileEntry.text().encode('utf-8')
         self.calcGenD.generatePlot = self.generatePlotCB.isChecked()
 
         return True
@@ -375,6 +389,25 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             else:
                 # start raxml operations thread
                 self.calcGenD.start()
+
+    def runGenD2(self):
+
+
+        # if all error handling passes run RAxML
+        if self.genDValidInput():
+            # if rax has been run previously, ask the user to confirm that they want to rerun
+            if self.genDRunComplete:
+                rerun = self.question("Rerun Generalized D Statistic?", "Are you sure you want to rerun generalized d-statistic?")
+
+                # if the user selected the 'ok' button
+                if rerun == QtGui.QMessageBox.Yes:
+                    # start raxml operations thread
+                    self.calcGenD.start()
+            # if raxml hasn't been run before just run it
+            else:
+                # start raxml operations thread
+                self.calcGenD.start()
+
 
     def genDComplete(self):
         self.runGenDStatBtn.setText("Rerun")
@@ -549,6 +582,26 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
                     else:
                         sigVec.append(0)
                 self.lStatisticWindow = lStatisticWindow.LStatisticWindow(windows_to_lvals, sigVec)
+
+    def displayDGEN2(self, r):
+        self.regularOutputLabel.setText(str(r))
+        #self.verboseOutputLabel.setText(str(v))
+
+        # if self.calcGenD.generatePlot:
+        #     for dd in alignments_to_windows_to_d:
+        #         d = alignments_to_windows_to_d[dd]
+        #         windows_to_lvals = {}
+        #         sigVec = []
+        #         for i in d:
+        #             windows_to_lvals[i] = (d[i])[0]
+        #             if d[i][1]:
+        #                 sigVec.append(1)
+        #             else:
+        #                 sigVec.append(0)
+        #         self.lStatisticWindow = lStatisticWindow.LStatisticWindow(windows_to_lvals, sigVec)
+        #
+
+        #set progress bar to done
 
 
     # **************************** MS PAGE ****************************#
