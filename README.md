@@ -109,6 +109,10 @@ For further reading on the D Statistic and its usage see: \
 
 #### D-gen-statistic
 
+UPDATE 3/14/19:
+
+THE D GEN ALGORITHM AND GUI HAVE UNDERGONE A MAJOR OVERHAUL. THESE INSTRUCTIONS WILL BE UPDATED VERY SOON ALONGSIDE AN ACCOMPANYING PAPER DETAILING THE NEW ALGORITHM. THANK YOU FOR YOUR PATIENCE.
+
 ALPHA’s generalized D statistic has many different inputs to cover a range of user preferences. This section will go over each input and its usage in both the user interface and command line script.
 
 To run the command line version of the generalized D statistic cd into the CommandLineFiles directory and use the following command with one’s desired parameters. All possible parameters are listed below along with their default values for the command line script. Note: not all of these parameters can not be called at the same time.
