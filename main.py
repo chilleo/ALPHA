@@ -18,6 +18,7 @@ from module import bootstrapContraction as bc
 from module import msComparison as ms
 from module import plotter as p
 from module import CalculateGeneralizedDStatisticClass as gd
+from module import RunSW as sw
 
 class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
     def __init__(self, parent=None):
@@ -76,24 +77,26 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.plotter = p.Plotter()
         # create new instance of CalculateGeneralizedDStatisticClass class
         self.calcGenD = gd.CalculateGeneralizedDStatisticClass()
+        # create new instance of RunSW class
+        self.calcSW = sw.RunSW()
 
         self.topologyPlotter.num = None
 
         # ADD NEW PAGE INFORMATION BELOW
 
         # mapping from: windows --> page index
-        self.windows = {'welcomePage': 0, 'inputPageRax': 1, 'inputPageFileConverter': 2, 'inputPageMS': 3, 'inputPageDStatistic': 4, 'inputPageLStatistic': 5}
+        self.windows = {'welcomePage': 0, 'inputPageRax': 1, 'inputPageFileConverter': 2, 'inputPageMS': 3, 'inputPageDStatistic': 4, 'inputPageLStatistic': 5, 'inputPageSmoothWinds': 6}
         # mapping from: windows --> dictionary of page dimensions
-        self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 700, 'y': 700}, 'inputPageFileConverter': {'x': 459, 'y': 403}, 'inputPageMS': {'x': 600, 'y': 746}, 'inputPageDStatistic': {'x': 600, 'y': 600}, 'inputPageLStatistic': {'x': 800, 'y': 900}}
+        self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 700, 'y': 700}, 'inputPageFileConverter': {'x': 459, 'y': 403}, 'inputPageMS': {'x': 600, 'y': 746}, 'inputPageDStatistic': {'x': 600, 'y': 600}, 'inputPageLStatistic': {'x': 800, 'y': 900}, 'inputPageSmoothWinds': {'x': 759, 'y': 403}}
         # mapping from: windows --> dictionary of page dimensions
-        self.windowLocations = {'welcomePage': {'x': 600, 'y': 300}, 'inputPageRax': {'x': 500, 'y': 175}, 'inputPageFileConverter': {'x': 600, 'y': 300}, 'inputPageMS': {'x': 520, 'y': 100}, 'inputPageDStatistic': {'x': 500, 'y': 175}, 'inputPageLStatistic': {'x': 450, 'y': 75}}
+        self.windowLocations = {'welcomePage': {'x': 600, 'y': 300}, 'inputPageRax': {'x': 500, 'y': 175}, 'inputPageFileConverter': {'x': 600, 'y': 300}, 'inputPageMS': {'x': 520, 'y': 100}, 'inputPageDStatistic': {'x': 500, 'y': 175}, 'inputPageLStatistic': {'x': 450, 'y': 75}, 'inputPageSmoothWinds': {'x': 800, 'y': 300}}
         # mapping from: mode --> page
-        self.comboboxModes_to_windowNames = {'RAx_ML': 'inputPageRax', 'File Converter': 'inputPageFileConverter', 'MS Comparison': 'inputPageMS', 'D Statistic': 'inputPageDStatistic', 'Generalized D Statistic': 'inputPageLStatistic'}
+        self.comboboxModes_to_windowNames = {'RAx_ML': 'inputPageRax', 'File Converter': 'inputPageFileConverter', 'MS Comparison': 'inputPageMS', 'D Statistic': 'inputPageDStatistic', 'Generalized D Statistic': 'inputPageLStatistic', 'Smooth Winds': 'inputPageSmoothWinds'}
         # mapping from: mode --> menu action
-        self.comboboxModes_to_actionModes = {'RAx_ML': self.actionRax, 'File Converter': self.actionConverter, 'MS Comparison': self.actionMS, 'D Statistic': self.actionDStatistic, 'Generalized D Statistic': self.actionLStatistic}
+        self.comboboxModes_to_actionModes = {'RAx_ML': self.actionRax, 'File Converter': self.actionConverter, 'MS Comparison': self.actionMS, 'D Statistic': self.actionDStatistic, 'Generalized D Statistic': self.actionLStatistic, 'Smooth Winds': self.actionSmooth_Winds}
         # if users os is windows, use different sizes for each page
         if sys.platform == 'win32':
-            self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 925, 'y': 688}, 'inputPageFileConverter': {'x': 630, 'y': 375}, 'inputPageMS': {'x': 675, 'y': 815}, 'inputPageDStatistic': {'x': 600, 'y': 570}, 'inputPageLStatistic': {'x': 600, 'y': 570}}
+            self.windowSizes = {'welcomePage': {'x': 459, 'y': 245}, 'inputPageRax': {'x': 925, 'y': 688}, 'inputPageFileConverter': {'x': 630, 'y': 375}, 'inputPageMS': {'x': 675, 'y': 815}, 'inputPageDStatistic': {'x': 600, 'y': 570}, 'inputPageLStatistic': {'x': 600, 'y': 570}, 'inputPageSmoothWinds': {'x': 630, 'y': 375}}
 
         # ADD NEW PAGE INFORMATION ABOVE
 
@@ -147,6 +150,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         self.actionMS.triggered.connect(lambda: self.ensureSingleModeSelected(self.actionMS, 'inputPageMS'))
         self.actionDStatistic.triggered.connect(lambda: self.ensureSingleModeSelected(self.actionDStatistic, 'inputPageDStatistic'))
         self.actionLStatistic.triggered.connect(lambda: self.ensureSingleModeSelected(self.actionLStatistic, 'inputPageLStatistic'))
+        self.actionSmooth_Winds.triggered.connect(lambda: self.ensureSingleModeSelected(self.actionSmooth_Winds, 'inputPageSmoothWinds'))
 
         # triggers select file dialogs
         self.inputFileBtn.clicked.connect(lambda: self.getFileName(self.inputFileEntry))
@@ -304,6 +308,14 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
 
         self.connect(self.calcGenD, QtCore.SIGNAL('DGEN2_FINISHED'), self.displayDGEN2)
 
+        # **************************** SMOOTHWINDS PAGE **************************** #
+
+        # update progress bar
+        self.connect(self.calcSW, QtCore.SIGNAL('SW_UPDATE'), self.displaySW)
+
+        # button click
+        self.btnSmoothWinds.clicked.connect(self.runSW)
+
     # **************************** WELCOME PAGE **************************** #
 
     def initializeMode(self):
@@ -393,6 +405,7 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
     def runGenD2(self):
 
 
+
         # if all error handling passes run RAxML
         if self.genDValidInput():
             # if rax has been run previously, ask the user to confirm that they want to rerun
@@ -407,6 +420,20 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
             else:
                 # start raxml operations thread
                 self.calcGenD.start()
+
+    def runSW(self):
+
+        #get stuff
+
+        # get text stuff
+        self.calcSW.sequencePathText = self.entrySequencePath.text().encode('utf-8')
+        self.calcSW.sequenceLengthFloat = int(self.entrySequenceLength.text().encode('utf-8'))
+        self.calcSW.windowSizeFloat = int(self.entryWindowSize.text().encode('utf-8'))
+        self.calcSW.windowOffsetFloat = int(self.entryWindowOffset.text().encode('utf-8'))
+
+        # starts it
+        self.calcSW.start()
+
 
 
     def genDComplete(self):
@@ -602,6 +629,10 @@ class PhyloVisApp(QtGui.QMainWindow, gui.Ui_PhylogeneticVisualization):
         #
 
         #set progress bar to done
+
+    def displaySW(self, r):
+        self.showResultsSW.setText(str(r))
+
 
 
     # **************************** MS PAGE ****************************#
