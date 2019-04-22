@@ -302,9 +302,11 @@ def calculate_windows_to_DGEN(alignments, taxa_order, outgroup, list_of_tree_and
             # obs is Na and exp is Nt * |Na| / |Nt|
             chiSquared = 0
             dof = 0
+            cCardinality = 0
             for invariantIndex in range(0,len(list_of_tree_and_net_invariants)):
                 treeGroupSize = len(list_of_tree_and_net_invariants[invariantIndex][0])
                 treeGroupCount = list_of_tree_and_net_invariants_counts[invariantIndex][0]
+                cCardinality += 1
                 for oneNetInvariant in range(1,len(list_of_tree_and_net_invariants[invariantIndex])):
                     netGroupSize = len(list_of_tree_and_net_invariants[invariantIndex][oneNetInvariant])
                     netGroupCount = list_of_tree_and_net_invariants_counts[invariantIndex][oneNetInvariant]
@@ -316,6 +318,14 @@ def calculate_windows_to_DGEN(alignments, taxa_order, outgroup, list_of_tree_and
                         chiSquared = 0.0
 
                     dof += 1
+
+            #final dof is one less than this total (woops >.<)
+            #dof = dof - 1 (not any more, totally changing the formulation now based on luays comments)
+
+            #newest sum|Y| - |C| DoF calc. at this point in the code, dof stores the sum|Y| value
+            #so i have made a new variable for |C| and i just take the difference
+            dof = dof - cCardinality
+
 
             # determine if the chisquared is significant. ALSO NOTE - dispensing with the 'd value' and just looking at chiSq and pval
 

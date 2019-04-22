@@ -17,7 +17,8 @@ fileToRead = paste(figsPath,"fig3/fig_fig3.txt",sep="")
 values = read.csv(fileToRead, header=TRUE)
 
 #command line with saving?
-myPlot <- ggerrorplot(values, x = "Migration.Rate", y = "p.Value", xlab = "Migration Rate", ylab = "p Value",
+#plus weird expression stuff to make migration rate not look bolded
+myPlot <- ggerrorplot(values, x = "Migration.Rate", y = "p.Value", xlab = expression(paste("Migration ","Rate")), ylab = expression(paste(italic("p"),"-value")),
                       desc_stat = "mean_sd", color = "black", 
                       add = "jitter", add.params = list(color = "darkgray"),font.x = c(24, "bold", "black"),font.y = c(24, "bold", "black"),font.tickslab = c(18,"bold", "black")
 )
@@ -34,7 +35,8 @@ test_vals <- test_valuesBars$x
 names(test_vals) <- test_valuesBars$Group.1
 pdf(paste(paperPath,"fig_fig3b.pdf",sep=""))
 par(mar=c(5,6,4,1)+.1) #fix left cutoff
-barplot(test_vals,xlab = "Migration Rate", ylab="Number Of Significant p Values",cex.axis=1.7,cex.names=1.2,cex.lab=2.2)
+#par(mar=c(7,6,6,1)+.1) #added some bottom and top to fit long y axis title (not working)
+barplot(test_vals,xlab = "Migration Rate", ylab="Introgression Detected (# Data Sets)",cex.axis=1.7,cex.names=1.2,cex.lab=2.2)
 dev.off()
 
 
@@ -48,7 +50,7 @@ myPlot <- ggerrorplot(values, x = "Migration.Rate", y = "p.Value", xlab = "Migra
                       desc_stat = "mean_sd", color = "black", 
                       add = "jitter", add.params = list(color = "darkgray"),font.x = c(24, "bold", "black"),font.y = c(24, "bold", "black"),font.tickslab = c(18,"bold", "black")
 )
-ggsave(filename=paste(paperPath,"fig_fig4b.pdf",sep=""), plot=myPlot)
+ggsave(filename=paste(paperPath,"fig_fig4b.pdf",sep=""), plot=myPlot,width=6.5)
 
 ###
 # wabi fig 4c updated dgen
@@ -99,6 +101,10 @@ dev.off()
 fileToRead = paste(figsPath,"fig7/fig_fig7.txt",sep="")
 values = read.csv(fileToRead, header=TRUE)
 
+#do a lil renaming
+values[,2] = gsub("Dgen", "DGEN", values[,2])
+values[,2] = gsub("Dstat", "D-statistic", values[,2])
+
 #ive decided just to show dgen p values since it might be kinda confusing with both (values[2]==" Dgen")
 #values = values[1:10,] " Dgen" #only do dgen ones, should always be just 1:10 how i currently have the code working
 #values = values[values[2]==" Dgen",] #more precise way to do it just in case
@@ -110,7 +116,24 @@ myPlot <- ggerrorplot(values, x = "Statistic", y = "D.or.p.Value", ylab = "Dgen 
 ggsave(filename=paste(paperPath,"fig_fig7b.pdf",sep=""), plot=myPlot)
 
 
+###
+# wabi fig 7 NEW S3 EMBEDDING SCENARIO updated dgen
+###
+fileToRead = paste(figsPath,"fig7b/fig_fig7b.txt",sep="")
+test_values = read.csv(fileToRead, header=TRUE)
 
+#do a lil renaming
+test_values[,2] = gsub("Dgen", "DGEN", test_values[,2])
+test_values[,2] = gsub("Dstat", "D-statistic", test_values[,2])
+
+test_valuesBars = aggregate(as.integer(trimws(test_values$Significant)=="TRUE"), by=list(test_values$Statistic), FUN=sum)
+test_vals <- test_valuesBars$x
+names(test_vals) <- test_valuesBars$Group.1
+pdf(paste(paperPath,"fig_fig7cNewNetWithS3.pdf",sep=""))
+par(mar=c(5,6,4,1)+.1) #fix left cutoff
+barplot(test_vals,xlab = "Statistic Type", ylab="Number Of Significant p Values",cex.axis=1.7,cex.names=1.2,cex.lab=2.2)
+#, ylim=c(0,20)
+dev.off()
 
 
 ###
@@ -119,6 +142,11 @@ ggsave(filename=paste(paperPath,"fig_fig7b.pdf",sep=""), plot=myPlot)
 
 fileToRead = paste(figsPath,"fig7/fig_fig7.txt",sep="")
 test_values = read.csv(fileToRead, header=TRUE)
+
+#do a lil renaming
+test_values[,2] = gsub("Dgen", "DGEN", test_values[,2])
+test_values[,2] = gsub("Dstat", "D-statistic", test_values[,2])
+
 test_valuesBars = aggregate(as.integer(trimws(test_values$Significant)=="TRUE"), by=list(test_values$Statistic), FUN=sum)
 test_vals <- test_valuesBars$x
 names(test_vals) <- test_valuesBars$Group.1
@@ -134,9 +162,10 @@ dev.off()
 fileToRead = "/Users/leo/rice/res/ALPHA/wabiFinal-ALPHA-master/CommandLineFiles/fig_4taxViolations.txt"
 values = read.csv(fileToRead, header=TRUE)
 
+#added weird expression stuff to have italicized D
 myPlot <- ggerrorplot(values, x = "Scenario", y = "D.Value", 
                       desc_stat = "mean_sd", color = "black", 
-                      add = "jitter", add.params = list(color = "darkgray"),font.x = c(24, "bold", "black"),font.y = c(24, "bold", "black"),font.tickslab = c(18,"bold", "black")
+                      add = "jitter", add.params = list(color = "darkgray"),font.x = c(24, "bold", "black"),font.y = c(24, "bold", "black"),font.tickslab = c(18,"bold", "black"), ylab = expression(paste(italic("D")," value")), xlab = expression(paste("Scenario",""))
 )
 
 ggsave(filename=paste(paperPath,"fig_4taxViolations.pdf",sep=""), plot=myPlot)
