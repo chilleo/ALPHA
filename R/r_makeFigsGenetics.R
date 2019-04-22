@@ -38,6 +38,7 @@ par(mar=c(5,6,4,1)+.1) #fix left cutoff
 #par(mar=c(7,6,6,1)+.1) #added some bottom and top to fit long y axis title (not working)
 barplot(test_vals,xlab = "Migration Rate", ylab="Introgression Detected (# Data Sets)",cex.axis=1.7,cex.names=1.2,cex.lab=2.2)
 dev.off()
+test_vals # for excel plotting
 
 
 ###
@@ -116,24 +117,6 @@ myPlot <- ggerrorplot(values, x = "Statistic", y = "D.or.p.Value", ylab = "Dgen 
 ggsave(filename=paste(paperPath,"fig_fig7b.pdf",sep=""), plot=myPlot)
 
 
-###
-# wabi fig 7 NEW S3 EMBEDDING SCENARIO updated dgen
-###
-fileToRead = paste(figsPath,"fig7b/fig_fig7b.txt",sep="")
-test_values = read.csv(fileToRead, header=TRUE)
-
-#do a lil renaming
-test_values[,2] = gsub("Dgen", "DGEN", test_values[,2])
-test_values[,2] = gsub("Dstat", "D-statistic", test_values[,2])
-
-test_valuesBars = aggregate(as.integer(trimws(test_values$Significant)=="TRUE"), by=list(test_values$Statistic), FUN=sum)
-test_vals <- test_valuesBars$x
-names(test_vals) <- test_valuesBars$Group.1
-pdf(paste(paperPath,"fig_fig7cNewNetWithS3.pdf",sep=""))
-par(mar=c(5,6,4,1)+.1) #fix left cutoff
-barplot(test_vals,xlab = "Statistic Type", ylab="Number Of Significant p Values",cex.axis=1.7,cex.names=1.2,cex.lab=2.2)
-#, ylim=c(0,20)
-dev.off()
 
 
 ###
@@ -154,6 +137,31 @@ pdf(paste(paperPath,"fig_fig7c.pdf",sep=""))
 par(mar=c(5,6,4,1)+.1) #fix left cutoff
 barplot(test_vals,xlab = "Statistic Type", ylab="Number Of Significant p Values",cex.axis=1.7,cex.names=1.2,cex.lab=2.2)
 dev.off()
+test_vals #to make excel
+
+
+
+###
+# wabi fig 7 NEW S3 EMBEDDING SCENARIO updated dgen
+###
+fileToRead = paste(figsPath,"fig7b/fig_fig7b.txt",sep="")
+test_values = read.csv(fileToRead, header=TRUE)
+
+#do a lil renaming
+test_values[,2] = gsub("Dgen", "DGEN", test_values[,2])
+test_values[,2] = gsub("Dstat", "D-statistic", test_values[,2])
+
+test_valuesBars = aggregate(as.integer(trimws(test_values$Significant)=="TRUE"), by=list(test_values$Statistic), FUN=sum)
+test_vals <- test_valuesBars$x
+names(test_vals) <- test_valuesBars$Group.1
+pdf(paste(paperPath,"fig_fig7cNewNetWithS3.pdf",sep=""))
+par(mar=c(5,6,4,1)+.1) #fix left cutoff
+#barplot(test_vals,xlab = "Statistic Type", ylab="Number Of Significant p Values",cex.axis=1.7,cex.names=1.2,cex.lab=2.2)
+barplot(test_vals,xlab = "Statistic Type", ylab="Number Of Significant p Values",cex.axis=1.7,cex.names=1.2,cex.lab=2.2, ylim=c(0,20))
+dev.off()
+test_vals #to make excel
+
+
 
 
 ####
