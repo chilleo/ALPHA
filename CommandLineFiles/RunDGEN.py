@@ -283,6 +283,13 @@ def calculate_windows_to_DGEN(alignments, taxa_order, outgroup, list_of_tree_and
                 elif bases.issubset(possibleBases) == False:
                     num_ignored += 1
 
+                #final catch all else for ignored sites (forgot to add back in check for non biallelic (they were ignored but not counted in verbose output. this line now properly counts them for verbose mode))
+                #includes also sites that only have all A's or whatever, basically anything non strictly biallelic
+                else:
+                    num_ignored += 1
+
+                #should i add count here for sites that specifically violate biallelic as in 3 or 4 dif letters? (len(bases)>2)?
+
                 # Increment the site index
                 site_idx += 1
 
@@ -296,6 +303,9 @@ def calculate_windows_to_DGEN(alignments, taxa_order, outgroup, list_of_tree_and
                         groupCount += pattern_count_map[aPattern]
                     lineAdd.append(groupCount)
                 list_of_tree_and_net_invariants_counts.append(lineAdd)
+
+            #for debugging, how many sites are actually observed that go into the observed calculations?
+
 
             # calculate new version of chi squared test
             # chi squared = sum of (obs - exp)^2 / exp
