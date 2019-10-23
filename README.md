@@ -7,6 +7,7 @@
       - [MS Comparison](#ms-comparison)
       - [D-statistic](#d-statistic)
       - [Generalized D-statistic](#d-gen-statistic)
+      - [Smooth Winds](#smooth-winds)
     - [Output Files](#output-files)
 - [Installation](#installation)
    - [Mac Installation](#mac-instructions)
@@ -182,6 +183,13 @@ Meta:
 	GUI - this feature is not available in the ALPHA GUI.
 
 Finally, if you have already generated and saved a DGEN statistic, simply launch the dgen tool and select an alignment you wish to analyze. Then select the "Load Previously Generated Statistic" checkbox along with selecting the statistic file itself at the location it has been saved on your computer. Then set the window size and offset and optionally change the alpha significance cutoff parameter. To see a graphical output of a plot of the generalized D value versus the windows along the alignment, simply check the "generate plot" checkbox.
+
+
+#### Smooth-Winds
+
+UPDATE 4/44/19:
+
+The Smooth Winds page has been created with an accompanying command line script. This documentation will be soon updated alongside a companion publication. Thank you for your patience in the mean time.
 
 ### Output Files
 
